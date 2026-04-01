@@ -2,25 +2,31 @@ require('dotenv').config();
 const mysql = require('mysql2/promise');
 
 // Configuration for both initial check and app connection
-const dbConfig = process.env.DATABASE_URL 
+// Configuration preference: Individual fields > DATABASE_URL
+const useUri = process.env.DATABASE_URL && !process.env.DB_HOST;
+
+const dbConfig = useUri 
   ? { uri: process.env.DATABASE_URL } 
   : {
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
+      port: process.env.DB_PORT || 26345,
     };
 
-// Initial connection to check/ensure DB (no DB name in URI if creating)
+// Initial connection to check/ensure DB
 const poolWithoutDB = mysql.createPool({
   ...dbConfig,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  connectTimeout: 10000 
 });
 
 // App connection pool
 const db = mysql.createPool({
   ...dbConfig,
   ssl: { rejectUnauthorized: false },
+  connectTimeout: 10000,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
