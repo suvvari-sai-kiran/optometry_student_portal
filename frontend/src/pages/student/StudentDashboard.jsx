@@ -418,58 +418,18 @@ export default function StudentDashboard() {
           );
         })}
 
-        {/* Level Up CTA Section */}
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '4rem 2rem', 
-          background: 'radial-gradient(circle at center, rgba(79, 70, 229, 0.1), transparent 70%)',
-          borderRadius: '30px',
-          border: '1px dashed rgba(255,255,255,0.1)'
-        }}>
-          <div style={{ 
-            background: 'rgba(16, 185, 129, 0.1)', 
-            width: '60px', 
-            height: '60px', 
-            borderRadius: '50%', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            margin: '0 auto 1.5rem' 
-          }}>
-            <Award size={32} color="var(--secondary)" />
-          </div>
-          <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Preparation Complete!</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '2.5rem', maxWidth: '500px', margin: '0 auto 2.5rem' }}>
-            You've reviewed all the required material. Ready to test your knowledge and claim your score?
-          </p>
-          
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem' }}>
-            <button 
-               className="btn btn-secondary" 
-               onClick={() => {
-                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                 setView('tests');
-               }}
-               style={{ padding: '0.8rem 2rem' }}
-            >
-              Review Modules
-            </button>
-            <button 
-              className="btn btn-primary"
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                startTest(selectedTest);
-              }}
-              style={{ 
-                padding: '0.8rem 3rem', 
-                fontSize: '1.1rem',
-                background: 'var(--secondary)',
-                boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.4)'
-              }}
-            >
-              Start Module Test <CheckCircle size={20} style={{ marginLeft: '0.75rem' }} />
-            </button>
-          </div>
+        {/* Return Button */}
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <button 
+             className="btn btn-secondary" 
+             onClick={() => {
+               window.scrollTo({ top: 0, behavior: 'smooth' });
+               setView('tests');
+             }}
+             style={{ padding: '0.8rem 2rem' }}
+          >
+            <ChevronLeft size={18} style={{ marginRight: '0.5rem', display: 'inline' }} /> Return to Modules
+          </button>
         </div>
       </div>
     );
