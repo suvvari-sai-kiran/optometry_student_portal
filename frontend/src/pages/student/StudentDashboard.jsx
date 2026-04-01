@@ -477,19 +477,19 @@ export default function StudentDashboard() {
 
   return (
     <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h2>Student Portal</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Welcome, {user.name || 'Student'}</p>
+      <header style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+        <div style={{ flex: '1 1 200px' }}>
+          <h2 style={{ margin: 0 }}>Student Portal</h2>
+          <p style={{ color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>Welcome, {user.name || 'Student'}</p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-           <button className="btn btn-secondary" onClick={() => navigate('/qna')}>
+        <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', flex: '1 1 300px' }}>
+           <button className="btn btn-secondary" style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', whiteSpace: 'nowrap', padding: '0.6rem 1rem' }} onClick={() => navigate('/qna')}>
             <MessageCircle size={18} style={{ marginRight: '0.5rem' }} /> Q&A Forum
           </button>
-          <button className="btn btn-secondary" onClick={() => navigate('/formulas')}>
+          <button className="btn btn-secondary" style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', whiteSpace: 'nowrap', padding: '0.6rem 1rem' }} onClick={() => navigate('/formulas')}>
             <Calculator size={18} style={{ marginRight: '0.5rem' }} /> Formulas
           </button>
-          <button className="btn btn-secondary" onClick={handleLogout}>
+          <button className="btn btn-secondary" style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', whiteSpace: 'nowrap', padding: '0.6rem 1rem' }} onClick={handleLogout}>
             <LogOut size={18} style={{ marginRight: '0.5rem' }} /> Logout
           </button>
         </div>

@@ -316,14 +316,16 @@ export default function AdminDashboard() {
 
   return (
     <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h2>Admin Dashboard</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Welcome back, Dr. {user.name || 'Admin'}</p>
+      <header style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+        <div style={{ flex: '1 1 200px' }}>
+          <h2 style={{ margin: 0 }}>Admin Dashboard</h2>
+          <p style={{ color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>Welcome back, Dr. {user.name || 'Admin'}</p>
         </div>
-        <button className="btn btn-secondary" onClick={handleLogout}>
-          <LogOut size={18} style={{ marginRight: '0.5rem' }} /> Logout
-        </button>
+        <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
+          <button className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', padding: '0.6rem 1rem' }} onClick={handleLogout}>
+            <LogOut size={18} style={{ marginRight: '0.5rem' }} /> Logout
+          </button>
+        </div>
       </header>
 
       {view === 'courses' && renderCoursesView()}
