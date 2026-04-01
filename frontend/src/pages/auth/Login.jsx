@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Eye, Mail, Lock } from 'lucide-react';
+import { Eye, Mail, Lock, Download } from 'lucide-react';
 import BASE_URL from '../../api/config';
 
 export default function Login() {
@@ -10,6 +10,35 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // PWA Install State
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    // Check if the prompt was already stashed before component mounted
+    if (window.deferredPrompt) {
+      setIsInstallable(true);
+    }
+    
+    // Listen for the custom event or native event
+    const handleInstallable = (e) => {
+      setIsInstallable(true);
+    };
+    
+    window.addEventListener('app-installable', handleInstallable);
+    return () => window.removeEventListener('app-installable', handleInstallable);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (window.deferredPrompt) {
+      window.deferredPrompt.prompt();
+      const { outcome } = await window.deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstallable(false);
+      }
+      window.deferredPrompt = null;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +64,7 @@ export default function Login() {
   };
 
   return (
-    <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+    <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '1rem' }}>
       <div className="glass-card" style={{ padding: '2.5rem', width: '100%', maxWidth: '400px' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <Eye size={48} color="var(--primary)" style={{ marginBottom: '1rem' }} />
@@ -79,6 +108,18 @@ export default function Login() {
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
           Don't have an account? <Link to="/register" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Register</Link>
         </p>
+
+        {isInstallable && (
+          <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+            <button 
+              onClick={handleInstallClick}
+              className="btn btn-secondary" 
+              style={{ width: '100%', background: 'var(--success)', color: 'white', padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+            >
+              <Download size={18} /> Download App
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

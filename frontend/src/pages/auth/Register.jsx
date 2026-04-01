@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { User, Mail, Lock } from 'lucide-react';
+import { User, Mail, Lock, Download } from 'lucide-react';
 import BASE_URL from '../../api/config';
 
 export default function Register() {
@@ -9,6 +9,35 @@ export default function Register() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // PWA Install State
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    // Check if the prompt was already stashed before component mounted
+    if (window.deferredPrompt) {
+      setIsInstallable(true);
+    }
+    
+    // Listen for the custom event or native event
+    const handleInstallable = (e) => {
+      setIsInstallable(true);
+    };
+    
+    window.addEventListener('app-installable', handleInstallable);
+    return () => window.removeEventListener('app-installable', handleInstallable);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (window.deferredPrompt) {
+      window.deferredPrompt.prompt();
+      const { outcome } = await window.deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstallable(false);
+      }
+      window.deferredPrompt = null;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +70,7 @@ export default function Register() {
   };
 
   return (
-    <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+    <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '1rem' }}>
       <div className="glass-card" style={{ padding: '2.5rem', width: '100%', maxWidth: '400px' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2>Create Account</h2>
@@ -91,6 +120,18 @@ export default function Register() {
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
           Already have an account? <Link to="/login" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Login</Link>
         </p>
+        
+        {isInstallable && (
+          <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+            <button 
+              onClick={handleInstallClick}
+              className="btn btn-secondary" 
+              style={{ width: '100%', background: 'var(--success)', color: 'white', padding: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+            >
+              <Download size={18} /> Download App
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

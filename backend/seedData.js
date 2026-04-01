@@ -7,66 +7,66 @@ const seedData = async () => {
       {
         course: "Low Vision",
         tests: [
-          { title: "Visual Acuity Assessment Test", videoUrl: "/videos/lowvision/visual-acuity.mp4" },
-          { title: "Contrast Sensitivity Test", videoUrl: "/videos/lowvision/contrast-sensitivity.mp4" },
-          { title: "Amsler Grid Test", videoUrl: "/videos/lowvision/amsler-grid.mp4" },
-          { title: "Visual Field Testing", videoUrl: "/videos/lowvision/visual-field.mp4" },
-          { title: "Low Vision Aids Identification", videoUrl: "" },
-          { title: "Magnification Calculation Test", videoUrl: "" },
-          { title: "Illumination & Glare Assessment", videoUrl: "" },
-          { title: "Functional Vision Assessment", videoUrl: "" }
+          { title: "Visual Acuity Assessment Test", videoUrl: "https://www.youtube-nocookie.com/embed/0DUncwFDvlw" },
+          { title: "Contrast Sensitivity Test", videoUrl: "https://www.youtube-nocookie.com/embed/1nc8Jp7o3_0" },
+          { title: "Amsler Grid Test", videoUrl: "https://www.youtube-nocookie.com/embed/mZH0Cm2MagY" },
+          { title: "Visual Field Testing", videoUrl: "https://www.youtube-nocookie.com/embed/ETIp8kZPoBw" },
+          { title: "Low Vision Aids Identification", videoUrl: "https://www.youtube-nocookie.com/embed/YsfN6MNAT6k" },
+          { title: "Magnification Calculation Test", videoUrl: "https://www.youtube-nocookie.com/embed/AlVxX7JSwgw" },
+          { title: "Illumination & Glare Assessment", videoUrl: "https://www.youtube-nocookie.com/embed/dSieW48NfMs" },
+          { title: "Functional Vision Assessment", videoUrl: "https://www.youtube-nocookie.com/embed/WCsKtRlskKA" }
         ]
       },
       {
         course: "Contact Lens (CL)",
         tests: [
-          { title: "Keratometry Reading Test", videoUrl: "/videos/cl/keratometry.mp4" },
-          { title: "Contact Lens Power Calculation", videoUrl: "" },
-          { title: "Base Curve Selection Test", videoUrl: "" },
-          { title: "Lens Fitting Assessment", videoUrl: "/videos/cl/lens-fitting.mp4" },
-          { title: "Tear Film Evaluation", videoUrl: "/videos/cl/tear-film.mp4" },
-          { title: "Slit Lamp Examination (CL)", videoUrl: "/videos/cl/slit-lamp.mp4" },
-          { title: "RGP vs Soft Lens Identification", videoUrl: "" },
-          { title: "Contact Lens Complications Test", videoUrl: "" }
+          { title: "Keratometry Reading Test", videoUrl: "https://www.youtube-nocookie.com/embed/vkcM6M3CxAc" },
+          { title: "Contact Lens Power Calculation", videoUrl: "https://www.youtube-nocookie.com/embed/H2WSsOK-3Nc" },
+          { title: "Base Curve Selection Test", videoUrl: "https://www.youtube-nocookie.com/embed/35FvBuwhi5Q" },
+          { title: "Lens Fitting Assessment", videoUrl: "https://www.youtube-nocookie.com/embed/m_U-zwBQKjA" },
+          { title: "Tear Film Evaluation", videoUrl: "https://www.youtube-nocookie.com/embed/HAZ5vAI_PLY" },
+          { title: "Slit Lamp Examination (CL)", videoUrl: "https://www.youtube-nocookie.com/embed/1RwP94Vh6DI" },
+          { title: "RGP vs Soft Lens Identification", videoUrl: "https://www.youtube-nocookie.com/embed/JpFBQEtYhaw" },
+          { title: "Contact Lens Complications Test", videoUrl: "https://www.youtube-nocookie.com/embed/y_LGksM93ZM" }
         ]
       },
       {
         course: "Dispensing Optics",
         tests: [
-          { title: "Frame Selection Test", videoUrl: "/videos/dispensing/frame-selection.mp4" },
-          { title: "Lens Type Identification", videoUrl: "/videos/dispensing/lens-types.mp4" },
-          { title: "Pupillary Distance Measurement", videoUrl: "/videos/dispensing/pd-measurement.mp4" },
-          { title: "Optical Center Alignment", videoUrl: "" },
-          { title: "Lens Thickness Calculation", videoUrl: "" },
-          { title: "Frame Adjustment Techniques", videoUrl: "" },
-          { title: "Prescription Interpretation", videoUrl: "" },
-          { title: "Lens Material Comparison", videoUrl: "" }
+          { title: "Frame Selection Test", videoUrl: "https://www.youtube-nocookie.com/embed/WeKk39XaXoo" },
+          { title: "Lens Type Identification", videoUrl: "https://www.youtube-nocookie.com/embed/Sy9R0fjdjr0" },
+          { title: "Pupillary Distance Measurement", videoUrl: "https://www.youtube-nocookie.com/embed/cYjQMpVcyoI" },
+          { title: "Optical Center Alignment", videoUrl: "https://www.youtube-nocookie.com/embed/ArFjMb1zSKw" },
+          { title: "Lens Thickness Calculation", videoUrl: "https://www.youtube-nocookie.com/embed/x4CtvAJ7BV8" },
+          { title: "Frame Adjustment Techniques", videoUrl: "https://www.youtube-nocookie.com/embed/pf-PVywpA1g" },
+          { title: "Prescription Interpretation", videoUrl: "https://www.youtube-nocookie.com/embed/szyjbaPBCC0" },
+          { title: "Lens Material Comparison", videoUrl: "https://www.youtube-nocookie.com/embed/vPLgzFnzcUQ" }
         ]
       },
       {
         course: "Binocular Vision (BV)",
         tests: [
-          { title: "Cover Test (Tropia/Phoria)", videoUrl: "/videos/bv/cover-test.mp4" },
-          { title: "Near Point of Convergence (NPC)", videoUrl: "/videos/bv/npc.mp4" },
-          { title: "Prism Bar Test", videoUrl: "/videos/bv/prism-bar.mp4" },
-          { title: "Worth Four Dot Test", videoUrl: "/videos/bv/worth-dot.mp4" },
-          { title: "Stereopsis Test", videoUrl: "" },
-          { title: "Vergence Testing", videoUrl: "" },
-          { title: "Accommodation-Convergence Test", videoUrl: "" },
-          { title: "Ocular Motility Test", videoUrl: "" }
+          { title: "Cover Test (Tropia/Phoria)", videoUrl: "https://www.youtube-nocookie.com/embed/MAmrkSrKIcU" },
+          { title: "Near Point of Convergence (NPC)", videoUrl: "https://www.youtube-nocookie.com/embed/ygRvzMWw-0A" },
+          { title: "Prism Bar Test", videoUrl: "https://www.youtube-nocookie.com/embed/jjHKSJPKgJQ" },
+          { title: "Worth Four Dot Test", videoUrl: "https://www.youtube-nocookie.com/embed/3P7cS2o_94c" },
+          { title: "Stereopsis Test", videoUrl: "https://www.youtube-nocookie.com/embed/los_D5ptHvU" },
+          { title: "Vergence Testing", videoUrl: "https://www.youtube-nocookie.com/embed/98B-hP7korM" },
+          { title: "Accommodation-Convergence Test", videoUrl: "https://www.youtube-nocookie.com/embed/yr196TKH0JI" },
+          { title: "Ocular Motility Test", videoUrl: "https://www.youtube-nocookie.com/embed/MsBDVW-gdF0" }
         ]
       },
       {
         course: "Refraction",
         tests: [
-          { title: "Objective Refraction (Retinoscopy)", videoUrl: "/videos/refraction/retinoscopy.mp4" },
-          { title: "Subjective Refraction Test", videoUrl: "/videos/refraction/subjective.mp4" },
-          { title: "Spherical Power Determination", videoUrl: "" },
-          { title: "Cylindrical Axis Refinement", videoUrl: "" },
-          { title: "Jackson Cross Cylinder Test", videoUrl: "/videos/refraction/jcc.mp4" },
-          { title: "Duochrome Test", videoUrl: "/videos/refraction/duochrome.mp4" },
-          { title: "Near Vision Testing", videoUrl: "" },
-          { title: "Autorefractometer Reading", videoUrl: "" }
+          { title: "Objective Refraction (Retinoscopy)", videoUrl: "https://www.youtube-nocookie.com/embed/VGKaQlZBKGg" },
+          { title: "Subjective Refraction Test", videoUrl: "https://www.youtube-nocookie.com/embed/eiXQiZ1GjaU" },
+          { title: "Spherical Power Determination", videoUrl: "https://www.youtube-nocookie.com/embed/BZyFnJXshJM" },
+          { title: "Cylindrical Axis Refinement", videoUrl: "https://www.youtube-nocookie.com/embed/zK5hydIBHAw" },
+          { title: "Jackson Cross Cylinder Test", videoUrl: "https://www.youtube-nocookie.com/embed/BsLBIbwSRS0" },
+          { title: "Duochrome Test", videoUrl: "https://www.youtube-nocookie.com/embed/TD23ha-1gXY" },
+          { title: "Near Vision Testing", videoUrl: "https://www.youtube-nocookie.com/embed/anIdC5j_KPs" },
+          { title: "Autorefractometer Reading", videoUrl: "https://www.youtube-nocookie.com/embed/Qc0vXt3uwD8" }
         ]
       }
     ];
