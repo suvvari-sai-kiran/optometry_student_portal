@@ -18,8 +18,8 @@ exports.handleChat = async (req, res) => {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Try multiple model names for robustness
-    const modelNames = ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-2.0-flash"];
+    // Try multiple model names for robustness (Added 3.1 and 2.0 variants)
+    const modelNames = ["gemini-3.1-flash-l", "gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-8b", "gemini-pro"];
     let model;
     let lastError;
 
