@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { User, Mail, Lock } from 'lucide-react';
+import BASE_URL from '../../api/config';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function Register() {
     setError('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const res = await axios.post(`${BASE_URL}/api/auth/register`, formData);
       const { token, user } = res.data;
       
       // Store auth data directly for immediate login

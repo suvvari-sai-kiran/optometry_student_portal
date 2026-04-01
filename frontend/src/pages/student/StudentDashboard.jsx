@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LogOut, PlayCircle, Eye, Calculator, ChevronLeft, MessageCircle, ExternalLink, CheckCircle, Info, Award } from 'lucide-react';
+import BASE_URL from '../../api/config';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function StudentDashboard() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/student/courses');
+      const res = await axios.get(`${BASE_URL}/api/student/courses`);
       setCourses(res.data);
     } catch (e) {
       console.error(e);
@@ -39,7 +40,7 @@ export default function StudentDashboard() {
 
   const openCourse = async (course) => {
     try {
-      const res = await axios.get("http://localhost:5000/api/student/courses/" + course.id + "/tests");
+      const res = await axios.get(`${BASE_URL}/api/student/courses/${course.id}/tests`);
       setSelectedCourse(course);
       setTests(res.data);
       setView('tests');
@@ -57,7 +58,7 @@ export default function StudentDashboard() {
 
   const startTest = async (test) => {
     try {
-      const res = await axios.get("http://localhost:5000/api/student/tests/" + test.id + "/questions");
+      const res = await axios.get(`${BASE_URL}/api/student/tests/${test.id}/questions`);
       setSelectedTest(test);
       setQuestions(res.data);
       setAnswers({});
@@ -80,7 +81,7 @@ export default function StudentDashboard() {
     });
 
     try {
-      await axios.post('http://localhost:5000/api/student/tests/submit', {
+      await axios.post(`${BASE_URL}/api/student/tests/submit`, {
         userId: user.id,
         testId: selectedTest.id,
         score,

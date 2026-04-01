@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { ShieldCheck } from 'lucide-react';
+import BASE_URL from '../../api/config';
 
 export default function VerifyOtp() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function VerifyOtp() {
     setError('');
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/verify-otp', { email, otp });
+      const { data } = await axios.post(`${BASE_URL}/api/auth/verify-otp`, { email, otp });
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       

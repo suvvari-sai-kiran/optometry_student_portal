@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Bot } from 'lucide-react';
 
 import axios from 'axios';
+import BASE_URL from '../api/config';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +30,7 @@ export default function Chatbot() {
     setIsTyping(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/chat", { messages: newMsgs });
+      const res = await axios.post(`${BASE_URL}/api/chat`, { messages: newMsgs });
       setMessages([...newMsgs, { role: 'assistant', text: res.data.reply }]);
     } catch (e) {
       console.error(e);

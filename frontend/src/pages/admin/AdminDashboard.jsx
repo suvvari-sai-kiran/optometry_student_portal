@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LogOut, BookOpen, Plus, FileText, Trash, ChevronLeft, HelpCircle } from 'lucide-react';
+import BASE_URL from '../../api/config';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/stats');
+      const res = await axios.get(`${BASE_URL}/api/admin/stats`);
       setStats(res.data);
     } catch (e) {
       console.error(e);
@@ -44,7 +45,7 @@ export default function AdminDashboard() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/courses');
+      const res = await axios.get(`${BASE_URL}/api/admin/courses`);
       setCourses(res.data);
     } catch (e) {
       console.error(e);
@@ -61,7 +62,7 @@ export default function AdminDashboard() {
   const handleAddCourse = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/courses', courseForm);
+      await axios.post(`${BASE_URL}/api/admin/courses`, courseForm);
       setShowCourseForm(false);
       setCourseForm({ title: '', description: '', thumbnailUrl: '' });
       fetchCourses();
@@ -74,7 +75,7 @@ export default function AdminDashboard() {
   const handleDeleteCourse = async (id) => {
     if (!window.confirm("Delete course and all its tests?")) return;
     try {
-      await axios.delete("http://localhost:5000/api/admin/courses/" + id);
+      await axios.delete(`${BASE_URL}/api/admin/courses/${id}`);
       fetchCourses();
       fetchStats();
     } catch (e) { alert("Error deleting course"); }
@@ -84,7 +85,7 @@ export default function AdminDashboard() {
   const handleAddTest = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/tests', { ...testForm, courseId: selectedCourse.id });
+      await axios.post(`${BASE_URL}/api/admin/tests`, { ...testForm, courseId: selectedCourse.id });
       setShowTestForm(false);
       setTestForm({ title: '', videoUrl: '' });
       fetchCourses(); // re-fetch courses to get updated tests
@@ -101,7 +102,7 @@ export default function AdminDashboard() {
   const handleDeleteTest = async (id) => {
     if (!window.confirm("Delete test?")) return;
     try {
-      await axios.delete("http://localhost:5000/api/admin/tests/" + id);
+      await axios.delete(`${BASE_URL}/api/admin/tests/${id}`);
       fetchCourses();
       const updatedSelect = { ...selectedCourse };
       updatedSelect.tests = updatedSelect.tests.filter(t => t.id !== id);
@@ -113,7 +114,7 @@ export default function AdminDashboard() {
   // --- QUESTION HELPERS ---
   const fetchQuestions = async (testId) => {
     try {
-      const res = await axios.get("http://localhost:5000/api/admin/tests/" + testId + "/questions");
+      const res = await axios.get(`${BASE_URL}/api/admin/tests/${testId}/questions`);
       setQuestions(res.data);
     } catch(e) { console.error(e); }
   };
@@ -121,7 +122,7 @@ export default function AdminDashboard() {
   const handleAddQuestion = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/questions', { ...questionForm, testId: selectedTest.id });
+      await axios.post(`${BASE_URL}/api/admin/questions`, { ...questionForm, testId: selectedTest.id });
       setShowQuestionForm(false);
       setQuestionForm({ questionText: '', optionA: '', optionB: '', optionC: '', optionD: '', correctOption: 'A', explanation: '' });
       fetchQuestions(selectedTest.id);
@@ -131,7 +132,7 @@ export default function AdminDashboard() {
   const handleDeleteQuestion = async (id) => {
     if (!window.confirm("Delete question?")) return;
     try {
-      await axios.delete("http://localhost:5000/api/admin/questions/" + id);
+      await axios.delete(`${BASE_URL}/api/admin/questions/${id}`);
       fetchQuestions(selectedTest.id);
     } catch (e) { alert("Error deleting question"); }
   };

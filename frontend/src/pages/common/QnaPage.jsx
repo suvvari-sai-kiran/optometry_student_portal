@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { MessageCircle, Search, Plus, CornerDownRight, ChevronLeft } from 'lucide-react';
+import BASE_URL from '../../api/config';
 
 export default function QnaPage() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function QnaPage() {
 
   const fetchThreads = async (query = '') => {
     try {
-      const res = await axios.get("http://localhost:5000/api/qna?search=" + query);
+      const res = await axios.get(`${BASE_URL}/api/qna?search=${query}`);
       setThreads(res.data);
     } catch (e) {
       console.error(e);
@@ -39,7 +40,7 @@ export default function QnaPage() {
   const handleAskQuestion = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/qna', {
+      await axios.post(`${BASE_URL}/api/qna`, {
         userId: user.id,
         title: askForm.title,
         content: askForm.content
@@ -52,7 +53,7 @@ export default function QnaPage() {
 
   const openThread = async (id) => {
     try {
-      const res = await axios.get("http://localhost:5000/api/qna/" + id);
+      const res = await axios.get(`${BASE_URL}/api/qna/${id}`);
       setSelectedThread(res.data);
       setView('thread');
     } catch (e) { console.error(e); }
@@ -61,7 +62,7 @@ export default function QnaPage() {
   const handleReply = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/qna/" + selectedThread.id + "/reply", {
+      await axios.post(`${BASE_URL}/api/qna/${selectedThread.id}/reply`, {
         userId: user.id,
         content: replyContent
       });
