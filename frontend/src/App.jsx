@@ -6,7 +6,7 @@ import StudentDashboard from './pages/student/StudentDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import FormulasPage from './pages/common/FormulasPage';
 import QnaPage from './pages/common/QnaPage';
-import Chatbot from './components/Chatbot';
+import ChatAssistant from './components/ChatAssistant';
 
 function App() {
   const token = localStorage.getItem('token');
@@ -23,7 +23,7 @@ function App() {
   return (
     <Router>
       <div className="app-container">
-        <Chatbot />
+        <ChatAssistant />
         {/* We can place a Navbar component here later */}
         <Routes>
           <Route path="/login" element={<Login />} />
