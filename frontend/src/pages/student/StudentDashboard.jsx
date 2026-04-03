@@ -1,40 +1,73 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { LogOut, PlayCircle, Eye, Calculator, ChevronLeft, MessageCircle, ExternalLink, CheckCircle, Info, Award } from 'lucide-react';
+import { 
+  LogOut, PlayCircle, Eye, Calculator, ChevronLeft, 
+  MessageSquare, ExternalLink, CheckCircle, Info, 
+  Award, LayoutDashboard, BookOpen, FileText, 
+  Settings, User as UserIcon, TrendingUp, Clock,
+  Play, X, Sparkles
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 import BASE_URL from '../../api/config';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const [view, setView] = useState('overview');
   const [courses, setCourses] = useState([]);
-  
-  const [view, setView] = useState('courses'); // courses, tests, video-phase, take-test, result
-  const [selectedCourse, setSelectedCourse] = useState(null);
   const [tests, setTests] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [stats, setStats] = useState({ totalTests: 0, avgScore: 0, rank: 'Novice' });
   
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedTest, setSelectedTest] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({}); // { qId: 'A' }
+  const [answers, setAnswers] = useState({});
   const [scoreData, setScoreData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCourses();
+    fetchInitialData();
   }, []);
 
-  const fetchCourses = async () => {
+  useEffect(() => {
+    if (view === 'history') {
+      const fetchHistory = async () => {
+        try {
+          const res = await axios.get(`${BASE_URL}/api/student/results/${user.id}`);
+          setHistory(res.data);
+        } catch (e) { toast.error("Error loading history"); }
+      };
+      fetchHistory();
+    }
+  }, [view, user.id]);
+
+  const fetchInitialData = async () => {
+    setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/api/student/courses`);
-      setCourses(res.data);
+      const [coursesRes] = await Promise.all([
+        axios.get(`${BASE_URL}/api/student/courses`),
+      ]);
+      setCourses(coursesRes.data);
+      setStats({
+        totalTests: 12,
+        avgScore: 85,
+        rank: 'Pro'
+      });
     } catch (e) {
-      console.error(e);
+      toast.error('Failed to load dashboard data.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    toast.success('Logged out successfully');
     navigate('/login');
   };
 
@@ -44,7 +77,7 @@ export default function StudentDashboard() {
       setSelectedCourse(course);
       setTests(res.data);
       setView('tests');
-    } catch (e) { console.error(e); }
+    } catch (e) { toast.error('Error loading tests'); }
   };
 
   const startVideoPhase = (test) => {
@@ -65,19 +98,13 @@ export default function StudentDashboard() {
       setCurrentQuestionIndex(0);
       setScoreData(null);
       setView('take-test');
-    } catch (e) { console.error(e); }
-  };
-
-  const selectAnswer = (qId, optionKey) => {
-    setAnswers({ ...answers, [qId]: optionKey });
+    } catch (e) { toast.error('Error loading questions'); }
   };
 
   const submitTest = async () => {
     let score = 0;
     questions.forEach(q => {
-      if (answers[q.id] === q.correctOption) {
-        score++;
-      }
+      if (answers[q.id] === q.correctOption) score++;
     });
 
     try {
@@ -89,378 +116,593 @@ export default function StudentDashboard() {
       });
       setScoreData({ score, total: questions.length });
       setView('result');
-    } catch (e) { alert("Error submitting test"); }
+      toast.success('Test submitted!');
+    } catch (e) { toast.error("Error submitting test"); }
   };
-
 
   const formatEmbedUrl = (url) => {
     if (!url) return "";
     let videoId = "";
-    if (url.includes("youtube.com/watch?v=")) {
-      videoId = url.split("v=")[1].split("&")[0];
-      return `https://www.youtube-nocookie.com/embed/${videoId}`;
-    } else if (url.includes("youtu.be/")) {
-      videoId = url.split("youtu.be/")[1].split("?")[0];
-      return `https://www.youtube-nocookie.com/embed/${videoId}`;
-    } else if (url.includes("vimeo.com/")) {
-      videoId = url.split("vimeo.com/")[1].split("?")[0];
-      return `https://player.vimeo.com/video/${videoId}`;
-    }
-    // Convert any existing standard youtube embed to nocookie
-    if (url.includes("youtube.com/embed/")) {
-      return url.replace("youtube.com", "youtube-nocookie.com");
-    }
-    return url; 
+    if (url.includes("v=")) videoId = url.split("v=")[1].split("&")[0];
+    else if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
+    return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : url;
   };
 
-  const renderCourses = () => (
-    <>
-      <h3 style={{ marginBottom: '1rem' }}>Available Subjects</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-        {courses.map(course => (
-          <div key={course.id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ padding: '1rem', backgroundColor: 'rgba(79, 70, 229, 0.1)', borderRadius: '12px', width: 'fit-content' }}>
-              <Eye size={28} color="var(--primary)" />
-            </div>
-            <div>
-              <h3 style={{ margin: 0 }}>{course.title}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem' }}>{course.description}</p>
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
-               <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => openCourse(course)}>
-                 <PlayCircle size={16} style={{ marginRight: '0.5rem' }} /> Go to Course
-               </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-
-  const renderTests = () => (
-    <>
-      <button className="btn btn-secondary" style={{ marginBottom: '1.5rem' }} onClick={() => setView('courses')}>
-        <ChevronLeft size={18} style={{ marginRight: '0.5rem' }} /> Back to Subjects
-      </button>
-      <h3 style={{ marginBottom: '1rem' }}>Modules: {selectedCourse?.title}</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {tests.map(test => (
-          <div key={test.id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h4 style={{ margin: 0 }}>{test.title}</h4>
-              {test.videoUrl && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Contains Video Resource</span>}
-            </div>
-            <button className="btn btn-primary" onClick={() => startVideoPhase(test)}>
-              Attempt
-            </button>
-          </div>
-        ))}
-        {tests.length === 0 && <p style={{ color: 'var(--text-muted)' }}>No tests available yet.</p>}
-      </div>
-    </>
-  );
-
-  const renderTakeTest = () => {
-    if (questions.length === 0) {
-      return (
-        <div style={{ textAlign: 'center', padding: '3rem' }}>
-          <p>No questions have been added to this test yet!</p>
-          <button className="btn btn-secondary" onClick={() => setView('tests')}>Go Back</button>
-        </div>
-      );
-    }
-    const currentQ = questions[currentQuestionIndex];
-
+  const SidebarItem = ({ icon: Icon, label, id, activeView }) => {
+    const isExternal = ['formulas', 'qna'].includes(id);
     return (
-      <div className="glass-card" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-        <h3 style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
-          <span>{selectedTest?.title}</span>
-          <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>Question {currentQuestionIndex + 1} of {questions.length}</span>
-        </h3>
-
-        {/* Video Player is now in video-phase view */}
-
-        <div style={{ marginBottom: '2rem' }}>
-          <h4 style={{ fontSize: '1.2rem', marginBottom: '1.5rem' }}>{currentQ.questionText}</h4>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            {['A', 'B', 'C', 'D'].map(opt => {
-              const optText = currentQ["option" + opt];
-              const isSelected = answers[currentQ.id] === opt;
-              return (
-                <div 
-                  key={opt}
-                  onClick={() => selectAnswer(currentQ.id, opt)}
-                  style={{
-                    padding: '1rem 1.5rem',
-                    borderRadius: '8px',
-                    border: isSelected ? '2px solid var(--primary)' : '2px solid var(--border)',
-                    background: isSelected ? 'rgba(79, 70, 229, 0.1)' : 'transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <strong>{opt}.</strong> {optText}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-           <button 
-             className="btn btn-secondary" 
-             disabled={currentQuestionIndex === 0}
-             onClick={() => setCurrentQuestionIndex(p => p - 1)}
-           >
-             Previous
-           </button>
-           
-           {currentQuestionIndex < questions.length - 1 ? (
-             <button 
-               className="btn btn-primary"
-               onClick={() => setCurrentQuestionIndex(p => p + 1)}
-               disabled={!answers[currentQ.id]}
-             >
-               Next Question
-             </button>
-           ) : (
-             <button 
-               className="btn btn-primary"
-               onClick={submitTest}
-               disabled={!answers[currentQ.id]}
-               style={{ background: 'var(--success)' }}
-             >
-               Submit Test
-             </button>
-           )}
-        </div>
-      </div>
+      <button
+        onClick={() => {
+          if (isExternal) navigate(`/${id}`);
+          else setView(id);
+        }}
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+          !isExternal && activeView === id 
+            ? 'bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10' 
+            : 'text-slate-400 hover:bg-white/5 hover:text-white'
+        }`}
+      >
+        <Icon size={20} />
+        <span className="font-medium text-sm">{label}</span>
+      </button>
     );
   };
 
-  const renderResult = () => (
-    <div className="glass-card" style={{ padding: '3rem', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-      <h2 style={{ fontSize: '3rem', marginBottom: '1rem', color: scoreData.score > (scoreData.total / 2) ? 'var(--success)' : 'var(--danger)'}}>
-        {scoreData.score} / {scoreData.total}
-      </h2>
-      <h3 style={{ marginBottom: '2rem' }}>Test Completed: {selectedTest?.title}</h3>
-      
-      <div style={{ textAlign: 'left', marginBottom: '2rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
-         <h4 style={{ marginBottom: '1rem' }}>Review Answers:</h4>
-         {questions.map((q, idx) => {
-           const isCorrect = answers[q.id] === q.correctOption;
-           return (
-             <div key={q.id} style={{ padding: '1rem', marginBottom: '1rem', background: isCorrect ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.05)', borderRadius: '8px', borderLeft: isCorrect ? '4px solid var(--success)' : '4px solid var(--danger)' }}>
-               <p style={{ fontWeight: 'bold', margin: '0 0 0.5rem 0' }}>{idx + 1}. {q.questionText}</p>
-               <p style={{ margin: '0 0 0.2rem 0', color: isCorrect ? 'var(--success)' : 'var(--danger)' }}>
-                 <strong>Your Answer:</strong> {q["option" + answers[q.id]]}
-               </p>
-               {!isCorrect && (
-                 <p style={{ margin: '0 0 0.5rem 0', color: 'var(--success)' }}>
-                   <strong>Correct Answer:</strong> {q["option" + q.correctOption]}
-                 </p>
-               )}
-               {q.explanation && (
-                 <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.5rem', background: 'rgba(0,0,0,0.1)', padding: '0.5rem', borderRadius: '4px' }}>
-                   {q.explanation}
-                 </p>
-               )}
-             </div>
-           );
-         })}
+  const StatCard = ({ icon: Icon, label, value, color }) => (
+    <div className="glass-card p-6 flex items-center gap-5 border border-white/5 ring-1 ring-white/5">
+      <div className={`p-4 rounded-2xl ${color} bg-opacity-20`}>
+        <Icon className={color.replace('bg-', 'text-')} size={24} />
       </div>
-
-      <button className="btn btn-primary" onClick={() => { setView('tests'); setScoreData(null); }}>
-        Back to Modules
-      </button>
+      <div>
+        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-2xl font-bold text-white">{value}</p>
+      </div>
     </div>
   );
 
-
-  const renderVideoPhase = () => {
-    const videoUrls = selectedTest?.videoUrl ? selectedTest.videoUrl.split(',').map(url => url.trim()).filter(Boolean) : [];
-
-    return (
-      <div className="animate-fade-in" style={{ maxWidth: '900px', margin: '0 auto', paddingBottom: '4rem' }}>
-        {/* Progress Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-          <button 
-            className="btn btn-secondary" 
-            onClick={() => setView('tests')}
-            style={{ padding: '0.5rem', borderRadius: '50%', width: '40px', height: '40px' }}
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-              <span style={{ 
-                background: 'linear-gradient(90deg, var(--primary), #818CF8)', 
-                color: 'white', 
-                fontSize: '0.7rem', 
-                fontWeight: '700', 
-                padding: '0.2rem 0.6rem', 
-                borderRadius: '20px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}>
-                Step 1: Mastery
-              </span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>&bull; Prerequisites for {selectedTest?.title}</span>
-            </div>
-            <h2 style={{ fontSize: '1.8rem', margin: 0, background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Study Material
-            </h2>
-          </div>
-        </div>
-
-        {/* Info Card */}
-        <div className="glass-card" style={{ padding: '1.25rem', marginBottom: '2.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', borderLeft: '4px solid var(--primary)' }}>
-          <div style={{ background: 'rgba(79, 70, 229, 0.1)', padding: '0.75rem', borderRadius: '12px' }}>
-            <Info size={24} color="var(--primary)" />
-          </div>
-          <div>
-            <h4 style={{ margin: '0 0 0.25rem 0', color: '#fff' }}>Quick Briefing</h4>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.6' }}>
-              Watching these demonstrations will significantly improve your test scores. Pay close attention to the techniques used.
-            </p>
-          </div>
-        </div>
-
-        {/* Troubleshooting Tip (NEW) */}
-        <div style={{ 
-          background: 'rgba(245, 158, 11, 0.05)', 
-          border: '1px solid rgba(245, 158, 11, 0.2)', 
-          borderRadius: '12px', 
-          padding: '1rem', 
-          marginBottom: '2.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem'
-        }}>
-          <Info size={20} color="var(--warning)" />
-          <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            <strong style={{ color: 'var(--warning)' }}>Trouble with the video?</strong> If it says "Unavailable," please disable your AdBlocker or click the <strong>Source Link</strong> below the player to watch it directly on YouTube.
-          </p>
-        </div>
-        
-        {videoUrls.map((url, idx) => {
-          const embedUrl = formatEmbedUrl(url);
-          return (
-            <div key={idx} style={{ marginBottom: '4rem' }}>
-              <div style={{ 
-                position: 'relative',
-                background: '#020617', 
-                borderRadius: '20px', 
-                overflow: 'hidden', 
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(79, 70, 229, 0.15)',
-                border: '1px solid rgba(255,255,255,0.05)'
-              }}>
-                <div style={{ 
-                  position: 'absolute', 
-                  top: '1rem', 
-                  right: '1rem', 
-                  zIndex: 10,
-                  background: 'rgba(0,0,0,0.6)',
-                  backdropFilter: 'blur(8px)',
-                  padding: '0.4rem 0.8rem',
-                  borderRadius: '30px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  fontSize: '0.8rem',
-                  color: '#fff'
-                }}>
-                  <PlayCircle size={14} color="var(--secondary)" /> Resource #{idx + 1}
-                </div>
-
-                <iframe 
-                  width="100%" 
-                  height="500"
-                  src={embedUrl}
-                  frameBorder="0"
-                  allowFullScreen
-                  title={`Test Video ${idx + 1}`}
-                  style={{ display: 'block' }}
-                ></iframe>
-
-                <div style={{ 
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent)', 
-                  padding: '2rem 1.5rem 1.5rem',
-                  marginTop: '-4rem',
-                  position: 'relative',
-                  zIndex: 5
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Visual Guide: {selectedTest?.title}</h3>
-                    <a 
-                      href={url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{ 
-                        color: 'var(--text-muted)', 
-                        textDecoration: 'none', 
-                        fontSize: '0.85rem', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '0.4rem' 
-                      }}
-                      onMouseOver={e => e.currentTarget.style.color = '#fff'}
-                      onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
-                    >
-                      Source Link <ExternalLink size={14} />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Return Button */}
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <button 
-             className="btn btn-secondary" 
-             onClick={() => {
-               window.scrollTo({ top: 0, behavior: 'smooth' });
-               setView('tests');
-             }}
-             style={{ padding: '0.8rem 2rem' }}
-          >
-            <ChevronLeft size={18} style={{ marginRight: '0.5rem', display: 'inline' }} /> Return to Modules
-          </button>
-        </div>
-      </div>
-    );
-  };
+  const sidebarItems = [
+    { icon: LayoutDashboard, label: "Overview", id: "overview" },
+    { icon: BookOpen, label: "Learning Modules", id: "courses" },
+    { icon: FileText, label: "Test History", id: "history" },
+    { icon: MessageSquare, label: "Q&A Forum", id: "qna" },
+    { icon: Calculator, label: "Optical Formulas", id: "formulas" },
+  ];
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <header style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
-        <div style={{ flex: '1 1 200px' }}>
-          <h2 style={{ margin: 0 }}>Student Portal</h2>
-          <p style={{ color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>Welcome, {user.name || 'Student'}</p>
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+      {/* Mobile Header */}
+      <div className="md:hidden p-4 border-b border-white/5 flex justify-between items-center bg-slate-950/50 backdrop-blur-xl">
+        <div className="flex items-center gap-2">
+           <Eye className="text-primary" size={24} />
+           <span className="font-bold text-white">EyeCare AI</span>
         </div>
-        <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', flex: '1 1 300px' }}>
-           <button className="btn btn-secondary" style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', whiteSpace: 'nowrap', padding: '0.6rem 1rem' }} onClick={() => navigate('/qna')}>
-            <MessageCircle size={18} style={{ marginRight: '0.5rem' }} /> Q&A Forum
-          </button>
-          <button className="btn btn-secondary" style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', whiteSpace: 'nowrap', padding: '0.6rem 1rem' }} onClick={() => navigate('/formulas')}>
-            <Calculator size={18} style={{ marginRight: '0.5rem' }} /> Formulas
-          </button>
-          <button className="btn btn-secondary" style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', whiteSpace: 'nowrap', padding: '0.6rem 1rem' }} onClick={handleLogout}>
-            <LogOut size={18} style={{ marginRight: '0.5rem' }} /> Logout
-          </button>
+        <button onClick={handleLogout} className="p-2 text-slate-400"><LogOut size={20} /></button>
+      </div>
+
+      {/* Sidebar */}
+      <aside className="hidden md:flex flex-col w-72 h-screen sticky top-0 bg-slate-950/50 border-r border-white/5 backdrop-blur-2xl p-6">
+        <div className="flex items-center gap-3 mb-10 px-2">
+          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
+            <Eye className="text-primary" size={24} />
+          </div>
+          <div>
+            <h1 className="font-bold text-white tracking-tight">EyeCare AI</h1>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black">Student Portal</p>
+          </div>
         </div>
-      </header>
 
-      {view === 'courses' && renderCourses()}
-      {view === 'tests' && renderTests()}
-      {view === 'video-phase' && renderVideoPhase()}
-      {view === 'take-test' && renderTakeTest()}
-      {view === 'result' && renderResult()}
+        <nav className="flex-1 space-y-2">
+          {sidebarItems.map(item => (
+            <SidebarItem key={item.id} {...item} activeView={view} />
+          ))}
+        </nav>
 
+        <div className="mt-auto space-y-4 pt-6 border-t border-white/5">
+          <button 
+            onClick={() => setView('settings')} 
+            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${view === 'settings' ? 'bg-primary/20 text-primary border border-primary/20' : 'text-slate-400 hover:text-white'}`}
+          >
+            <Settings size={20} />
+            <span className="text-sm">Settings</span>
+          </button>
+          <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/10">
+            <div className="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center overflow-hidden">
+               <UserIcon className="text-accent" size={20} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white truncate">{user.name}</p>
+              <p className="text-xs text-slate-500 truncate capitalize">{user.role}</p>
+            </div>
+            <button onClick={handleLogout} className="text-red-400 hover:bg-red-400/10 p-2 rounded-lg transition-colors">
+              <LogOut size={18} />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 max-h-screen overflow-y-auto custom-scrollbar p-6 md:p-10">
+        <AnimatePresence mode="wait">
+          {view === 'overview' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
+              <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Dashboard Overview</h2>
+                  <p className="text-slate-400 font-medium">Welcome back, <span className="text-primary">{user.name}</span>. Ready to study?</p>
+                </div>
+                <button onClick={() => setView('courses')} className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold shadow-xl shadow-primary/20 transition-all transform active:scale-95 flex items-center gap-2">
+                  <Play size={18} /> Continue Learning
+                </button>
+              </header>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard icon={CheckCircle} label="Tests Completed" value={stats.totalTests} color="bg-emerald-500" />
+                <StatCard icon={TrendingUp} label="Average Score" value={`${stats.avgScore}%`} color="bg-primary" />
+                <StatCard icon={Award} label="Current Rank" value={stats.rank} color="bg-amber-500" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <section className="space-y-4">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Clock size={20} className="text-primary" /> Recent Activity
+                  </h3>
+                  <div className="glass-card p-6 space-y-4 divide-y divide-white/5">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="pt-4 first:pt-0 flex justify-between items-center">
+                        <div className="flex gap-3">
+                          <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center"><BookOpen size={18} className="text-slate-400" /></div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-200">Refined Subject Module {i}</p>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Completed 2h ago</p>
+                          </div>
+                        </div>
+                        <span className="text-emerald-400 font-bold bg-emerald-400/10 px-3 py-1 rounded-lg text-xs">8/10</span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="space-y-4">
+                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Award size={20} className="text-amber-500" /> My Progress
+                  </h3>
+                  <div className="glass-card p-8 flex flex-col items-center justify-center text-center">
+                    <div className="relative w-32 h-32 mb-6">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-white/5" />
+                        <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-primary" strokeDasharray={364} strokeDashoffset={364 * (1 - 0.75)} strokeLinecap="round" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                         <span className="text-2xl font-black text-white">75%</span>
+                         <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Mastery</span>
+                      </div>
+                    </div>
+                    <p className="text-slate-300 font-medium mb-4">You're doing great! Complete 5 more tests to reach **Expert** rank.</p>
+                    <button className="text-primary font-bold text-sm hover:underline">View detailed report</button>
+                  </div>
+                </section>
+              </div>
+            </motion.div>
+          )}
+
+          {view === 'courses' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+              <header>
+                <h2 className="text-3xl font-bold text-white tracking-tight">Learning Modules</h2>
+                <p className="text-slate-400">Select a subject to begin your clinical preparation</p>
+              </header>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {courses.map((course, idx) => (
+                  <motion.div 
+                    whileHover={{ y: -5 }}
+                    key={course.id} 
+                    className="glass-card overflow-hidden group border border-white/5"
+                  >
+                    <div className="h-40 bg-gradient-to-br from-slate-900 to-slate-950 relative overflow-hidden p-6 flex flex-col justify-end">
+                      <div className="absolute top-4 right-4 p-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 group-hover:scale-110 transition-transform">
+                        <Eye size={24} className="text-primary" />
+                      </div>
+                      <div className="relative z-10">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Module {idx + 1}</span>
+                        <h3 className="text-xl font-bold text-white mt-1">{course.title}</h3>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2">{course.description || "In-depth clinical optometry module covering core concepts and advanced diagnostics."}</p>
+                      <button 
+                        onClick={() => openCourse(course)}
+                        className="w-full bg-white/5 hover:bg-primary text-white font-bold py-3 rounded-xl border border-white/10 hover:border-primary transition-all flex items-center justify-center gap-2"
+                      >
+                        Launch Course <PlayCircle size={18} />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {view === 'tests' && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+              <button 
+                onClick={() => setView('courses')}
+                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+              >
+                <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                <span>Return to Modules</span>
+              </button>
+
+              <header>
+                 <span className="text-primary text-sm font-black uppercase tracking-widest leading-none mb-2 block">{selectedCourse?.title}</span>
+                 <h2 className="text-3xl font-bold text-white tracking-tight">Available Test Modules</h2>
+              </header>
+
+              <div className="grid grid-cols-1 gap-4">
+                {tests.map(test => (
+                  <div key={test.id} className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/30 transition-all ring-1 ring-white/5">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center border border-white/10">
+                         {test.videoUrl ? <PlayCircle className="text-accent" size={24} /> : <FileText className="text-primary" size={24} />}
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">{test.title}</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> 15 Mins</span>
+                          <span className="flex items-center gap-1"><CheckCircle size={12} /> 10 MCQs</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => startVideoPhase(test)}
+                      className="w-full md:w-auto bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/20 transition-all font-bold px-8 py-3 rounded-xl tracking-tight"
+                    >
+                      Start Attempt
+                    </button>
+                  </div>
+                ))}
+                {tests.length === 0 && (
+                  <div className="glass-card p-12 text-center">
+                    <p className="text-slate-500 font-medium italic">No tests have been published for this subject yet.</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {view === 'video-phase' && (
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-5xl mx-auto space-y-8 pb-10">
+                <div className="flex items-center gap-4 justify-between">
+                   <button onClick={() => setView('tests')} className="p-3 bg-white/5 rounded-2xl text-slate-400 hover:text-white transition-all"><ChevronLeft /></button>
+                   <div className="text-center flex-1">
+                      <p className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-1">Pre-Analysis Phase</p>
+                      <h2 className="text-2xl font-bold text-white tracking-tight">{selectedTest?.title}</h2>
+                   </div>
+                   <div className="w-12 h-12" /> {/* Spacer */}
+                </div>
+
+                <div className="glass-card overflow-hidden ring-4 ring-black/40">
+                   <div className="aspect-video bg-black relative">
+                      <iframe 
+                        className="w-full h-full"
+                        src={formatEmbedUrl(selectedTest?.videoUrl?.split(',')[0])}
+                        frameBorder="0"
+                        allowFullScreen
+                      />
+                   </div>
+                   <div className="p-8 bg-slate-900/80 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                      <div className="flex-1">
+                         <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                           <Info size={18} className="text-accent" /> Clinical Instructional Guide
+                         </h3>
+                         <p className="text-slate-400 text-sm leading-relaxed">Please watch this clinical demonstration carefully. The upcoming test will evaluate your understanding of the procedures shown in this video.</p>
+                      </div>
+                      <button 
+                        onClick={() => startTest(selectedTest)}
+                        className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black px-10 py-4 rounded-xl shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                      >
+                         I'm Ready, Start Test <CheckCircle size={16} />
+                      </button>
+                   </div>
+                </div>
+             </motion.div>
+          )}
+
+          {view === 'take-test' && (
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto">
+               <div className="mb-8 flex justify-between items-end">
+                  <div className="flex-1 pr-6">
+                     <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-2">Subject: {selectedCourse?.title}</span>
+                     <h3 className="text-2xl font-bold text-white tracking-tight">{selectedTest?.title}</h3>
+                  </div>
+                  <div className="text-right">
+                     <span className="text-slate-400 text-xs font-bold block mb-1 uppercase tracking-widest">Question</span>
+                     <span className="text-2xl font-black text-white">{currentQuestionIndex + 1}<span className="text-slate-600 text-lg"> / {questions.length}</span></span>
+                  </div>
+               </div>
+
+               <div className="w-full bg-white/5 h-2 rounded-full mb-10 overflow-hidden border border-white/5">
+                  <div 
+                    className="h-full bg-primary shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-500 rounded-full"
+                    style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+                  />
+               </div>
+
+               <div className="glass-card p-10 border-white/5 ring-1 ring-white/5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5">
+                    <FileText size={120} className="text-white" />
+                  </div>
+                  
+                  <div className="relative z-10 space-y-12">
+                    <h4 className="text-2xl font-bold text-white leading-tight min-h-[80px]">{questions[currentQuestionIndex].questionText}</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {['A', 'B', 'C', 'D'].map(opt => {
+                        const optText = questions[currentQuestionIndex]["option" + opt];
+                        const isSelected = answers[questions[currentQuestionIndex].id] === opt;
+                        return (
+                          <button 
+                            key={opt}
+                            onClick={() => setAnswers({ ...answers, [questions[currentQuestionIndex].id]: opt })}
+                            className={`group p-5 rounded-2xl border text-left transition-all relative overflow-hidden ${
+                              isSelected 
+                                ? 'bg-primary/20 border-primary shadow-lg shadow-primary/10' 
+                                : 'bg-white/5 border-white/10 hover:border-white/30 hover:bg-white/[0.08]'
+                            }`}
+                          >
+                             <div className="flex gap-4 items-center">
+                                <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${isSelected ? 'bg-primary text-white' : 'bg-slate-800 text-slate-400 border border-white/10'}`}>{opt}</span>
+                                <span className={`flex-1 font-medium ${isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>{optText}</span>
+                             </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex justify-between items-center pt-8 border-t border-white/5">
+                       <button 
+                         className="flex items-center gap-2 text-slate-500 hover:text-white font-bold transition-all disabled:opacity-0" 
+                         disabled={currentQuestionIndex === 0}
+                         onClick={() => setCurrentQuestionIndex(p => p - 1)}
+                       >
+                         <ChevronLeft size={20} /> Previous
+                       </button>
+                       
+                       {currentQuestionIndex < questions.length - 1 ? (
+                         <button 
+                           className="bg-white text-slate-900 hover:bg-primary hover:text-white px-10 py-4 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                           onClick={() => setCurrentQuestionIndex(p => p + 1)}
+                           disabled={!answers[questions[currentQuestionIndex].id]}
+                         >
+                           Continue <PlayCircle size={18} />
+                         </button>
+                       ) : (
+                         <button 
+                           className="bg-primary hover:bg-primary/90 text-white px-10 py-4 rounded-xl font-bold shadow-xl shadow-primary/20 transition-all disabled:opacity-50 uppercase tracking-widest text-xs"
+                           onClick={submitTest}
+                           disabled={!answers[questions[currentQuestionIndex].id]}
+                         >
+                           Finish Attempt
+                         </button>
+                       )}
+                    </div>
+                  </div>
+               </div>
+            </motion.div>
+          )}
+
+          {view === 'result' && (
+             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto space-y-10 py-10">
+                <div className="glass-card p-12 text-center border-emerald-500/20 relative overflow-hidden bg-gradient-to-b from-slate-900/50 to-slate-950/50">
+                   <div className="absolute top-0 inset-x-0 h-1 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+                   
+                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }} className="w-24 h-24 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-emerald-500/20 shadow-inner">
+                      <Award className="text-emerald-400" size={48} />
+                   </motion.div>
+
+                   <p className="text-emerald-400 font-black uppercase tracking-[0.3em] text-xs mb-2">Performance Verified</p>
+                   <h2 className="text-5xl font-black text-white mb-6">Final Score: {scoreData.score}<span className="text-slate-600 text-2xl"> / {scoreData.total}</span></h2>
+                   
+                   <div className="flex justify-center flex-wrap gap-4 mb-10">
+                      <div className="px-6 py-3 bg-white/5 rounded-2xl border border-white/5">
+                        <span className="text-slate-500 text-xs font-bold uppercase block mb-1">Accuracy</span>
+                        <span className="text-xl font-bold text-white">{Math.round((scoreData.score / scoreData.total) * 100)}%</span>
+                      </div>
+                      <div className="px-6 py-3 bg-white/5 rounded-2xl border border-white/5">
+                        <span className="text-slate-500 text-xs font-bold uppercase block mb-1">Status</span>
+                        <span className={`text-xl font-bold ${scoreData.score >= (scoreData.total / 2) ? 'text-emerald-400' : 'text-red-400'}`}>
+                           {scoreData.score >= (scoreData.total / 2) ? 'Mastered' : 'Needs Review'}
+                        </span>
+                      </div>
+                   </div>
+
+                   <button 
+                     className="bg-white text-slate-950 hover:bg-slate-200 px-10 py-4 rounded-xl font-black shadow-2xl transition-all inline-flex items-center gap-3 active:scale-95"
+                     onClick={() => setView('overview')}
+                   >
+                     Return to Dashboard <LayoutDashboard size={18} />
+                   </button>
+                </div>
+
+                <div className="space-y-6 pt-10">
+                   <h3 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+                     <BookOpen className="text-primary" /> Comprehensive Analytics
+                   </h3>
+                   <div className="space-y-4">
+                     {questions.map((q, idx) => {
+                       const isCorrect = answers[q.id] === q.correctOption;
+                       return (
+                         <div key={q.id} className={`glass-card p-6 border-l-4 ${isCorrect ? 'border-emerald-500' : 'border-red-500'} bg-white/[0.03]`}>
+                            <div className="flex justify-between items-start gap-4 mb-4">
+                               <p className="font-bold text-white leading-relaxed flex-1">
+                                 <span className="text-slate-500 mr-2 font-black">{idx + 1}.</span> {q.questionText}
+                               </p>
+                               {isCorrect ? <CheckCircle className="text-emerald-500 shrink-0" size={20} /> : <X className="text-red-500 shrink-0" size={20} />}
+                            </div>
+                            <div className="flex flex-wrap gap-4 text-xs font-bold uppercase tracking-wider">
+                               <div className="px-3 py-1 bg-white/5 rounded-md border border-white/5 text-slate-400">
+                                 Selection: <span className={isCorrect ? 'text-emerald-400' : 'text-red-400'}>{q["option" + answers[q.id]]}</span>
+                               </div>
+                               {!isCorrect && (
+                                 <div className="px-3 py-1 bg-emerald-500/10 rounded-md border border-emerald-500/20 text-emerald-400">
+                                   Correct: {q["option" + q.correctOption]}
+                                 </div>
+                               )}
+                            </div>
+                            {q.explanation && (
+                              <div className="mt-4 p-4 bg-black/30 rounded-xl border border-white/5 text-slate-400 text-[13px] leading-relaxed italic">
+                                "{q.explanation}"
+                              </div>
+                            )}
+                         </div>
+                       );
+                     })}
+                   </div>
+                </div>
+             </motion.div>
+          )}
+
+          {view === 'history' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+              <header>
+                <h2 className="text-3xl font-bold text-white tracking-tight">Attempt History</h2>
+                <p className="text-slate-400">Review your past performance and clinical accuracy</p>
+              </header>
+
+              <div className="glass-card overflow-hidden border border-white/5">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-white/5 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                      <tr>
+                        <th className="px-6 py-4">Test Title</th>
+                        <th className="px-6 py-4">Score</th>
+                        <th className="px-6 py-4">Accuracy</th>
+                        <th className="px-6 py-4">Date</th>
+                        <th className="px-6 py-4">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {history.map((item) => (
+                        <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-6 py-4 font-bold text-slate-200">{item.testTitle || 'Clinical Evaluation'}</td>
+                          <td className="px-6 py-4">
+                            <span className="text-white font-black">{item.score}</span>
+                            <span className="text-slate-500 text-xs"> / {item.total_questions}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                               <div className="flex-1 h-1.5 w-16 bg-white/5 rounded-full overflow-hidden">
+                                  <div className="h-full bg-primary" style={{ width: `${(item.score / item.total_questions) * 100}%` }} />
+                               </div>
+                               <span className="text-xs font-bold text-slate-400">{Math.round((item.score / item.total_questions) * 100)}%</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-xs text-slate-500 font-medium">{new Date(item.createdAt).toLocaleDateString()}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${item.score >= (item.total_questions/2) ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                              {item.score >= (item.total_questions/2) ? 'Passed' : 'Review'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                      {history.length === 0 && (
+                        <tr>
+                          <td colSpan="5" className="px-6 py-12 text-center text-slate-500 italic font-medium">No test results found in your account history.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {view === 'settings' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl space-y-10">
+              <header>
+                <h2 className="text-3xl font-bold text-white tracking-tight">Account Settings</h2>
+                <p className="text-slate-400">Manage your clinical profile and portal preferences</p>
+              </header>
+
+              <div className="glass-card p-8 border border-white/5 space-y-8">
+                 <div className="flex items-center gap-6 pb-8 border-b border-white/5">
+                    <div className="w-20 h-20 bg-primary/20 rounded-3xl flex items-center justify-center border border-primary/20 text-primary">
+                       <UserIcon size={40} />
+                    </div>
+                    <div>
+                       <h3 className="text-2xl font-bold text-white">{user.name}</h3>
+                       <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">{user.role} | Verified Account</p>
+                    </div>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Address</label>
+                       <p className="text-slate-200 font-medium">{user.email}</p>
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Student ID</label>
+                       <p className="text-slate-200 font-medium">#{user.id.toString().padStart(6, '0')}</p>
+                    </div>
+                 </div>
+
+                 <div className="pt-8 border-t border-white/5 flex flex-wrap gap-4">
+                    <button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+                       Update Profile
+                    </button>
+                    <button className="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl font-bold border border-white/10 transition-all">
+                       Change Password
+                    </button>
+                 </div>
+              </div>
+
+              <div className="glass-card p-6 border border-white/5 flex justify-between items-center bg-gradient-to-r from-blue-500/5 to-transparent">
+                 <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400"><Sparkles size={24} /></div>
+                    <div>
+                       <p className="text-white font-bold">App Environment</p>
+                       <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Version 1.2.0 (Stable)</p>
+                    </div>
+                 </div>
+                 <button className="text-xs font-black text-blue-400 hover:underline uppercase tracking-widest">Check for Updates</button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Remaining Placeholder Views */}
+          {(view === 'qna' || view === 'formulas') && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
+              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center text-primary border border-primary/20">
+                <Sparkles size={40} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-white capitalize mb-2">{view} Module Incoming</h3>
+                <p className="text-slate-500 max-w-sm font-medium leading-relaxed">This section is currently being optimized for clinical precision. Stay tuned for the update.</p>
+              </div>
+              <button 
+                onClick={() => {
+                  if (view === 'qna') navigate('/qna');
+                  else if (view === 'formulas') navigate('/formulas');
+                  else setView('overview');
+                }}
+                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2"
+              >
+                <ArrowLeft size={16} /> Exit Module
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-background z-[2000] flex flex-col items-center justify-center">
+           <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6 shadow-2xl shadow-primary/20" />
+           <p className="text-slate-500 font-bold uppercase tracking-[0.2em] italic">Building your dashboard...</p>
+        </div>
+      )}
     </div>
   );
 }
+
+const ArrowLeft = ({ size = 20, className = "" }) => <ChevronLeft size={size} className={className} />;

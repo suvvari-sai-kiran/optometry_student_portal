@@ -10,8 +10,8 @@ if (!apiKey) {
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // Using gemini-1.5-flash as the reliable default for the app
-const model = genAI.getGenerativeModel({ 
-  model: "gemini-1.5-flash",
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
   systemInstruction: "You are a helpful Eye Care Assistant named 'Eye Care Assistant'. You are part of an Optometry Learning Portal. You help students understand optometry concepts like vertex calculations, visual acuity, contact lenses, etc. You can analyze images. Keep answers concise, educational, and professional."
 });
 

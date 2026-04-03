@@ -3,19 +3,16 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const { db } = require('../config/db');
 
-let transporter;
-const initializeTransporter = () => {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.SMTP_USER || process.env.EMAIL_SENDER,
-        pass: process.env.SMTP_PASS || process.env.EMAIL_PASSWORD,
-      },
-    });
-  }
-  return transporter;
-};
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: process.env.SMTP_PORT || 587,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -29,28 +26,73 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    // Hash password
+    // Generate and save user
     const hashedPassword = await bcrypt.hash(password, 10);
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
     const userRole = role === 'admin' ? 'admin' : 'student';
 
-    const [result] = await db.query(
-      'INSERT INTO Users (name, email, password, role, isVerified) VALUES (?, ?, ?, ?, ?)',
-      [name, email, hashedPassword, userRole, true] // Set isVerified = true by default
+    await db.query(
+      'INSERT INTO Users (name, email, password, role, isVerified, otp, otpExpiry) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, userRole, false, otp, otpExpiry]
     );
 
-    const userId = result.insertId;
-    const token = jwt.sign({ id: userId, role: userRole }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    // Send OTP Email
+    const mailOptions = {
+      from: `"EyeCare AI" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: 'Verify your EyeCare AI Account',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+          <h2 style="color: #6366f1; text-align: center;">Welcome to EyeCare AI</h2>
+          <p>Hi ${name},</p>
+          <p>Thank you for registering. Please use the following OTP to verify your account. It is valid for <strong>5 minutes</strong>.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #10b981;">${otp}</span>
+          </div>
+          <p>If you didn't request this, please ignore this email.</p>
+          <hr style="border: none; border-top: 1px solid #eeeeee;" />
+          <p style="font-size: 12px; color: #888888; text-align: center;">&copy; 2026 EyeCare AI. All rights reserved.</p>
+        </div>
+      `,
+    };
 
-    console.log(`[AUTH] Registration successful for ${email}. OTP bypassed.`);
+    await transporter.sendMail(mailOptions);
 
     res.status(201).json({ 
-      message: 'Registration successful!', 
-      token,
-      user: { id: userId, name, email, role: userRole }
+      message: 'Registration successful! Verification OTP sent to your email.',
+      email 
     });
   } catch (error) {
-    console.error(error);
+    console.error('[AUTH ERROR]', error);
     res.status(500).json({ message: 'Server error during registration' });
+  }
+};
+
+exports.sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+
+    const [result] = await db.query('UPDATE Users SET otp = ?, otpExpiry = ? WHERE email = ?', [otp, otpExpiry, email]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const mailOptions = {
+      from: `"EyeCare AI" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: 'Your EyeCare AI Verification Code',
+      html: `<p>Your new OTP is: <strong>${otp}</strong>. It expires in 5 minutes.</p>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'New OTP sent to your email.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error sending OTP' });
   }
 };
 
@@ -62,32 +104,22 @@ exports.verifyOtp = async (req, res) => {
     if (users.length === 0) return res.status(404).json({ message: 'User not found' });
     
     const user = users[0];
-    
-    if (user.isVerified) {
-      return res.status(400).json({ message: 'User is already verified' });
-    }
+    if (user.isVerified) return res.status(400).json({ message: 'User already verified' });
+    if (user.otp !== otp) return res.status(401).json({ message: 'Invalid OTP' });
+    if (new Date() > new Date(user.otpExpiry)) return res.status(401).json({ message: 'OTP expired' });
 
-    if (user.otp !== otp) {
-      return res.status(401).json({ message: 'Invalid OTP' });
-    }
-
-    if (new Date() > new Date(user.otpExpiry)) {
-      return res.status(401).json({ message: 'OTP expired' });
-    }
-
-    // Mark as verified
-    await db.query('UPDATE Users SET isVerified = ?, otp = NULL, otpExpiry = NULL WHERE email = ?', [true, email]);
+    await db.query('UPDATE Users SET isVerified = 1, otp = NULL, otpExpiry = NULL WHERE id = ?', [user.id]);
     
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
     
     res.status(200).json({
-      message: 'OTP verified securely',
+      message: 'Account verified successfully!',
       token,
       user: { id: user.id, name: user.name, email: user.email, role: user.role }
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error during OTP verification' });
+    res.status(500).json({ message: 'Verification error' });
   }
 };
 
@@ -99,21 +131,23 @@ exports.login = async (req, res) => {
     if (users.length === 0) return res.status(404).json({ message: 'User not found' });
     
     const user = users[0];
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
-    // OTP verification check removed for direct access
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Please verify your email first', unverified: true });
+    }
 
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
     
     res.status(200).json({
-      message: 'Secure login successful',
+      message: 'Login successful',
       token,
       user: { id: user.id, name: user.name, email: user.email, role: user.role }
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({ message: 'Login error' });
   }
 };
+
