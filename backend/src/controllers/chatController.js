@@ -13,11 +13,23 @@ exports.handleChat = async (req, res) => {
 
   try {
     // Convert history for Gemini SDK format
-    // Filter out potential system instructions from historical messages if needed
-    const history = messages.slice(0, -1).map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.text }]
-    }));
+    // IMPORTANT: Gemini SDK requires the first message in history to be from the 'user' role.
+    // We also limit the history to the last 20 messages to avoid token limit issues.
+    const MAX_HISTORY = 20;
+    let history = messages.slice(0, -1)
+      .slice(-MAX_HISTORY)
+      .map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.text }]
+      }));
+
+    // Find the first 'user' message index to ensure history starts correctly
+    const firstUserIndex = history.findIndex(m => m.role === 'user');
+    if (firstUserIndex !== -1) {
+      history = history.slice(firstUserIndex);
+    } else {
+      history = []; // No user messages in the windowed history yet
+    }
 
     const currentMsg = messages[messages.length - 1];
     let parts = [{ text: currentMsg.text }];
