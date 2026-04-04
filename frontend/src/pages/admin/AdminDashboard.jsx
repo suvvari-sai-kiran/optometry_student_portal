@@ -6,7 +6,7 @@ import {
   ChevronLeft, HelpCircle, LayoutDashboard, 
   Users, Layers, MessageSquare, Settings,
   Eye, Save, X, Edit, Sliders, Activity,
-  Search, ShieldCheck, User as UserIcon, Sparkles, PlayCircle
+  Search, ShieldCheck, User as UserIcon, Sparkles, PlayCircle, Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   
   // Navigation states
   const [view, setView] = useState('overview'); // 'overview', 'courses', 'tests', 'questions'
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedTest, setSelectedTest] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -162,7 +163,10 @@ export default function AdminDashboard() {
       <button
         onClick={() => {
           if (isForum) navigate(`/qna`);
-          else if (!isExternal) setView(id);
+          else if (!isExternal) {
+            setView(id);
+            setIsMobileMenuOpen(false);
+          }
           else toast.info(`${label} module coming soon!`);
         }}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
@@ -197,16 +201,43 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
+      {/* Mobile Header */}
+      <div className="md:hidden p-4 border-b border-white/5 flex justify-between items-center bg-slate-950/50 backdrop-blur-xl sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+             <Menu size={24} />
+           </button>
+           <div className="flex items-center gap-2">
+             <ShieldCheck className="text-primary" size={24} />
+             <span className="font-bold text-white">EyeCare Admin</span>
+           </div>
+        </div>
+        <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 transition-colors"><LogOut size={20} /></button>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-72 h-screen sticky top-0 bg-slate-950/50 border-r border-white/5 backdrop-blur-2xl p-6">
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/10">
-            <ShieldCheck className="text-primary" size={24} />
+      <aside className={`fixed inset-y-0 left-0 z-[100] w-72 bg-slate-950 md:bg-slate-950/50 border-r border-white/5 md:backdrop-blur-2xl p-6 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-screen ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between mb-10 px-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/10">
+              <ShieldCheck className="text-primary" size={24} />
+            </div>
+            <div>
+              <h1 className="font-bold text-white tracking-tight">EyeCare Admin</h1>
+              <p className="text-[10px] text-primary uppercase tracking-widest font-black">Command Center</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-white tracking-tight">EyeCare Admin</h1>
-            <p className="text-[10px] text-primary uppercase tracking-widest font-black">Command Center</p>
-          </div>
+          <button className="md:hidden p-2 text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="flex-1 space-y-2">

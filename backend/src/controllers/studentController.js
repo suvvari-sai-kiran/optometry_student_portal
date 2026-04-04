@@ -59,3 +59,19 @@ exports.getUserResults = async (req, res) => {
     res.status(500).json({ message: 'Server error fetching user results' });
   }
 };
+
+exports.getRandomQuestions = async (req, res) => {
+  try {
+    console.log(`[StudentController] Incoming Random Quiz Request - Count: ${req.query.count || 10}`);
+    const limit = parseInt(req.query.count) || 10;
+    const [questions] = await db.query(
+      'SELECT q.*, t.title as testTitle FROM Questions q JOIN Tests t ON q.testId = t.id ORDER BY RAND() LIMIT ?',
+      [limit]
+    );
+    console.log(`[StudentController] Successfully fetched ${questions.length} questions.`);
+    res.json(questions);
+  } catch (error) {
+    console.error('[StudentController] Error fetching random questions:', error);
+    res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+};

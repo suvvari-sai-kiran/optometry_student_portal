@@ -87,6 +87,19 @@ async function initModels() {
     )
   `;
 
+  const patientsTable = `
+    CREATE TABLE IF NOT EXISTS Patients (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT,
+      name VARCHAR(255) NOT NULL,
+      age INT NOT NULL,
+      history TEXT,
+      test_results TEXT,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
+    )
+  `;
+
   try {
     await db.query(usersTable);
     console.log("✅ Users table ensured.");
@@ -102,6 +115,8 @@ async function initModels() {
     console.log("✅ QnaThreads table ensured.");
     await db.query(qnaRepliesTable);
     console.log("✅ QnaReplies table ensured.");
+    await db.query(patientsTable);
+    console.log("✅ Patients table ensured.");
   } catch (error) {
     console.error("❌ Model Initialization Error:", error);
   }

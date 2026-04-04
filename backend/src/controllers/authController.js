@@ -28,39 +28,16 @@ exports.register = async (req, res) => {
 
     // Generate and save user
     const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
     const userRole = role === 'admin' ? 'admin' : 'student';
 
+    // Auto-verify user to bypass OTP requirement
     await db.query(
-      'INSERT INTO Users (name, email, password, role, isVerified, otp, otpExpiry) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, email, hashedPassword, userRole, false, otp, otpExpiry]
+      'INSERT INTO Users (name, email, password, role, isVerified) VALUES (?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, userRole, true]
     );
 
-    // Send OTP Email
-    const mailOptions = {
-      from: `"EyeCare AI" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: 'Verify your EyeCare AI Account',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-          <h2 style="color: #6366f1; text-align: center;">Welcome to EyeCare AI</h2>
-          <p>Hi ${name},</p>
-          <p>Thank you for registering. Please use the following OTP to verify your account. It is valid for <strong>5 minutes</strong>.</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #10b981;">${otp}</span>
-          </div>
-          <p>If you didn't request this, please ignore this email.</p>
-          <hr style="border: none; border-top: 1px solid #eeeeee;" />
-          <p style="font-size: 12px; color: #888888; text-align: center;">&copy; 2026 EyeCare AI. All rights reserved.</p>
-        </div>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
-
     res.status(201).json({ 
-      message: 'Registration successful! Verification OTP sent to your email.',
+      message: 'Registration successful! You can now log in.',
       email 
     });
   } catch (error) {
@@ -148,6 +125,58 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Login error' });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const [users] = await db.query('SELECT * FROM Users WHERE email = ?', [email]);
+    if (users.length === 0) return res.status(404).json({ message: 'User not found' });
+
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); 
+    await db.query('UPDATE Users SET otp = ?, otpExpiry = ? WHERE email = ?', [otp, otpExpiry, email]);
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetLink = `${frontendUrl}/reset-password?token=${otp}&email=${email}`;
+
+    const mailOptions = {
+      from: `"EyeCare AI" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: 'EyeCare AI - Password Reset Request',
+      html: `<p>You requested a password reset. Click the link below to set a new password. The link will expire in 15 minutes.</p>
+             <p><a href="${resetLink}">${resetLink}</a></p>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Password reset link sent to your email.' });
+  } catch (error) {
+    console.error('Forgot Password Error:', error);
+    res.status(500).json({ 
+      message: 'Error processing forgot password request', 
+      error: error.message 
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, token, newPassword } = req.body;
+    const [users] = await db.query('SELECT * FROM Users WHERE email = ? AND otp = ?', [email, token]);
+
+    if (users.length === 0) return res.status(400).json({ message: 'Invalid or expired reset link' });
+
+    const user = users[0];
+    if (new Date() > new Date(user.otpExpiry)) return res.status(400).json({ message: 'Reset link has expired' });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.query('UPDATE Users SET password = ?, otp = NULL, otpExpiry = NULL WHERE id = ?', [hashedPassword, user.id]);
+
+    res.status(200).json({ message: 'Password reset successfully!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error resetting password' });
   }
 };
 

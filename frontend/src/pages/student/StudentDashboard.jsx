@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { 
   LogOut, PlayCircle, Eye, Calculator, ChevronLeft, 
   MessageSquare, ExternalLink, CheckCircle, Info, 
   Award, LayoutDashboard, BookOpen, FileText, 
   Settings, User as UserIcon, TrendingUp, Clock,
-  Play, X, Sparkles
+  Play, X, Sparkles, Menu, Users, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import BASE_URL from '../../api/config';
+import PatientsView from './PatientsView';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [view, setView] = useState('overview');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [courses, setCourses] = useState([]);
   const [tests, setTests] = useState([]);
   const [history, setHistory] = useState([]);
@@ -32,6 +35,12 @@ export default function StudentDashboard() {
   useEffect(() => {
     fetchInitialData();
   }, []);
+
+  useEffect(() => {
+    if (location.state?.startAiQuiz) {
+      startAiRandomQuiz();
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (view === 'history') {
@@ -101,6 +110,33 @@ export default function StudentDashboard() {
     } catch (e) { toast.error('Error loading questions'); }
   };
 
+  const startAiRandomQuiz = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${BASE_URL}/api/student/questions/random?count=10`);
+      if (!res.data || res.data.length === 0) {
+        toast.error("No questions found for the clinical refresher.");
+        return;
+      }
+      setSelectedTest({ title: 'AI Clinical Practice', id: null });
+      setQuestions(res.data);
+      setAnswers({});
+      setCurrentQuestionIndex(0);
+      setScoreData(null);
+      setView('take-test');
+      toast.success("AI Clinical Refresher Started!");
+      // Clear navigation state
+      navigate(location.pathname, { replace: true, state: {} });
+    } catch (e) {
+      console.error('[AI Tutor] Startup Error:', e);
+      const is404 = e.response?.status === 404;
+      const msg = is404 ? "Quiz endpoint not found. Please rotate server." : `Failed to start: ${e.response?.data?.message || e.message}`;
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const submitTest = async () => {
     let score = 0;
     questions.forEach(q => {
@@ -108,12 +144,14 @@ export default function StudentDashboard() {
     });
 
     try {
-      await axios.post(`${BASE_URL}/api/student/tests/submit`, {
-        userId: user.id,
-        testId: selectedTest.id,
-        score,
-        totalQuestions: questions.length
-      });
+      if (selectedTest.id) {
+        await axios.post(`${BASE_URL}/api/student/tests/submit`, {
+          userId: user.id,
+          testId: selectedTest.id,
+          score,
+          totalQuestions: questions.length
+        });
+      }
       setScoreData({ score, total: questions.length });
       setView('result');
       toast.success('Test submitted!');
@@ -135,6 +173,7 @@ export default function StudentDashboard() {
         onClick={() => {
           if (isExternal) navigate(`/${id}`);
           else setView(id);
+          setIsMobileMenuOpen(false);
         }}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
           !isExternal && activeView === id 
@@ -164,31 +203,50 @@ export default function StudentDashboard() {
     { icon: LayoutDashboard, label: "Overview", id: "overview" },
     { icon: BookOpen, label: "Learning Modules", id: "courses" },
     { icon: FileText, label: "Test History", id: "history" },
+    { icon: Users, label: "Patient Directory", id: "patients" },
     { icon: MessageSquare, label: "Q&A Forum", id: "qna" },
-    { icon: Calculator, label: "Optical Formulas", id: "formulas" },
+    { icon: Calculator, label: "Clinical Calculator", id: "formulas" },
   ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Mobile Header */}
-      <div className="md:hidden p-4 border-b border-white/5 flex justify-between items-center bg-slate-950/50 backdrop-blur-xl">
-        <div className="flex items-center gap-2">
-           <Eye className="text-primary" size={24} />
-           <span className="font-bold text-white">EyeCare AI</span>
+      <div className="md:hidden px-6 py-4 border-b border-white/5 flex justify-between items-center bg-slate-950/80 backdrop-blur-2xl sticky top-0 z-[60]">
+        <div className="flex items-center gap-3">
+           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+             <Menu size={24} />
+           </button>
+           <div className="flex items-center gap-2">
+             <Eye className="text-primary" size={24} />
+             <span className="font-black text-white tracking-tighter text-lg">EyeCare AI</span>
+           </div>
         </div>
-        <button onClick={handleLogout} className="p-2 text-slate-400"><LogOut size={20} /></button>
+        <button onClick={handleLogout} className="p-2 -mr-2 text-slate-400 hover:text-red-400 transition-colors"><LogOut size={20} /></button>
       </div>
 
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-72 h-screen sticky top-0 bg-slate-950/50 border-r border-white/5 backdrop-blur-2xl p-6">
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
-            <Eye className="text-primary" size={24} />
+      <aside className={`fixed inset-y-0 left-0 z-[100] w-72 bg-slate-950 md:bg-slate-950/50 border-r border-white/5 md:backdrop-blur-2xl p-6 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-screen ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between mb-10 px-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
+              <Eye className="text-primary" size={24} />
+            </div>
+            <div>
+              <h1 className="font-bold text-white tracking-tight">EyeCare AI</h1>
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black">Student Portal</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-white tracking-tight">EyeCare AI</h1>
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black">Student Portal</p>
-          </div>
+          <button className="md:hidden p-2 text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -199,7 +257,7 @@ export default function StudentDashboard() {
 
         <div className="mt-auto space-y-4 pt-6 border-t border-white/5">
           <button 
-            onClick={() => setView('settings')} 
+            onClick={() => { setView('settings'); setIsMobileMenuOpen(false); }} 
             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${view === 'settings' ? 'bg-primary/20 text-primary border border-primary/20' : 'text-slate-400 hover:text-white'}`}
           >
             <Settings size={20} />
@@ -221,24 +279,24 @@ export default function StudentDashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 max-h-screen overflow-y-auto custom-scrollbar p-6 md:p-10">
+      <main className="flex-1 max-h-screen overflow-y-auto custom-scrollbar p-1 md:p-10">
         <AnimatePresence mode="wait">
           {view === 'overview' && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
-              <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                  <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Dashboard Overview</h2>
-                  <p className="text-slate-400 font-medium">Welcome back, <span className="text-primary">{user.name}</span>. Ready to study?</p>
+              <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-4 md:p-0">
+                <div className="space-y-1">
+                  <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter">Clinical Performance</h2>
+                  <p className="text-slate-500 font-medium text-xs md:text-base">Real-time tracking of your module mastery.</p>
                 </div>
-                <button onClick={() => setView('courses')} className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold shadow-xl shadow-primary/20 transition-all transform active:scale-95 flex items-center gap-2">
-                  <Play size={18} /> Continue Learning
+                <button onClick={() => setView('courses')} className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] md:text-xs">
+                  <Play size={16} className="fill-white" /> Continue Learning
                 </button>
               </header>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 px-4 md:px-0">
                 <StatCard icon={CheckCircle} label="Tests Completed" value={stats.totalTests} color="bg-emerald-500" />
-                <StatCard icon={TrendingUp} label="Average Score" value={`${stats.avgScore}%`} color="bg-primary" />
-                <StatCard icon={Award} label="Current Rank" value={stats.rank} color="bg-amber-500" />
+                <StatCard icon={TrendingUp} label="Module Mastery" value={`${stats.avgScore}%`} color="bg-primary" />
+                <StatCard icon={Award} label="Clinical Rank" value={stats.rank} color="bg-amber-500" />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -334,8 +392,8 @@ export default function StudentDashboard() {
               </button>
 
               <header>
-                 <span className="text-primary text-sm font-black uppercase tracking-widest leading-none mb-2 block">{selectedCourse?.title}</span>
-                 <h2 className="text-3xl font-bold text-white tracking-tight">Available Test Modules</h2>
+                 <span className="text-primary text-[10px] md:text-sm font-black uppercase tracking-widest leading-none mb-2 block">{selectedCourse?.title}</span>
+                 <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Available Test Modules</h2>
               </header>
 
               <div className="grid grid-cols-1 gap-4">
@@ -362,23 +420,23 @@ export default function StudentDashboard() {
                   </div>
                 ))}
                 {tests.length === 0 && (
-                  <div className="glass-card p-12 text-center">
-                    <p className="text-slate-500 font-medium italic">No tests have been published for this subject yet.</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
-          {view === 'video-phase' && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-5xl mx-auto space-y-8 pb-10">
-                <div className="flex items-center gap-4 justify-between">
-                   <button onClick={() => setView('tests')} className="p-3 bg-white/5 rounded-2xl text-slate-400 hover:text-white transition-all"><ChevronLeft /></button>
-                   <div className="text-center flex-1">
-                      <p className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-1">Pre-Analysis Phase</p>
-                      <h2 className="text-2xl font-bold text-white tracking-tight">{selectedTest?.title}</h2>
+                   <div className="glass-card p-12 text-center">
+                     <p className="text-slate-500 font-medium italic">No tests have been published for this subject yet.</p>
                    </div>
-                   <div className="w-12 h-12" /> {/* Spacer */}
+                 )}
+               </div>
+             </motion.div>
+           )}
+
+           {view === 'video-phase' && (
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-5xl mx-auto space-y-4 md:space-y-8 pb-10">
+                <div className="flex items-center gap-3 md:gap-4 justify-between p-2 md:p-0">
+                   <button onClick={() => setView('tests')} className="p-2 md:p-3 bg-white/5 rounded-xl md:rounded-2xl text-slate-400 hover:text-white transition-all"><ChevronLeft size={20} /></button>
+                   <div className="text-center flex-1">
+                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">Pre-Analysis Phase</p>
+                      <h2 className="text-lg md:text-2xl font-bold text-white tracking-tight">{selectedTest?.title}</h2>
+                   </div>
+                   <div className="w-10 h-10 md:w-12 md:h-12" /> {/* Spacer */}
                 </div>
 
                 <div className="glass-card overflow-hidden ring-4 ring-black/40">
@@ -390,34 +448,45 @@ export default function StudentDashboard() {
                         allowFullScreen
                       />
                    </div>
-                   <div className="p-8 bg-slate-900/80 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                      <div className="flex-1">
-                         <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                           <Info size={18} className="text-accent" /> Clinical Instructional Guide
-                         </h3>
-                         <p className="text-slate-400 text-sm leading-relaxed">Please watch this clinical demonstration carefully. The upcoming test will evaluate your understanding of the procedures shown in this video.</p>
-                      </div>
-                      <button 
-                        onClick={() => startTest(selectedTest)}
-                        className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black px-10 py-4 rounded-xl shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
-                      >
-                         I'm Ready, Start Test <CheckCircle size={16} />
-                      </button>
-                   </div>
+                    <div className="p-6 md:p-10 bg-slate-900/90 border-t border-white/5 flex flex-col md:flex-row items-center gap-8 md:gap-10">
+                       <div className="flex-1 space-y-4 text-center md:text-left">
+                          <div>
+                            <span className="text-[9px] md:text-[10px] font-black text-emerald-400 uppercase tracking-widest block mb-1">Module Completion</span>
+                            <h3 className="text-xl md:text-2xl font-bold text-white flex items-center justify-center md:justify-start gap-3">
+                              <BookOpen size={20} className="md:size-[24px] text-primary" /> Subject Assessment
+                            </h3>
+                          </div>
+                          <p className="text-slate-400 text-xs md:text-sm font-medium leading-relaxed max-w-xl mx-auto md:mx-0">
+                            This assessment is related specifically to the clinical procedures demonstrated above. 
+                            You have **10 clinical MCQs** to validate your understanding.
+                          </p>
+                          <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6 text-[9px] md:text-[10px] font-black uppercase tracking-tighter text-slate-500">
+                             <span className="flex items-center gap-2"><Clock size={12} className="md:size-[14px] text-primary"/> Est: 15 Mins</span>
+                             <span className="flex items-center gap-2"><FileText size={12} className="md:size-[14px] text-primary"/> 10 Questions</span>
+                             <span className="flex items-center gap-2"><Award size={12} className="md:size-[14px] text-primary"/> Required: 5/10</span>
+                          </div>
+                       </div>
+                       <button 
+                         onClick={() => startTest(selectedTest)}
+                         className="w-full md:w-auto bg-white text-slate-950 hover:bg-primary hover:text-white font-black px-10 md:px-12 py-4 md:py-5 rounded-xl md:rounded-2xl shadow-2xl shadow-primary/20 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] md:text-sm group"
+                       >
+                          Launch Module Test <ArrowRight size={18} className="md:size-[20px] group-hover:translate-x-1 transition-transform" />
+                       </button>
+                    </div>
                 </div>
              </motion.div>
           )}
 
           {view === 'take-test' && (
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto">
-               <div className="mb-8 flex justify-between items-end">
-                  <div className="flex-1 pr-6">
-                     <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-2">Subject: {selectedCourse?.title}</span>
-                     <h3 className="text-2xl font-bold text-white tracking-tight">{selectedTest?.title}</h3>
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto p-4 md:p-0">
+               <div className="mb-6 md:mb-8 flex justify-between items-end">
+                  <div className="flex-1 pr-4 md:pr-6">
+                     <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-1 md:mb-2 italic opacity-70">Clinical Assessment</span>
+                     <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">{selectedTest?.title}</h3>
                   </div>
                   <div className="text-right">
-                     <span className="text-slate-400 text-xs font-bold block mb-1 uppercase tracking-widest">Question</span>
-                     <span className="text-2xl font-black text-white">{currentQuestionIndex + 1}<span className="text-slate-600 text-lg"> / {questions.length}</span></span>
+                     <span className="text-slate-400 text-[10px] font-black block mb-1 uppercase tracking-widest leading-none">Question</span>
+                     <span className="text-xl md:text-2xl font-black text-white">{currentQuestionIndex + 1}<span className="text-slate-600 text-base md:text-lg"> / {questions.length}</span></span>
                   </div>
                </div>
 
@@ -428,13 +497,13 @@ export default function StudentDashboard() {
                   />
                </div>
 
-               <div className="glass-card p-10 border-white/5 ring-1 ring-white/5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-5">
+               <div className="glass-card p-6 md:p-10 border-white/5 ring-1 ring-white/5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 hidden md:block">
                     <FileText size={120} className="text-white" />
                   </div>
                   
-                  <div className="relative z-10 space-y-12">
-                    <h4 className="text-2xl font-bold text-white leading-tight min-h-[80px]">{questions[currentQuestionIndex].questionText}</h4>
+                  <div className="relative z-10 space-y-8 md:space-y-12">
+                    <h4 className="text-lg md:text-2xl font-bold text-white leading-tight min-h-0 md:min-h-[80px]">{questions[currentQuestionIndex].questionText}</h4>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {['A', 'B', 'C', 'D'].map(opt => {
@@ -444,15 +513,15 @@ export default function StudentDashboard() {
                           <button 
                             key={opt}
                             onClick={() => setAnswers({ ...answers, [questions[currentQuestionIndex].id]: opt })}
-                            className={`group p-5 rounded-2xl border text-left transition-all relative overflow-hidden ${
+                            className={`group p-4 md:p-5 rounded-xl md:rounded-2xl border text-left transition-all relative overflow-hidden ${
                               isSelected 
                                 ? 'bg-primary/20 border-primary shadow-lg shadow-primary/10' 
                                 : 'bg-white/5 border-white/10 hover:border-white/30 hover:bg-white/[0.08]'
                             }`}
                           >
-                             <div className="flex gap-4 items-center">
-                                <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${isSelected ? 'bg-primary text-white' : 'bg-slate-800 text-slate-400 border border-white/10'}`}>{opt}</span>
-                                <span className={`flex-1 font-medium ${isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>{optText}</span>
+                             <div className="flex gap-3 md:gap-4 items-center">
+                                <span className={`w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center font-bold text-xs md:text-sm ${isSelected ? 'bg-primary text-white' : 'bg-slate-800 text-slate-400 border border-white/10'}`}>{opt}</span>
+                                <span className={`flex-1 text-sm md:text-base font-medium ${isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>{optText}</span>
                              </div>
                           </button>
                         );
@@ -492,25 +561,25 @@ export default function StudentDashboard() {
           )}
 
           {view === 'result' && (
-             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto space-y-10 py-10">
-                <div className="glass-card p-12 text-center border-emerald-500/20 relative overflow-hidden bg-gradient-to-b from-slate-900/50 to-slate-950/50">
+             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto space-y-6 md:space-y-10 py-6 md:py-10 p-4 md:p-0">
+                <div className="glass-card p-6 md:p-12 text-center border-emerald-500/20 relative overflow-hidden bg-gradient-to-b from-slate-900/50 to-slate-950/50">
                    <div className="absolute top-0 inset-x-0 h-1 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
                    
-                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }} className="w-24 h-24 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-emerald-500/20 shadow-inner">
-                      <Award className="text-emerald-400" size={48} />
+                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }} className="w-16 md:w-24 h-16 md:h-24 bg-emerald-500/10 rounded-2xl md:rounded-3xl flex items-center justify-center mx-auto mb-6 md:mb-8 border border-emerald-500/20 shadow-inner">
+                      <Award className="text-emerald-400" size={32} />
                    </motion.div>
 
-                   <p className="text-emerald-400 font-black uppercase tracking-[0.3em] text-xs mb-2">Performance Verified</p>
-                   <h2 className="text-5xl font-black text-white mb-6">Final Score: {scoreData.score}<span className="text-slate-600 text-2xl"> / {scoreData.total}</span></h2>
+                   <p className="text-emerald-400 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs mb-2">Performance Verified</p>
+                   <h2 className="text-3xl md:text-5xl font-black text-white mb-6">Result: {scoreData.score}<span className="text-slate-600 text-xl md:text-2xl"> / {scoreData.total}</span></h2>
                    
-                   <div className="flex justify-center flex-wrap gap-4 mb-10">
-                      <div className="px-6 py-3 bg-white/5 rounded-2xl border border-white/5">
-                        <span className="text-slate-500 text-xs font-bold uppercase block mb-1">Accuracy</span>
-                        <span className="text-xl font-bold text-white">{Math.round((scoreData.score / scoreData.total) * 100)}%</span>
+                   <div className="flex justify-center flex-wrap gap-3 md:gap-4 mb-8 md:mb-10">
+                      <div className="px-5 py-3 md:px-6 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase block mb-1">Accuracy</span>
+                        <span className="text-lg md:text-xl font-bold text-white">{Math.round((scoreData.score / scoreData.total) * 100)}%</span>
                       </div>
-                      <div className="px-6 py-3 bg-white/5 rounded-2xl border border-white/5">
-                        <span className="text-slate-500 text-xs font-bold uppercase block mb-1">Status</span>
-                        <span className={`text-xl font-bold ${scoreData.score >= (scoreData.total / 2) ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <div className="px-5 py-3 md:px-6 bg-white/5 rounded-xl md:rounded-2xl border border-white/5">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase block mb-1">Status</span>
+                        <span className={`text-lg md:text-xl font-bold ${scoreData.score >= (scoreData.total / 2) ? 'text-emerald-400' : 'text-red-400'}`}>
                            {scoreData.score >= (scoreData.total / 2) ? 'Mastered' : 'Needs Review'}
                         </span>
                       </div>
@@ -524,11 +593,11 @@ export default function StudentDashboard() {
                    </button>
                 </div>
 
-                <div className="space-y-6 pt-10">
-                   <h3 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
-                     <BookOpen className="text-primary" /> Comprehensive Analytics
+                <div className="space-y-4 md:space-y-6 pt-6 md:pt-10">
+                   <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight flex items-center gap-3 p-4 md:p-0">
+                     <BookOpen size={20} className="md:size-[24px] text-primary" /> Comprehensive Analytics
                    </h3>
-                   <div className="space-y-4">
+                   <div className="space-y-3 md:space-y-4 px-4 md:px-0">
                      {questions.map((q, idx) => {
                        const isCorrect = answers[q.id] === q.correctOption;
                        return (
@@ -563,10 +632,10 @@ export default function StudentDashboard() {
           )}
 
           {view === 'history' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 md:space-y-8 p-4 md:p-0">
               <header>
-                <h2 className="text-3xl font-bold text-white tracking-tight">Attempt History</h2>
-                <p className="text-slate-400">Review your past performance and clinical accuracy</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter">Attempt History</h2>
+                <p className="text-slate-500 text-sm font-medium">Review your past performance and clinical accuracy</p>
               </header>
 
               <div className="glass-card overflow-hidden border border-white/5">
@@ -614,6 +683,12 @@ export default function StudentDashboard() {
                   </table>
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {view === 'patients' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+              <PatientsView />
             </motion.div>
           )}
 

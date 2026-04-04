@@ -8,7 +8,7 @@ import BASE_URL from '../../api/config';
 
 export default function Register() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'student' });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isInstallable, setIsInstallable] = useState(false);
@@ -22,6 +22,9 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      return toast.error("Passwords do not match");
+    }
     setLoading(true);
 
     try {
@@ -111,21 +114,18 @@ export default function Register() {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, role: 'student' })}
-                className={`py-3 rounded-xl border transition-all text-sm font-medium ${formData.role === 'student' ? 'bg-primary/20 border-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-900/30 border-white/5 text-slate-400 hover:border-white/20'}`}
-              >
-                Student
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, role: 'admin' })}
-                className={`py-3 rounded-xl border transition-all text-sm font-medium ${formData.role === 'admin' ? 'bg-primary/20 border-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-900/30 border-white/5 text-slate-400 hover:border-white/20'}`}
-              >
-                Administrator
-              </button>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+                <Lock size={18} />
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-11 pr-12 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              />
             </div>
 
             <button
