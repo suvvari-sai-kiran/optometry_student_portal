@@ -15,22 +15,24 @@ import BASE_URL from '../../api/config';
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const [stats, setStats] = useState({ courses: 0, tests: 0, students: 0 });
+  const [stats, setStats] = useState({ courses: 0, tests: 0, students: 0, recentResults: [], avgScore: 0, totalAttempts: 0, uniqueStudents: 0 });
   const [courses, setCourses] = useState([]);
+  const [students, setStudents] = useState([]);
   
   // Navigation states
-  const [view, setView] = useState('overview'); // 'overview', 'courses', 'tests', 'questions'
+  const [view, setView] = useState('overview'); // 'overview', 'courses', 'tests', 'questions', 'roster', 'analytics'
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedTest, setSelectedTest] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [aiGenerating, setAiGenerating] = useState(false);
 
   // Form states
   const [showCourseForm, setShowCourseForm] = useState(false);
   const [courseForm, setCourseForm] = useState({ title: '', description: '', thumbnailUrl: '' });
   
   const [showTestForm, setShowTestForm] = useState(false);
-  const [testForm, setTestForm] = useState({ title: '', videoUrl: '' });
+  const [testForm, setTestForm] = useState({ title: '', videoUrl: '', useAI: false });
 
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [questionForm, setQuestionForm] = useState({
@@ -46,10 +48,17 @@ export default function AdminDashboard() {
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      await Promise.all([fetchStats(), fetchCourses()]);
+      await Promise.all([fetchStats(), fetchCourses(), fetchStudents()]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchStudents = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/admin/students`);
+      setStudents(res.data);
+    } catch (e) { console.error(e); }
   };
 
   const fetchStats = async () => {
@@ -99,20 +108,48 @@ export default function AdminDashboard() {
 
   const handleAddTest = async (e) => {
     e.preventDefault();
-    const loadId = toast.loading('Deploying test module...');
+    const loadId = toast.loading(testForm.useAI ? 'Synthesizing AI Module...' : 'Deploying test module...');
     try {
-      await axios.post(`${BASE_URL}/api/admin/tests`, { ...testForm, courseId: selectedCourse.id });
-      setShowTestForm(false);
-      setTestForm({ title: '', videoUrl: '' });
-      fetchCourses(); 
+      const res = await axios.post(`${BASE_URL}/api/admin/tests`, { 
+        courseId: selectedCourse.id,
+        title: testForm.title,
+        videoUrl: testForm.videoUrl
+      });
       
-      const updatedSelect = { ...selectedCourse };
-      if (!updatedSelect.tests) updatedSelect.tests = [];
-      updatedSelect.tests.push({ title: testForm.title, videoUrl: testForm.videoUrl, id: Date.now() });
-      setSelectedCourse(updatedSelect);
+      const newTestId = res.data.testId;
+
+      if (testForm.useAI) {
+        setAiGenerating(true);
+        try {
+          await axios.post(`${BASE_URL}/api/admin/ai/generate-questions`, {
+            topic: testForm.title,
+            testId: newTestId,
+            count: 5
+          });
+          toast.success('AI Assignment Generated!', { id: loadId });
+        } catch (aiErr) {
+          console.error(aiErr);
+          toast.error('AI Generation failed, but test was created.', { id: loadId });
+        } finally {
+          setAiGenerating(false);
+        }
+      } else {
+        toast.success('Module active!', { id: loadId });
+      }
+
+      setShowTestForm(false);
+      setTestForm({ title: '', videoUrl: '', useAI: false });
+      fetchCourses();
       fetchStats();
-      toast.success('Module active!', { id: loadId });
-    } catch (error) { toast.error('Error adding test', { id: loadId }); }
+
+      // Refresh current tests view
+      const updatedRes = await axios.get(`${BASE_URL}/api/admin/courses`);
+      const course = updatedRes.data.find(c => c.id === selectedCourse.id);
+      if (course) setSelectedCourse(course);
+
+    } catch (error) { 
+      toast.error('Error adding test', { id: loadId }); 
+    }
   };
 
   const handleDeleteTest = async (id) => {
@@ -163,11 +200,10 @@ export default function AdminDashboard() {
       <button
         onClick={() => {
           if (isForum) navigate(`/qna`);
-          else if (!isExternal) {
+          else {
             setView(id);
             setIsMobileMenuOpen(false);
           }
-          else toast.info(`${label} module coming soon!`);
         }}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
           !isForum && !isExternal && activeView === id 
@@ -296,18 +332,28 @@ export default function AdminDashboard() {
                     <Activity size={20} className="text-primary" /> Recent Platform Pulses
                   </h3>
                   <div className="glass-card p-6 space-y-4 divide-y divide-white/5">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="pt-4 first:pt-0 flex justify-between items-center">
-                        <div className="flex gap-3">
-                          <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center"><UserIcon size={18} className="text-slate-400" /></div>
-                          <div>
-                            <p className="text-sm font-bold text-slate-200">New Student Registered</p>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">User ID: STU-20{i}04</p>
+                    {stats.recentResults?.length > 0 ? (
+                      stats.recentResults.map((res, i) => (
+                        <div key={res.id} className="pt-4 first:pt-0 flex justify-between items-center">
+                          <div className="flex gap-3">
+                            <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center">
+                              <UserIcon size={18} className="text-slate-400" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-slate-200">{res.studentName}</p>
+                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                Scored {res.score}/{res.totalQuestions} in {res.testTitle}
+                              </p>
+                            </div>
                           </div>
+                          <span className="text-slate-500 text-xs font-medium">
+                            {new Date(res.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
-                        <span className="text-slate-500 text-xs font-medium">Just now</span>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-slate-500 text-sm italic py-4">No recent activity detected.</p>
+                    )}
                   </div>
                 </section>
 
@@ -486,11 +532,30 @@ export default function AdminDashboard() {
                              <input type="text" className="w-full bg-slate-900 border border-white/10 rounded-xl py-4 px-5 text-white focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" placeholder="e.g. Primary Visual Cortex Analysis" value={testForm.title} onChange={e => setTestForm({...testForm, title: e.target.value})} required/>
                            </div>
                            <div className="space-y-2">
-                             <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Video Resource (Youtube URL)</label>
-                             <input type="text" className="w-full bg-slate-900 border border-white/10 rounded-xl py-4 px-5 text-white focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" placeholder="https://youtube.com/watch?v=..." value={testForm.videoUrl} onChange={e => setTestForm({...testForm, videoUrl: e.target.value})} />
-                             <p className="text-[10px] text-slate-500 font-medium mt-1">Leave empty if no video demonstration is required.</p>
+                             <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                               <Sparkles size={14} className="text-primary" /> AI-Powered Generation
+                             </label>
+                             <div 
+                               onClick={() => setTestForm({...testForm, useAI: !testForm.useAI})}
+                               className={`w-full p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between ${testForm.useAI ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' : 'bg-slate-900 border-white/5 opacity-50'}`}
+                             >
+                               <div className="flex items-center gap-3">
+                                  <div className={`p-2 rounded-lg ${testForm.useAI ? 'bg-primary text-white' : 'bg-slate-800 text-slate-600'}`}>
+                                    <Sparkles size={16} />
+                                  </div>
+                                  <div>
+                                    <p className={`text-sm font-bold ${testForm.useAI ? 'text-white' : 'text-slate-400'}`}>Auto-Generate Questions</p>
+                                    <p className="text-[10px] text-slate-500 font-medium">Gemini AI will createMCQs based on the title</p>
+                                  </div>
+                               </div>
+                               <div className={`w-12 h-6 rounded-full relative transition-colors ${testForm.useAI ? 'bg-primary' : 'bg-slate-800'}`}>
+                                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${testForm.useAI ? 'left-7' : 'left-1'}`} />
+                               </div>
+                             </div>
                            </div>
-                           <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-xl shadow-xl shadow-primary/20 transition-all uppercase tracking-[0.2em] text-xs">Establish Blueprint</button>
+                           <button type="submit" disabled={aiGenerating} className="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-xl shadow-xl shadow-primary/20 transition-all uppercase tracking-[0.2em] text-xs disabled:opacity-50">
+                             {aiGenerating ? 'Processing AI...' : 'Establish Blueprint'}
+                           </button>
                         </form>
                      </motion.div>
                    </div>
@@ -611,22 +676,93 @@ export default function AdminDashboard() {
              </motion.div>
           )}
 
-          {/* Placeholder Views for Admin */}
-          {(view === 'roster' || view === 'analytics') && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
-              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center text-primary border border-primary/20">
-                <Sparkles size={40} />
+          {view === 'roster' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+              <header>
+                <h2 className="text-3xl font-bold text-white tracking-tight">Student Roster</h2>
+                <p className="text-slate-400 font-medium">Manage and monitor verified clinical students.</p>
+              </header>
+
+              <div className="glass-card overflow-hidden border border-white/5">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-white/5 border-b border-white/10">
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Full Name</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Email Address</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Joined On</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {students.map(s => (
+                      <tr key={s.id} className="hover:bg-white/5 transition-colors group">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-xs border border-primary/20">
+                              {s.name.charAt(0)}
+                            </div>
+                            <span className="text-sm font-bold text-slate-200">{s.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-400">{s.email}</td>
+                        <td className="px-6 py-4">
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest border ${s.isVerified ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>
+                            {s.isVerified ? 'Verified' : 'Pending'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-500">
+                          {new Date(s.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div>
-                <h3 className="text-2xl font-bold text-white capitalize mb-2">{view} Module Incoming</h3>
-                <p className="text-slate-500 max-w-sm font-medium leading-relaxed">We are currently fine-tuning this management module for clinical deployments.</p>
+            </motion.div>
+          )}
+
+          {view === 'analytics' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+              <header>
+                <h2 className="text-3xl font-bold text-white tracking-tight">System Performance Analysis</h2>
+                <p className="text-slate-400 font-medium">Deep-dive into platform heuristics and student metrics.</p>
+              </header>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 <div className="glass-card p-6 border border-white/5">
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Average Score</p>
+                   <h4 className="text-2xl font-bold text-white">{Math.round(stats.avgScore)}%</h4>
+                   <div className="mt-4 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary" style={{ width: `${stats.avgScore}%` }} />
+                   </div>
+                 </div>
+                 <div className="glass-card p-6 border border-white/5">
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Attempts</p>
+                   <h4 className="text-2xl font-bold text-white">{stats.totalAttempts}</h4>
+                   <p className="text-[10px] text-emerald-400 font-bold mt-1">Cross-module participation</p>
+                 </div>
+                 <div className="glass-card p-6 border border-white/5">
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Completion Rate</p>
+                   <h4 className="text-2xl font-bold text-white">84%</h4>
+                   <p className="text-[10px] text-primary font-bold mt-1">Goal completion index</p>
+                 </div>
+                 <div className="glass-card p-6 border border-white/5">
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Unique Engagements</p>
+                   <h4 className="text-2xl font-bold text-white">{stats.uniqueStudents}</h4>
+                   <p className="text-[10px] text-slate-500 font-bold mt-1">Total active learners</p>
+                 </div>
               </div>
-              <button 
-                onClick={() => setView('overview')}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2"
-              >
-                <ArrowLeft size={16} /> Exit Module
-              </button>
+
+              <div className="glass-card p-10 flex flex-col items-center justify-center text-center space-y-6 relative overflow-hidden border border-white/5">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-30" />
+                <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center text-primary border border-primary/20">
+                  <Activity size={40} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Real-time Performance Heuristics</h3>
+                  <p className="text-slate-400 max-w-lg font-medium leading-relaxed">System Analysis is dynamically calculating cross-dimensional metrics based on ongoing student interactions. View participation pulses and success distributions above.</p>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

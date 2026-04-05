@@ -4,7 +4,7 @@ const {
   getCourses, addCourse, editCourse, deleteCourse,
   getTests, addTest, deleteTest,
   getQuestions, addQuestion, deleteQuestion,
-  getStats 
+  getStudents, getStats, generateAIQuestions
 } = require('../controllers/adminController');
 
 // For simplicity in this demo, we assume authentication middleware already passed if hooked properly
@@ -23,6 +23,8 @@ router.get('/tests/:testId/questions', getQuestions);
 router.post('/questions', addQuestion);
 router.delete('/questions/:id', deleteQuestion);
 
+router.get('/students', getStudents);
 router.get('/stats', getStats);
+router.post('/ai/generate-questions', generateAIQuestions);
 
 module.exports = router;
