@@ -6,7 +6,7 @@ import {
   ChevronLeft, HelpCircle, LayoutDashboard, 
   Users, Layers, MessageSquare, Settings,
   Eye, Save, X, Edit, Sliders, Activity,
-  Search, ShieldCheck, User as UserIcon, Sparkles, PlayCircle, Menu
+  Search, ShieldCheck, User as UserIcon, Sparkles, PlayCircle, Menu, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -25,6 +25,7 @@ export default function AdminDashboard() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedTest, setSelectedTest] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
 
   // Form states
@@ -51,6 +52,18 @@ export default function AdminDashboard() {
       await Promise.all([fetchStats(), fetchCourses(), fetchStudents()]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([fetchStats(), fetchCourses(), fetchStudents()]);
+      toast.success('System synchronization successful.');
+    } catch (e) {
+      toast.error('Sync failed.');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -208,7 +221,7 @@ export default function AdminDashboard() {
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
           !isForum && !isExternal && activeView === id 
             ? 'bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10' 
-            : 'text-slate-400 hover:bg-white/5 hover:text-white'
+            : 'text-text-muted hover:bg-bg-surface hover:text-text-main'
         }`}
       >
         <Icon size={20} />
@@ -224,9 +237,9 @@ export default function AdminDashboard() {
       </div>
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-2">{label}</p>
-          <h3 className="text-3xl font-black text-white">{value}</h3>
-          {trend && <p className="text-emerald-400 text-xs font-bold mt-2 flex items-center gap-1">↑ {trend}% <span className="text-slate-500 font-medium">vs last month</span></p>}
+          <p className="text-text-muted font-bold uppercase tracking-widest text-[10px] mb-2">{label}</p>
+          <h3 className="text-3xl font-black text-text-main">{value}</h3>
+          {trend && <p className="text-emerald-400 text-xs font-bold mt-2 flex items-center gap-1">↑ {trend}% <span className="text-text-muted font-medium">vs last month</span></p>}
         </div>
         <div className="p-3 bg-white/5 rounded-2xl border border-white/10 text-primary">
           <Icon size={24} />
@@ -238,17 +251,26 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Mobile Header */}
-      <div className="md:hidden p-4 border-b border-white/5 flex justify-between items-center bg-slate-950/50 backdrop-blur-xl sticky top-0 z-40">
+      <div className="md:hidden p-4 border-b border-white/5 flex justify-between items-center bg-bg-surface backdrop-blur-xl sticky top-0 z-40">
         <div className="flex items-center gap-3">
-           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-text-muted hover:text-text-main hover:bg-bg-surface rounded-lg transition-colors">
              <Menu size={24} />
            </button>
-           <div className="flex items-center gap-2">
-             <ShieldCheck className="text-primary" size={24} />
-             <span className="font-bold text-white">EyeCare Admin</span>
-           </div>
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+              <span className="font-black text-primary tracking-tighter text-lg uppercase leading-none">Clinical Hub</span>
+            </div>
         </div>
-        <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 transition-colors"><LogOut size={20} /></button>
+        <div className="flex items-center gap-2">
+           <button 
+             onClick={handleRefresh} 
+             disabled={refreshing}
+             className={`p-2 text-slate-400 hover:text-primary transition-all ${refreshing ? 'animate-spin' : ''}`}
+           >
+             <RefreshCw size={20} />
+           </button>
+           <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 transition-colors"><LogOut size={20} /></button>
+        </div>
       </div>
 
       {/* Mobile Overlay */}
@@ -260,18 +282,16 @@ export default function AdminDashboard() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-[100] w-72 bg-slate-950 md:bg-slate-950/50 border-r border-white/5 md:backdrop-blur-2xl p-6 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-screen ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-[100] w-72 bg-bg-surface border-r border-border-main md:backdrop-blur-2xl p-6 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-screen ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between mb-10 px-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/10">
-              <ShieldCheck className="text-primary" size={24} />
-            </div>
-            <div>
-              <h1 className="font-bold text-white tracking-tight">EyeCare Admin</h1>
-              <p className="text-[10px] text-primary uppercase tracking-widest font-black">Command Center</p>
-            </div>
+             <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+             <div>
+                <h1 className="text-xl font-black text-primary tracking-tighter leading-none uppercase">Clinical Hub</h1>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Command Center</p>
+             </div>
           </div>
-          <button className="md:hidden p-2 text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+          <button className="md:hidden p-2 text-text-muted hover:text-text-main" onClick={() => setIsMobileMenuOpen(false)}>
             <X size={20} />
           </button>
         </div>
@@ -290,8 +310,8 @@ export default function AdminDashboard() {
                <UserIcon className="text-accent" size={20} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-white truncate">Dr. {user.name}</p>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Administrator</p>
+              <p className="text-sm font-bold text-text-main truncate">Dr. {user.name}</p>
+              <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Administrator</p>
             </div>
             <button onClick={handleLogout} className="text-red-400 hover:bg-red-400/10 p-2 rounded-lg transition-colors">
               <LogOut size={18} />
@@ -311,8 +331,13 @@ export default function AdminDashboard() {
                   <p className="text-slate-400 font-medium italic">Monitor clinical learning progression across the portal.</p>
                 </div>
                 <div className="flex gap-4">
-                   <button className="bg-white/5 hover:bg-white/10 text-white px-5 py-3 rounded-xl font-bold border border-white/10 transition-all flex items-center gap-2">
-                     <FileText size={18} /> Export Stats
+                   <button 
+                     onClick={handleRefresh}
+                     disabled={refreshing}
+                     className="bg-white/5 hover:bg-white/10 text-white px-5 py-3 rounded-xl font-bold border border-white/10 transition-all flex items-center gap-2 disabled:opacity-50"
+                   >
+                     <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} /> 
+                     {refreshing ? 'Syncing...' : 'Update Pulse'}
                    </button>
                    <button onClick={() => setView('courses')} className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold shadow-xl shadow-primary/20 transition-all transform active:scale-95 flex items-center gap-2">
                     <Plus size={18} /> New Module

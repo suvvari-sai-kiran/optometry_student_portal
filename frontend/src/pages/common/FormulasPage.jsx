@@ -2,10 +2,11 @@ import { useState, useMemo } from 'react';
 import { 
   ChevronLeft, Calculator, Calculator as CalculatorIcon, BrainCircuit, 
   AlertTriangle, AlertCircle, ArrowRight, Play, Search, Filter, 
-  BookOpen, Video, Info, Sparkles, X, ChevronRight, Hash
+  BookOpen, Video, Info, Sparkles, X, ChevronRight, Hash, Activity, Plus, Zap
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import ClinicalCalculators from '../../components/ClinicalCalculators';
 
 const FORMULA_LIBRARY = [
   {
@@ -15,7 +16,8 @@ const FORMULA_LIBRARY = [
     category: 'Geometric',
     subTitle: 'Geometric Optics',
     description: 'Calculates the optical power (P) in dioptres given the focal length (f) in meters. Essential for lens identification.',
-    videoUrl: 'https://www.youtube-nocookie.com/embed/w-XgXADoBeU'
+    videoUrl: 'https://www.youtube-nocookie.com/embed/w-XgXADoBeU',
+    calculatorId: 'LP'
   },
   {
     id: 'PR',
@@ -44,7 +46,8 @@ const FORMULA_LIBRARY = [
     category: 'Refractive',
     subTitle: 'Presbyopia',
     description: "Calculates required near power based on optimal working distance (WD) and patient's distance refractive error.",
-    videoUrl: 'https://www.youtube-nocookie.com/embed/dfwcu944LVc'
+    videoUrl: 'https://www.youtube-nocookie.com/embed/dfwcu944LVc',
+    calculatorId: 'ADD'
   },
   {
     id: 'IOL',
@@ -53,7 +56,8 @@ const FORMULA_LIBRARY = [
     category: 'Surgical',
     subTitle: 'Surgical Optometry',
     description: 'Estimates Intraocular Lens power given the constant (A), axial length (L), and keratometry values (K).',
-    videoUrl: 'https://www.youtube-nocookie.com/embed/5CrgALxvzUE'
+    videoUrl: 'https://www.youtube-nocookie.com/embed/5CrgALxvzUE',
+    calculatorId: 'IOL'
   },
   {
     id: 'VI',
@@ -62,13 +66,14 @@ const FORMULA_LIBRARY = [
     category: 'Optical',
     subTitle: 'Dispensing Optics',
     description: 'Calculates induced prism differences at the reading level for anisometropic patients.',
-    videoUrl: 'https://www.youtube-nocookie.com/embed/x5TekSxNaJs'
+    videoUrl: 'https://www.youtube-nocookie.com/embed/x5TekSxNaJs',
+    calculatorId: 'VI'
   }
 ];
 
 export default function FormulasPage() {
   const navigate = useNavigate();
-  const [view, setView] = useState('library'); // 'library' or 'calculator'
+  const [view, setView] = useState('library'); // 'library', 'calculator', or 'clinical'
   const [activeTab, setActiveTab] = useState('SE');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('ALL');
@@ -81,6 +86,10 @@ export default function FormulasPage() {
   const [vertexState, setVertexState] = useState({ power: '', oldD: '12', newD: '0' });
   const [transState, setTransState] = useState({ sphere: '', cylinder: '', axis: '' });
   const [ampState, setAmpState] = useState({ age: '', npa: '' });
+  const [lpState, setLpState] = useState({ f: '' });
+  const [addState, setAddState] = useState({ wd: '', distPower: '' });
+  const [iolState, setIolState] = useState({ a: '118.4', l: '', k: '' });
+  const [viState, setViState] = useState({ c: '', fRight: '', fLeft: '' });
 
   const [result, setResult] = useState(null);
   const [insight, setInsight] = useState(null);
@@ -163,6 +172,46 @@ export default function FormulasPage() {
     else setInsight({ type: 'success', text: `Normal amplitude. Average for age ${age} is ${expected.toFixed(2)}D.` });
   };
 
+  const calculateLP = () => {
+    const f = parseFloat(lpState.f);
+    if (isNaN(f) || f === 0) return;
+    const res = 1 / f;
+    setResult(`Power (P) = ${res.toFixed(2)} D`);
+    setInsight({ type: 'info', text: "Calculated using P = 1/f. Ensure focal length is in meters." });
+  };
+
+  const calculateADD = () => {
+    const wd = parseFloat(addState.wd); // cm
+    const dp = parseFloat(addState.distPower);
+    if (isNaN(wd) || isNaN(dp)) return;
+    const res = (100 / wd) - dp;
+    setResult(`Required Add = +${res.toFixed(2)} D`);
+    setInsight({ type: 'success', text: "Near addition calculated based on working distance and distance power." });
+  };
+
+  const calculateIOL = () => {
+    const { a, l, k } = iolState;
+    const af = parseFloat(a);
+    const lf = parseFloat(l);
+    const kf = parseFloat(k);
+    if (isNaN(af) || isNaN(lf) || isNaN(kf)) return;
+    const res = af - (2.5 * lf) - (0.9 * kf);
+    setResult(`IOL Power = ${res.toFixed(2)} D`);
+    setInsight({ type: 'warning', text: "SRK Formula result. Clinical correlation with modern formulas (Barrett, Hill-RBF) recommended for extreme axial lengths." });
+  };
+
+  const calculateVI = () => {
+    const c = parseFloat(viState.c);
+    const fr = parseFloat(viState.fRight);
+    const fl = parseFloat(viState.fLeft);
+    if (isNaN(c) || isNaN(fr) || isNaN(fl)) return;
+    const prismR = Math.abs(c * fr);
+    const prismL = Math.abs(c * fl);
+    const res = Math.abs(prismR - prismL);
+    setResult(`Diff Prism = ${res.toFixed(2)} \u0394`);
+    setInsight({ type: 'warning', text: "Vertical imbalance detected. Consider Slab-off prism or different lens designs for patient comfort." });
+  };
+
   return (
     <div className="min-h-screen bg-background relative selection:bg-primary/30">
       
@@ -209,18 +258,24 @@ export default function FormulasPage() {
               </div>
             </div>
 
-            <div className="flex bg-slate-900/50 p-1 rounded-xl md:p-1.5 md:rounded-2xl border border-white/5 backdrop-blur-xl w-full md:w-auto">
+            <div className="flex bg-slate-900/50 p-1 rounded-xl md:p-1.5 md:rounded-2xl border border-white/5 backdrop-blur-xl w-full md:w-auto overflow-x-auto no-scrollbar">
                <button 
                  onClick={() => setView('library')}
-                 className={`px-8 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${view === 'library' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:text-white'}`}
+                 className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 whitespace-nowrap ${view === 'library' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-white'}`}
                >
-                 <BookOpen size={18} /> Library
+                 <BookOpen size={14} /> Library
+               </button>
+               <button 
+                 onClick={() => setView('clinical')}
+                 className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 whitespace-nowrap ${view === 'clinical' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-white'}`}
+               >
+                 <Calculator size={14} /> Clinical Hub
                </button>
                <button 
                  onClick={() => setView('calculator')}
-                 className={`px-8 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${view === 'calculator' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:text-white'}`}
+                 className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 whitespace-nowrap ${view === 'calculator' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-white'}`}
                >
-                 <Calculator size={18} /> Calculators
+                 <Zap size={14} /> Basic Tools
                </button>
             </div>
           </div>
@@ -320,6 +375,15 @@ export default function FormulasPage() {
                  )}
               </div>
             </motion.div>
+          ) : view === 'clinical' ? (
+            <motion.div 
+               key="clinical"
+               initial={{ opacity: 0, scale: 0.98 }}
+               animate={{ opacity: 1, scale: 1 }}
+               exit={{ opacity: 0, scale: 0.98 }}
+            >
+               <ClinicalCalculators />
+            </motion.div>
           ) : (
             <motion.div 
                key="calculator"
@@ -336,7 +400,11 @@ export default function FormulasPage() {
                     { id: 'ACA', title: 'AC/A Ratio', cat: 'Binocular Vision', icon: Calculator },
                     { id: 'PRENTICE', title: "Prentice's Rule", cat: 'Prism & Lenses', icon: Hash },
                     { id: 'VERTEX', title: 'Vertex Distance', cat: 'Refraction', icon: Filter },
-                    { id: 'AMP', title: 'Amplitude of Acc', cat: 'Presbyopia', icon: Info }
+                    { id: 'AMP', title: 'Amplitude of Acc', cat: 'Presbyopia', icon: Info },
+                    { id: 'LP', title: 'Lens Power', cat: 'Geometric Optics', icon: CalculatorIcon },
+                    { id: 'ADD', title: 'Near Addition', cat: 'Presbyopia', icon: Plus },
+                    { id: 'IOL', title: 'IOL Power (SRK)', cat: 'Surgery', icon: Activity },
+                    { id: 'VI', title: 'Vertical Imbalance', cat: 'Dispensing', icon: AlertTriangle }
                   ].map(tab => (
                     <button 
                       key={tab.id}
@@ -369,6 +437,10 @@ export default function FormulasPage() {
                           {activeTab === 'PRENTICE' && '\u0394 = c × F'}
                           {activeTab === 'VERTEX' && 'F_new = F / (1 - dF)'}
                           {activeTab === 'AMP' && '100 / NPA (cm)'}
+                          {activeTab === 'LP' && 'P = 1 / f (meters)'}
+                          {activeTab === 'ADD' && 'Add = (1/WD) - D_power'}
+                          {activeTab === 'IOL' && 'P = A - 2.5L - 0.9K'}
+                          {activeTab === 'VI' && 'Vertical Imbalance (\u0394)'}
                         </h2>
                      </div>
                   </div>
@@ -468,6 +540,62 @@ export default function FormulasPage() {
                         </div>
                      )}
 
+                     {activeTab === 'LP' && (
+                        <div className="grid grid-cols-1 gap-8 animate-fade-in">
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Focal Length f (meters)</label>
+                              <input type="number" step="0.01" placeholder="0.5" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={lpState.f} onChange={e => setLpState({...lpState, f: e.target.value})} />
+                           </div>
+                        </div>
+                     )}
+
+                     {activeTab === 'ADD' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Working Dist (cm)</label>
+                              <input type="number" placeholder="40" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={addState.wd} onChange={e => setAddState({...addState, wd: e.target.value})} />
+                           </div>
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Distance Power (D)</label>
+                              <input type="number" step="0.25" placeholder="+1.00" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={addState.distPower} onChange={e => setAddState({...addState, distPower: e.target.value})} />
+                           </div>
+                        </div>
+                     )}
+
+                     {activeTab === 'IOL' && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">A-Constant</label>
+                              <input type="number" step="0.1" placeholder="118.4" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={iolState.a} onChange={e => setIolState({...iolState, a: e.target.value})} />
+                           </div>
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Axial Length (mm)</label>
+                              <input type="number" step="0.01" placeholder="23.50" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={iolState.l} onChange={e => setIolState({...iolState, l: e.target.value})} />
+                           </div>
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Keratometry K (D)</label>
+                              <input type="number" step="0.25" placeholder="44.00" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={iolState.k} onChange={e => setIolState({...iolState, k: e.target.value})} />
+                           </div>
+                        </div>
+                     )}
+
+                     {activeTab === 'VI' && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Decentration (cm)</label>
+                              <input type="number" step="0.1" placeholder="1.0" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={viState.c} onChange={e => setViState({...viState, c: e.target.value})} />
+                           </div>
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Right Lens F (D)</label>
+                              <input type="number" step="0.25" placeholder="+2.00" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={viState.fRight} onChange={e => setViState({...viState, fRight: e.target.value})} />
+                           </div>
+                           <div className="space-y-2">
+                              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-1">Left Lens F (D)</label>
+                              <input type="number" step="0.25" placeholder="+4.00" className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white" value={viState.fLeft} onChange={e => setViState({...viState, fLeft: e.target.value})} />
+                           </div>
+                        </div>
+                     )}
+
                      <div className="pt-6">
                         <button 
                           className="bg-primary hover:bg-primary/90 text-white w-full md:w-auto px-10 py-5 rounded-2xl font-black transition-all shadow-2xl shadow-primary/30 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs"
@@ -478,6 +606,10 @@ export default function FormulasPage() {
                              if(activeTab === 'VERTEX') calculateVertex();
                              if(activeTab === 'TRANS') calculateTrans();
                              if(activeTab === 'AMP') calculateAmp();
+                             if(activeTab === 'LP') calculateLP();
+                             if(activeTab === 'ADD') calculateADD();
+                             if(activeTab === 'IOL') calculateIOL();
+                             if(activeTab === 'VI') calculateVI();
                           }}
                         >
                           Calculate Clinical Result <ArrowRight size={18} />

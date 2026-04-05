@@ -6,7 +6,7 @@ import {
   MessageSquare, ExternalLink, CheckCircle, Info, 
   Award, LayoutDashboard, BookOpen, FileText, 
   Settings, User as UserIcon, TrendingUp, Clock,
-  Play, X, Sparkles, Menu, Users, ArrowRight
+  Play, X, Sparkles, Menu, Users, ArrowRight, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -31,6 +31,7 @@ export default function StudentDashboard() {
   const [answers, setAnswers] = useState({});
   const [scoreData, setScoreData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -70,6 +71,18 @@ export default function StudentDashboard() {
       toast.error('Failed to load dashboard data.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchInitialData();
+      toast.success('Synchronization complete');
+    } catch (e) {
+      toast.error('Sync failed');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -178,7 +191,7 @@ export default function StudentDashboard() {
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
           !isExternal && activeView === id 
             ? 'bg-primary/20 text-primary border border-primary/20 shadow-lg shadow-primary/10' 
-            : 'text-slate-400 hover:bg-white/5 hover:text-white'
+            : 'text-text-muted hover:bg-bg-surface hover:text-text-main'
         }`}
       >
         <Icon size={20} />
@@ -193,8 +206,8 @@ export default function StudentDashboard() {
         <Icon className={color.replace('bg-', 'text-')} size={24} />
       </div>
       <div>
-        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">{label}</p>
-        <p className="text-2xl font-bold text-white">{value}</p>
+        <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-2xl font-bold text-text-main">{value}</p>
       </div>
     </div>
   );
@@ -211,17 +224,26 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Mobile Header */}
-      <div className="md:hidden px-6 py-4 border-b border-white/5 flex justify-between items-center bg-slate-950/80 backdrop-blur-2xl sticky top-0 z-[60]">
+      <div className="md:hidden px-6 py-4 border-b border-white/5 flex justify-between items-center bg-bg-surface backdrop-blur-2xl sticky top-0 z-[60]">
         <div className="flex items-center gap-3">
-           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-text-muted hover:text-text-main hover:bg-bg-surface rounded-lg transition-colors">
              <Menu size={24} />
            </button>
            <div className="flex items-center gap-2">
-             <Eye className="text-primary" size={24} />
-             <span className="font-black text-white tracking-tighter text-lg">EyeCare AI</span>
+             <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+             <span className="font-black text-primary tracking-tighter text-lg uppercase">Clinical Hub</span>
            </div>
         </div>
-        <button onClick={handleLogout} className="p-2 -mr-2 text-slate-400 hover:text-red-400 transition-colors"><LogOut size={20} /></button>
+        <div className="flex items-center gap-2">
+           <button 
+             onClick={handleRefresh}
+             disabled={refreshing}
+             className={`p-2 text-text-muted hover:text-primary transition-all ${refreshing ? 'animate-spin' : ''}`}
+           >
+             <RefreshCw size={20} />
+           </button>
+           <button onClick={handleLogout} className="p-2 -mr-2 text-text-muted hover:text-red-400 transition-colors"><LogOut size={20} /></button>
+        </div>
       </div>
 
       {/* Mobile Overlay */}
@@ -233,18 +255,16 @@ export default function StudentDashboard() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-[100] w-72 bg-slate-950 md:bg-slate-950/50 border-r border-white/5 md:backdrop-blur-2xl p-6 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-screen ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-[100] w-72 bg-bg-surface border-r border-border-main md:backdrop-blur-2xl p-6 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 flex flex-col h-screen ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between mb-10 px-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
-              <Eye className="text-primary" size={24} />
-            </div>
-            <div>
-              <h1 className="font-bold text-white tracking-tight">EyeCare AI</h1>
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black">Student Portal</p>
-            </div>
+             <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+             <div>
+                <h1 className="text-xl font-black text-primary tracking-tighter leading-none uppercase">Clinical Hub</h1>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Student Portal</p>
+             </div>
           </div>
-          <button className="md:hidden p-2 text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+          <button className="md:hidden p-2 text-text-muted hover:text-text-main" onClick={() => setIsMobileMenuOpen(false)}>
             <X size={20} />
           </button>
         </div>
@@ -258,7 +278,7 @@ export default function StudentDashboard() {
         <div className="mt-auto space-y-4 pt-6 border-t border-white/5">
           <button 
             onClick={() => { setView('settings'); setIsMobileMenuOpen(false); }} 
-            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${view === 'settings' ? 'bg-primary/20 text-primary border border-primary/20' : 'text-slate-400 hover:text-white'}`}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${view === 'settings' ? 'bg-primary/20 text-primary border border-primary/20' : 'text-text-muted hover:text-text-main'}`}
           >
             <Settings size={20} />
             <span className="text-sm">Settings</span>
@@ -268,8 +288,8 @@ export default function StudentDashboard() {
                <UserIcon className="text-accent" size={20} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-white truncate">{user.name}</p>
-              <p className="text-xs text-slate-500 truncate capitalize">{user.role}</p>
+              <p className="text-sm font-bold text-text-main truncate">{user.name}</p>
+              <p className="text-xs text-text-muted truncate capitalize">{user.role}</p>
             </div>
             <button onClick={handleLogout} className="text-red-400 hover:bg-red-400/10 p-2 rounded-lg transition-colors">
               <LogOut size={18} />
@@ -288,9 +308,18 @@ export default function StudentDashboard() {
                   <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter">Clinical Performance</h2>
                   <p className="text-slate-500 font-medium text-xs md:text-base">Real-time tracking of your module mastery.</p>
                 </div>
-                <button onClick={() => setView('courses')} className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] md:text-xs">
-                  <Play size={16} className="fill-white" /> Continue Learning
-                </button>
+                <div className="flex items-center gap-3">
+                   <button 
+                     onClick={handleRefresh}
+                     disabled={refreshing}
+                     className="bg-white/5 hover:bg-white/10 text-white px-4 py-3 rounded-xl border border-white/10 transition-all flex items-center gap-2"
+                   >
+                     <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+                   </button>
+                   <button onClick={() => setView('courses')} className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] md:text-xs">
+                     <Play size={16} className="fill-white" /> Continue Learning
+                   </button>
+                </div>
               </header>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 px-4 md:px-0">

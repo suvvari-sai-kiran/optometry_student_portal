@@ -49,6 +49,9 @@ class AppErrorBoundary extends Component {
   }
 }
 
+import { ThemeProvider } from './context/ThemeContext';
+import ThemeToggle from './components/ThemeToggle';
+
 function App() {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -63,63 +66,68 @@ function App() {
   };
 
   return (
-    <AppErrorBoundary>
-      <Router>
-        <div className="min-h-screen bg-background text-slate-200 selection:bg-primary/30">
-          <Toaster position="top-right" toastOptions={{
-            style: {
-              background: '#1e293b',
-              color: '#f1f5f9',
-              border: '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(10px)'
-            }
-          }} />
-
-          {/* Floating AI Chat — always mounted, never navigates */}
-          <ChatAssistant />
-
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/verify-otp" element={<VerifyOtp />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-
-            <Route path="/formulas" element={<FormulasPage />} />
-            <Route path="/qna" element={<QnaPage />} />
-
-            <Route
-              path="/student/*"
-              element={
-                <AuthRoute requireRole="student">
-                  <StudentDashboard />
-                </AuthRoute>
+    <ThemeProvider>
+      <AppErrorBoundary>
+        <Router>
+          <div className="min-h-screen bg-background text-primary selection:bg-primary/30 transition-colors duration-300">
+            <Toaster position="top-right" toastOptions={{
+              style: {
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)',
+                backdropFilter: 'blur(10px)'
               }
-            />
+            }} />
 
-            <Route
-              path="/admin/*"
-              element={
-                <AuthRoute requireRole="admin">
-                  <AdminDashboard />
-                </AuthRoute>
-              }
-            />
+            {/* Global Theme Toggle */}
+            <ThemeToggle />
 
-            <Route
-              path="/"
-              element={
-                token ? (
-                  user?.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/student" />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-          </Routes>
-        </div>
-      </Router>
-    </AppErrorBoundary>
+            {/* Floating AI Chat — always mounted, never navigates */}
+            <ChatAssistant />
+
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/verify-otp" element={<VerifyOtp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+
+              <Route path="/formulas" element={<FormulasPage />} />
+              <Route path="/qna" element={<QnaPage />} />
+
+              <Route
+                path="/student/*"
+                element={
+                  <AuthRoute requireRole="student">
+                    <StudentDashboard />
+                  </AuthRoute>
+                }
+              />
+
+              <Route
+                path="/admin/*"
+                element={
+                  <AuthRoute requireRole="admin">
+                    <AdminDashboard />
+                  </AuthRoute>
+                }
+              />
+
+              <Route
+                path="/"
+                element={
+                  token ? (
+                    user?.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/student" />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
+            </Routes>
+          </div>
+        </Router>
+      </AppErrorBoundary>
+    </ThemeProvider>
   );
 }
 

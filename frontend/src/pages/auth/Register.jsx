@@ -57,11 +57,11 @@ export default function Register() {
       >
         <div className="glass-card p-8 md:p-10">
           <div className="flex flex-col items-center mb-8 text-center">
-            <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-4 ring-1 ring-white/10">
-              <ShieldCheck className="text-primary" size={32} />
+            <div className="w-20 h-20 mb-4 drop-shadow-2xl translate-y-[-5px]">
+              <img src="/logo.png" alt="Clinical Hub Logo" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Join EyeCare AI</h1>
-            <p className="text-slate-400">Transforming Optometry with Intelligence</p>
+            <h1 className="text-3xl font-black text-primary mb-1 tracking-tighter uppercase">Clinical Hub</h1>
+            <p className="text-secondary font-medium text-sm italic opacity-80 underline decoration-primary/30 underline-offset-4 tracking-tight">Join the Advanced Optometry Portal</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
