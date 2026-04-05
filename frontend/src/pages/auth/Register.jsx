@@ -30,7 +30,7 @@ export default function Register() {
     try {
       const res = await axios.post(`${BASE_URL}/api/auth/register`, formData);
       toast.success(res.data.message);
-      navigate('/verify-otp', { state: { email: formData.email } });
+      navigate('/login');
     } catch (err) {
       const errorMsg = err.response?.data?.errors?.[0] || err.response?.data?.message || 'Registration failed.';
       toast.error(errorMsg);

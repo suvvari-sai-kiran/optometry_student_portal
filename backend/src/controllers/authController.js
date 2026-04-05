@@ -26,11 +26,10 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    // Generate and save user
+    // Generate and save user (isVerified set to true to bypass OTP)
     const hashedPassword = await bcrypt.hash(password, 10);
     const userRole = role === 'admin' ? 'admin' : 'student';
 
-    // Auto-verify user to bypass OTP requirement
     await db.query(
       'INSERT INTO Users (name, email, password, role, isVerified) VALUES (?, ?, ?, ?, ?)',
       [name, email, hashedPassword, userRole, true]
