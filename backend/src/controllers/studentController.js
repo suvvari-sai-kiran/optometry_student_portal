@@ -29,6 +29,23 @@ exports.getTestQuestions = async (req, res) => {
   }
 };
 
+exports.getTestByTitle = async (req, res) => {
+  try {
+    const { title } = req.query;
+    if (!title) return res.status(400).json({ message: 'Missing test title' });
+
+    const normalizedTitle = title.trim().toLowerCase();
+    const [tests] = await db.query('SELECT * FROM Tests WHERE LOWER(title) = ? LIMIT 1', [normalizedTitle]);
+    if (tests.length === 0) {
+      return res.status(404).json({ message: 'Test not found' });
+    }
+
+    res.json(tests[0]);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error fetching test by title' });
+  }
+};
+
 exports.submitTestResult = async (req, res) => {
   try {
     const { userId, testId, score, totalQuestions } = req.body;

@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { 
-  getCourses, getCourseTests, getTestQuestions, submitTestResult, getUserResults, getRandomQuestions
+  getCourses, getCourseTests, getTestQuestions, submitTestResult, getUserResults, getRandomQuestions, getTestByTitle
 } = require('../controllers/studentController');
 
 router.get('/questions/random', getRandomQuestions);
 router.get('/courses', getCourses);
 router.get('/courses/:courseId/tests', getCourseTests);
+router.get('/tests/title', getTestByTitle);
 router.get('/tests/:testId/questions', getTestQuestions);
 router.post('/tests/submit', submitTestResult);
 router.get('/results/:userId', getUserResults);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { 
@@ -45,13 +45,7 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     if (view === 'history') {
-      const fetchHistory = async () => {
-        try {
-          const res = await axios.get(`${BASE_URL}/api/student/results/${user.id}`);
-          setHistory(res.data);
-        } catch (e) { toast.error("Error loading history"); }
-      };
-      fetchHistory();
+      fetchHistoryData();
     }
   }, [view, user.id]);
 
@@ -61,7 +55,11 @@ export default function StudentDashboard() {
       const [coursesRes] = await Promise.all([
         axios.get(`${BASE_URL}/api/student/courses`),
       ]);
-      setCourses(coursesRes.data);
+      const initialCourses = coursesRes.data || [];
+      const courseList = initialCourses.some(course => course.title === FEATURED_COURSE.title)
+        ? initialCourses
+        : [FEATURED_COURSE, ...initialCourses];
+      setCourses(courseList);
       setStats({
         totalTests: 12,
         avgScore: 85,
@@ -71,6 +69,15 @@ export default function StudentDashboard() {
       toast.error('Failed to load dashboard data.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchHistoryData = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/student/results/${user.id}`);
+      setHistory(res.data);
+    } catch (e) {
+      toast.error('Error loading history');
     }
   };
 
@@ -95,12 +102,43 @@ export default function StudentDashboard() {
 
   const openCourse = async (course) => {
     try {
+      if (course.id === FEATURED_COURSE.id) {
+        setSelectedCourse(course);
+        setTests(FEATURED_TESTS);
+        setView('tests');
+        return;
+      }
+
       const res = await axios.get(`${BASE_URL}/api/student/courses/${course.id}/tests`);
       setSelectedCourse(course);
       setTests(res.data);
       setView('tests');
     } catch (e) { toast.error('Error loading tests'); }
   };
+
+  const FEATURED_COURSE = {
+    id: -1,
+    title: 'Featured Tests',
+    description: 'Highlighted clinical procedure videos.',
+  };
+
+  const FEATURED_TEST_TITLES = [
+    'corneal reflex test',
+    'worth 4 dot test',
+    'maddox wing test',
+    'near point accommodation'
+  ];
+
+  const FEATURED_TESTS = [
+    { id: -1, title: 'Corneal reflex test', videoUrl: 'https://drive.google.com/file/d/1udoojmzFB1tksQkZs6Qadu6hRyfjbMne/view?usp=sharing' },
+    { id: -2, title: 'worth 4 dot test', videoUrl: 'https://drive.google.com/file/d/10rTKFKhJ1oCP_NOdtWVa-mpaCDWqOTgv/view?usp=sharing' },
+    { id: -3, title: 'maddox wing test', videoUrl: 'https://drive.google.com/file/d/16SGk5cNUEAjZRauEhkwtIE9DQgEL8rkw/view?usp=sharing' },
+    { id: -4, title: 'near point accommodation', videoUrl: 'https://drive.google.com/file/d/1-RjZBOpYuezVx7d2H0wUOHiG5QMT7X3-/view?usp=sharing' }
+  ];
+
+  const visibleTests = useMemo(() => {
+    return tests.filter(test => FEATURED_TEST_TITLES.includes(test.title.toLowerCase()));
+  }, [tests]);
 
   const startVideoPhase = (test) => {
     setSelectedTest(test);
@@ -113,14 +151,23 @@ export default function StudentDashboard() {
 
   const startTest = async (test) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/student/tests/${test.id}/questions`);
-      setSelectedTest(test);
+      let realTest = test;
+      if (!test.id || test.id < 0) {
+        const resTest = await axios.get(`${BASE_URL}/api/student/tests/title`, {
+          params: { title: test.title }
+        });
+        realTest = resTest.data;
+      }
+      const res = await axios.get(`${BASE_URL}/api/student/tests/${realTest.id}/questions`);
+      setSelectedTest(realTest);
       setQuestions(res.data);
       setAnswers({});
       setCurrentQuestionIndex(0);
       setScoreData(null);
       setView('take-test');
-    } catch (e) { toast.error('Error loading questions'); }
+    } catch (e) {
+      toast.error('Error loading questions');
+    }
   };
 
   const startAiRandomQuiz = async () => {
@@ -157,7 +204,7 @@ export default function StudentDashboard() {
     });
 
     try {
-      if (selectedTest.id) {
+      if (selectedTest?.id) {
         await axios.post(`${BASE_URL}/api/student/tests/submit`, {
           userId: user.id,
           testId: selectedTest.id,
@@ -168,15 +215,26 @@ export default function StudentDashboard() {
       setScoreData({ score, total: questions.length });
       setView('result');
       toast.success('Test submitted!');
-    } catch (e) { toast.error("Error submitting test"); }
+    } catch (e) {
+      toast.error('Error submitting test');
+    }
   };
 
   const formatEmbedUrl = (url) => {
     if (!url) return "";
+    if (url.includes('drive.google.com/file/d/')) {
+      const match = url.match(/\/d\/([^/]+)/);
+      if (match) return `https://drive.google.com/file/d/${match[1]}/preview`;
+    }
     let videoId = "";
     if (url.includes("v=")) videoId = url.split("v=")[1].split("&")[0];
     else if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
     return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : url;
+  };
+
+  const isVideoFileUrl = (url) => {
+    if (!url) return false;
+    return /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
   };
 
   const SidebarItem = ({ icon: Icon, label, id, activeView }) => {
@@ -426,7 +484,7 @@ export default function StudentDashboard() {
               </header>
 
               <div className="grid grid-cols-1 gap-4">
-                {tests.map(test => (
+                {visibleTests.map(test => (
                   <div key={test.id} className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/30 transition-all ring-1 ring-white/5">
                     <div className="flex items-center gap-5">
                       <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center border border-white/10">
@@ -448,9 +506,9 @@ export default function StudentDashboard() {
                     </button>
                   </div>
                 ))}
-                {tests.length === 0 && (
+                {visibleTests.length === 0 && (
                    <div className="glass-card p-12 text-center">
-                     <p className="text-slate-500 font-medium italic">No tests have been published for this subject yet.</p>
+                     <p className="text-slate-500 font-medium italic">No highlighted tests are available for this subject yet.</p>
                    </div>
                  )}
                </div>
@@ -470,12 +528,20 @@ export default function StudentDashboard() {
 
                 <div className="glass-card overflow-hidden ring-4 ring-black/40">
                    <div className="aspect-video bg-black relative">
-                      <iframe 
-                        className="w-full h-full"
-                        src={formatEmbedUrl(selectedTest?.videoUrl?.split(',')[0])}
-                        frameBorder="0"
-                        allowFullScreen
-                      />
+                      {isVideoFileUrl(selectedTest?.videoUrl?.split(',')[0]) ? (
+                        <video 
+                          className="w-full h-full"
+                          controls
+                          src={selectedTest?.videoUrl?.split(',')[0]}
+                        />
+                      ) : (
+                        <iframe 
+                          className="w-full h-full"
+                          src={formatEmbedUrl(selectedTest?.videoUrl?.split(',')[0])}
+                          frameBorder="0"
+                          allowFullScreen
+                        />
+                      )}
                    </div>
                     <div className="p-6 md:p-10 bg-slate-900/90 border-t border-white/5 flex flex-col md:flex-row items-center gap-8 md:gap-10">
                        <div className="flex-1 space-y-4 text-center md:text-left">
@@ -614,12 +680,20 @@ export default function StudentDashboard() {
                       </div>
                    </div>
 
-                   <button 
-                     className="bg-white text-slate-950 hover:bg-slate-200 px-10 py-4 rounded-xl font-black shadow-2xl transition-all inline-flex items-center gap-3 active:scale-95"
-                     onClick={() => setView('overview')}
-                   >
-                     Return to Dashboard <LayoutDashboard size={18} />
-                   </button>
+                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                     <button 
+                       className="bg-white text-slate-950 hover:bg-slate-200 px-10 py-4 rounded-xl font-black shadow-2xl transition-all inline-flex items-center gap-3 active:scale-95"
+                       onClick={() => setView('overview')}
+                     >
+                       Return to Dashboard <LayoutDashboard size={18} />
+                     </button>
+                     <button
+                       className="bg-primary hover:bg-primary/90 text-white px-10 py-4 rounded-xl font-black shadow-2xl transition-all inline-flex items-center gap-3 active:scale-95"
+                       onClick={() => setView('history')}
+                     >
+                       View Test History
+                     </button>
+                   </div>
                 </div>
 
                 <div className="space-y-4 md:space-y-6 pt-6 md:pt-10">
@@ -685,20 +759,20 @@ export default function StudentDashboard() {
                           <td className="px-6 py-4 font-bold text-slate-200">{item.testTitle || 'Clinical Evaluation'}</td>
                           <td className="px-6 py-4">
                             <span className="text-white font-black">{item.score}</span>
-                            <span className="text-slate-500 text-xs"> / {item.total_questions}</span>
+                            <span className="text-slate-500 text-xs"> / {item.totalQuestions}</span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
                                <div className="flex-1 h-1.5 w-16 bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-primary" style={{ width: `${(item.score / item.total_questions) * 100}%` }} />
+                                  <div className="h-full bg-primary" style={{ width: `${(item.score / item.totalQuestions) * 100}%` }} />
                                </div>
-                               <span className="text-xs font-bold text-slate-400">{Math.round((item.score / item.total_questions) * 100)}%</span>
+                               <span className="text-xs font-bold text-slate-400">{Math.round((item.score / item.totalQuestions) * 100)}%</span>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-xs text-slate-500 font-medium">{new Date(item.createdAt).toLocaleDateString()}</td>
                           <td className="px-6 py-4">
-                            <span className={`text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${item.score >= (item.total_questions/2) ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                              {item.score >= (item.total_questions/2) ? 'Passed' : 'Review'}
+                            <span className={`text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${item.score >= (item.totalQuestions/2) ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                              {item.score >= (item.totalQuestions/2) ? 'Passed' : 'Review'}
                             </span>
                           </td>
                         </tr>
