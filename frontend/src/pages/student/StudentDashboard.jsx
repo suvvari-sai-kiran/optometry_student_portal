@@ -159,6 +159,10 @@ export default function StudentDashboard() {
         realTest = resTest.data;
       }
       const res = await axios.get(`${BASE_URL}/api/student/tests/${realTest.id}/questions`);
+      if (!res.data || res.data.length === 0) {
+        toast.error('No questions are available for this test yet.');
+        return;
+      }
       setSelectedTest(realTest);
       setQuestions(res.data);
       setAnswers({});
@@ -166,7 +170,12 @@ export default function StudentDashboard() {
       setScoreData(null);
       setView('take-test');
     } catch (e) {
-      toast.error('Error loading questions');
+      console.error('[StudentDashboard] startTest error:', e?.response?.data || e.message || e);
+      if (e.response?.status === 404) {
+        toast.error('Test not found in the current database. Please refresh or try another module.');
+      } else {
+        toast.error('Error loading questions');
+      }
     }
   };
 

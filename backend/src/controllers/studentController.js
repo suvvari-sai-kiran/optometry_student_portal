@@ -35,13 +35,43 @@ exports.getTestByTitle = async (req, res) => {
     if (!title) return res.status(400).json({ message: 'Missing test title' });
 
     const normalizedTitle = title.trim().toLowerCase();
-    const [tests] = await db.query('SELECT * FROM Tests WHERE LOWER(title) = ? LIMIT 1', [normalizedTitle]);
-    if (tests.length === 0) {
-      return res.status(404).json({ message: 'Test not found' });
+    const [exactTests] = await db.query('SELECT * FROM Tests WHERE LOWER(title) = ? LIMIT 1', [normalizedTitle]);
+    if (exactTests.length > 0) {
+      return res.json(exactTests[0]);
     }
 
-    res.json(tests[0]);
+    const normalizedSearch = normalizedTitle.replace(/\b4\b/g, 'four').replace(/\bfour\b/g, '4');
+    const searchPatterns = [
+      `%${normalizedTitle}%`,
+      `%${normalizedSearch}%`,
+      `%${normalizedTitle.replace(/test$/, '').trim()}%`
+    ];
+
+    for (const pattern of searchPatterns) {
+      const [likeTests] = await db.query('SELECT * FROM Tests WHERE LOWER(title) LIKE ? LIMIT 1', [pattern]);
+      if (likeTests.length > 0) {
+        return res.json(likeTests[0]);
+      }
+    }
+
+    const fallbackMap = {
+      'corneal reflex test': ['cover', 'motility', 'ocular'],
+      'worth 4 dot test': ['worth', 'four', 'dot'],
+      'maddox wing test': ['prism', 'vergence', 'phoria'],
+      'near point accommodation': ['accommodation', 'convergence', 'near point']
+    };
+
+    const fallbackTerms = fallbackMap[normalizedTitle] || [];
+    for (const term of fallbackTerms) {
+      const [fallbackTests] = await db.query('SELECT * FROM Tests WHERE LOWER(title) LIKE ? LIMIT 1', [`%${term}%`]);
+      if (fallbackTests.length > 0) {
+        return res.json(fallbackTests[0]);
+      }
+    }
+
+    return res.status(404).json({ message: 'Test not found' });
   } catch (error) {
+    console.error('Error fetching test by title:', error);
     res.status(500).json({ message: 'Server error fetching test by title' });
   }
 };
