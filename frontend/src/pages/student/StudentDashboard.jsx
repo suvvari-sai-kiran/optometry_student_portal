@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import VisualAcuityVideo from '../../components/VisualAcuityVideo';
 import BASE_URL from '../../api/config';
 import PatientsView from './PatientsView';
 
@@ -32,6 +33,7 @@ export default function StudentDashboard() {
   const [scoreData, setScoreData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -493,6 +495,28 @@ export default function StudentDashboard() {
               </header>
 
               <div className="grid grid-cols-1 gap-4">
+                {selectedCourse?.title?.toLowerCase()?.includes('low vision') && (
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/30 transition-all ring-1 ring-white/5 bg-primary/5">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/30">
+                         <PlayCircle className="text-primary" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Visual Acuity Assessment Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Low Vision Fundamentals</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+                )}
                 {visibleTests.map(test => (
                   <div key={test.id} className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/30 transition-all ring-1 ring-white/5">
                     <div className="flex items-center gap-5">
@@ -880,6 +904,9 @@ export default function StudentDashboard() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Video Modal Overlay */}
+      {isVideoOpen && <VisualAcuityVideo onClose={() => setIsVideoOpen(false)} />}
 
       {/* Loading Overlay */}
       {loading && (

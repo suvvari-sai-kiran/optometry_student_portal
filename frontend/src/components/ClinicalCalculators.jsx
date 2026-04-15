@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, Zap, Eye, Binary, Layers, Scissors, Info, Sparkles, RefreshCw } from 'lucide-react';
+import { Calculator, Zap, Eye, Binary, Layers, Scissors, Info, Sparkles, RefreshCw, PlaySquare } from 'lucide-react';
+import VisualAcuityVideo from './VisualAcuityVideo';
 
 const CATEGORIES = [
   { id: 'lowvision', name: 'Low Vision', icon: Eye },
@@ -13,6 +14,7 @@ export default function ClinicalCalculators() {
   const [category, setCategory] = useState('lowvision');
   const [results, setResults] = useState({});
   const [insights, setInsights] = useState({});
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   const handleCalculate = (id, logic) => {
     const { res, text } = logic();
@@ -105,6 +107,14 @@ export default function ClinicalCalculators() {
         {/* Category: LOW VISION */}
         {category === 'lowvision' && (
           <>
+            <div className="md:col-span-2 lg:col-span-3 mb-2">
+               <button 
+                 onClick={() => setIsVideoOpen(true)}
+                 className="w-full bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-black px-8 py-5 rounded-2xl shadow-2xl flex items-center justify-center gap-4 transition-all transform active:scale-95 uppercase tracking-widest text-sm"
+               >
+                 <PlaySquare size={24} /> Play Visual Acuity Video
+               </button>
+            </div>
             <CalcCard 
               id="lv_mag" title="Magnification (M)" formula="M = VA_1 / VA_2"
               inputs={[
@@ -199,6 +209,7 @@ export default function ClinicalCalculators() {
         )}
 
       </div>
+      {isVideoOpen && <VisualAcuityVideo onClose={() => setIsVideoOpen(false)} />}
     </div>
   );
 }

@@ -16,6 +16,10 @@ const seedData = async () => {
       }
     ];
 
+    await db.query('DELETE FROM Tests');
+    await db.query('DELETE FROM Courses');
+    console.log('Cleared previous Courses and Tests data.');
+
     console.log("Starting Seeding Process...");
 
     for (let c of data) {
