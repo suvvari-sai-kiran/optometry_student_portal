@@ -61,7 +61,7 @@ export default function Register() {
               <img src="/logo.png" alt="Clinical Hub Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-3xl font-black text-primary mb-1 tracking-tighter uppercase">CLINICAL HUB</h1>
-            <p className="text-secondary font-medium text-sm italic opacity-80 underline decoration-primary/30 underline-offset-4 tracking-tight">Join the Advanced Optometry Portal</p>
+            <p className="text-secondary font-medium text-sm italic opacity-80 underline decoration-primary/30 underline-offset-4 tracking-tight">Join the Advanced Clinical Hub Portal</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">

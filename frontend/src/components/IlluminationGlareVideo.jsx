@@ -83,7 +83,7 @@ export default function IlluminationGlareVideo({ onClose, onStartTest }) {
   const progressPercent = ((currentScene) / SCRIPT.length) * 100;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col md:items-center md:justify-center bg-[#020617] md:bg-black/95 md:backdrop-blur-xl overflow-y-auto md:overflow-hidden">
+    <div className="fixed inset-0 z-[200] flex flex-col md:items-center md:justify-center bg-[#020617] md:bg-black/95 md:backdrop-blur-xl overflow-y-auto">
       {/* Mobile Top Header */}
       <div className="md:hidden flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0a0f1d]">
         <button onClick={onClose} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
@@ -98,7 +98,7 @@ export default function IlluminationGlareVideo({ onClose, onStartTest }) {
         <div className="w-10" />
       </div>
 
-      <div className="relative w-full aspect-video md:max-w-6xl md:rounded-3xl overflow-hidden md:ring-1 md:ring-white/10 md:shadow-2xl shadow-indigo-500/10 shrink-0">
+      <div className="relative w-full aspect-[4/5] sm:aspect-video md:max-w-6xl md:rounded-3xl overflow-hidden md:ring-1 md:ring-white/10 md:shadow-2xl shadow-indigo-500/10 shrink-0">
         {/* Desktop Close Button */}
         <button 
           onClick={onClose}

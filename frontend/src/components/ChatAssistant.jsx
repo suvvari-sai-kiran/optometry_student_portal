@@ -83,7 +83,7 @@ function TypingDots() {
           style={{ animationDelay: `${i * 0.15}s` }}
         />
       ))}
-      <span className="text-xs text-slate-400 font-medium ml-2">EyeCare AI is thinking...</span>
+      <span className="text-xs text-slate-400 font-medium ml-2">Clinical Hub AI is thinking...</span>
     </div>
   );
 }
@@ -94,7 +94,7 @@ function ChatAssistantInner() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: '### Welcome to EyeCare AI! 👁️\n\nI can help you with:\n- **Optometry Calculations** (Vertex Distance, Transposition)\n- **Clinical Signs** & Diagnosis\n- **Lens Power** analysis\n\nHow can I assist you today?'
+      text: '### Welcome to Clinical Hub AI! 👁️\n\nI can help you with:\n- **Clinical Calculations**\n- **Diagnostic Signs** & Diagnosis\n- **Interactive Simulations**\n\nHow can I assist you today?'
     }
   ]);
   const [input, setInput] = useState('');
