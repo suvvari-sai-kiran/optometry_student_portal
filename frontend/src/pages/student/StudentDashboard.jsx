@@ -11,6 +11,13 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import VisualAcuityVideo from '../../components/VisualAcuityVideo';
+import ContrastSensitivityVideo from '../../components/ContrastSensitivityVideo';
+import ConfrontationTestVideo from '../../components/ConfrontationTestVideo';
+import AmslerGridVideo from '../../components/AmslerGridVideo';
+import VisualFieldTestingVideo from '../../components/VisualFieldTestingVideo';
+import MagnificationCalculationVideo from '../../components/MagnificationCalculationVideo';
+import IlluminationGlareVideo from '../../components/IlluminationGlareVideo';
+import FunctionalVisionVideo from '../../components/FunctionalVisionVideo';
 import BASE_URL from '../../api/config';
 import PatientsView from './PatientsView';
 
@@ -34,6 +41,13 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isCSVideoOpen, setIsCSVideoOpen] = useState(false);
+  const [isCTVideoOpen, setIsCTVideoOpen] = useState(false);
+  const [isAGVideoOpen, setIsAGVideoOpen] = useState(false);
+  const [isVFVideoOpen, setIsVFVideoOpen] = useState(false);
+  const [isMCVideoOpen, setIsMCVideoOpen] = useState(false);
+  const [isIGVideoOpen, setIsIGVideoOpen] = useState(false);
+  const [isFVVideoOpen, setIsFVVideoOpen] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -495,27 +509,180 @@ export default function StudentDashboard() {
               </header>
 
               <div className="grid grid-cols-1 gap-4">
-                {selectedCourse?.title?.toLowerCase()?.includes('low vision') && (
-                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/30 transition-all ring-1 ring-white/5 bg-primary/5">
+                {selectedCourse?.id === -1 && (
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-amber-500/30 transition-all ring-1 ring-white/5 bg-amber-500/5 mb-4">
                     <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/30">
-                         <PlayCircle className="text-primary" size={24} />
+                      <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center border border-amber-500/30">
+                        <PlayCircle className="text-amber-400" size={24} />
                       </div>
                       <div>
-                        <h4 className="text-lg font-bold text-white mb-1">Visual Acuity Assessment Tutorial</h4>
+                        <h4 className="text-lg font-bold text-white mb-1">Confrontation Test Tutorial</h4>
                         <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
                           <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
-                          <span className="flex items-center gap-1"><Eye size={12} /> Low Vision Fundamentals</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Peripheral Vision Basics</span>
                         </p>
                       </div>
                     </div>
                     <button 
-                      onClick={() => setIsVideoOpen(true)}
-                      className="w-full md:w-auto bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      onClick={() => setIsCTVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
                     >
                       Watch Tutorial
                     </button>
                   </div>
+                )}
+                {(selectedCourse?.id === courses[1]?.id || selectedCourse?.title?.toLowerCase()?.includes('macular') || selectedCourse?.title?.toLowerCase()?.includes('retina')) && (
+                  <>
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-blue-500/30 transition-all ring-1 ring-white/5 bg-blue-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                        <PlayCircle className="text-blue-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Amsler Grid Test Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Central Vision</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsAGVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+                  
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-purple-500/30 transition-all ring-1 ring-white/5 bg-purple-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-purple-500/20 rounded-2xl flex items-center justify-center border border-purple-500/30">
+                        <PlayCircle className="text-purple-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Visual Field Testing Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Peripheral Mapping</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsVFVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-purple-500 to-fuchsia-600 hover:from-purple-600 hover:to-fuchsia-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+                  
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-rose-500/30 transition-all ring-1 ring-white/5 bg-rose-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-rose-500/20 rounded-2xl flex items-center justify-center border border-rose-500/30">
+                        <PlayCircle className="text-rose-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Magnification Calculation Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Optical Formulas</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsMCVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+                  
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-yellow-500/30 transition-all ring-1 ring-white/5 bg-yellow-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-yellow-500/20 rounded-2xl flex items-center justify-center border border-yellow-500/30">
+                        <PlayCircle className="text-yellow-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Illumination & Glare Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Lighting Impacts</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsIGVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-indigo-500/30 transition-all ring-1 ring-white/5 bg-indigo-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
+                        <PlayCircle className="text-indigo-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Functional Vision Assessment Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Daily Tasks</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsFVVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+                  </>
+                )}
+                {selectedCourse?.title?.toLowerCase()?.includes('low vision') && (
+                  <>
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/30 transition-all ring-1 ring-white/5 bg-primary/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/30">
+                          <PlayCircle className="text-primary" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Visual Acuity Assessment Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Low Vision Fundamentals</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-emerald-500/30 transition-all ring-1 ring-white/5 bg-emerald-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                          <PlayCircle className="text-emerald-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Contrast Sensitivity Test Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Low Light & Sensitivity</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsCSVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+                  </>
                 )}
                 {visibleTests.map(test => (
                   <div key={test.id} className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/30 transition-all ring-1 ring-white/5">
@@ -906,7 +1073,38 @@ export default function StudentDashboard() {
       </main>
 
       {/* Video Modal Overlay */}
-      {isVideoOpen && <VisualAcuityVideo onClose={() => setIsVideoOpen(false)} />}
+      {isVideoOpen && <VisualAcuityVideo 
+        onClose={() => setIsVideoOpen(false)} 
+        onStartTest={() => { setIsVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isCSVideoOpen && <ContrastSensitivityVideo 
+        onClose={() => setIsCSVideoOpen(false)} 
+        onStartTest={() => { setIsCSVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isCTVideoOpen && <ConfrontationTestVideo 
+        onClose={() => setIsCTVideoOpen(false)} 
+        onStartTest={() => { setIsCTVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isAGVideoOpen && <AmslerGridVideo 
+        onClose={() => setIsAGVideoOpen(false)} 
+        onStartTest={() => { setIsAGVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isVFVideoOpen && <VisualFieldTestingVideo 
+        onClose={() => setIsVFVideoOpen(false)} 
+        onStartTest={() => { setIsVFVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isMCVideoOpen && <MagnificationCalculationVideo 
+        onClose={() => setIsMCVideoOpen(false)} 
+        onStartTest={() => { setIsMCVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isIGVideoOpen && <IlluminationGlareVideo 
+        onClose={() => setIsIGVideoOpen(false)} 
+        onStartTest={() => { setIsIGVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isFVVideoOpen && <FunctionalVisionVideo 
+        onClose={() => setIsFVVideoOpen(false)} 
+        onStartTest={() => { setIsFVVideoOpen(false); startAiRandomQuiz(); }}
+      />}
 
       {/* Loading Overlay */}
       {loading && (

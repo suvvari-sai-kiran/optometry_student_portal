@@ -3,16 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, X, Eye, Volume2, VolumeX, Square } from 'lucide-react';
 
 const SCRIPT = [
-  { img: 'va_scene_intro_1776272597620.png', duration: 7000, title: 'Introduction', text: 'Hello, and welcome. In this video, we will learn about the Visual Acuity Assessment Test, a fundamental procedure used to measure the clarity or sharpness of vision.' },
-  { img: 'va_scene_intro_1776272597620.png', duration: 8000, title: 'What is Visual Acuity?', text: 'Visual acuity refers to how clearly a person can see objects at a specific distance. It helps eye care professionals determine how well the eyes are functioning and whether corrective lenses are needed.' },
-  { img: 'va_scene_tools_1776272632217.png', duration: 10000, title: 'Common Tools Used', text: 'The most commonly used tool for measuring visual acuity is the Snellen chart. This chart consists of rows of letters that decrease in size from top to bottom. Other charts include the LogMAR chart and E chart.' },
-  { img: 'va_scene_tools_1776272632217.png', duration: 8000, title: 'Test Setup', text: 'To perform the test, the patient is positioned at a standard distance, usually 6 meters or 20 feet, from the chart. One eye is covered while the other eye is tested.' },
-  { img: 'va_scene_procedure_1776272987487.png', duration: 8000, title: 'Procedure', text: 'The patient is asked to read the smallest line of letters they can see clearly. The examiner records the results as a fraction, such as 6 over 6 or 20 over 20, which indicates normal vision.' },
-  { img: 'va_scene_procedure_1776272987487.png', duration: 8000, title: 'Understanding Results', text: 'A result of 6 over 6 means the person can see clearly at 6 meters what a normal eye should see at that distance. Lower values may indicate vision problems such as myopia or hyperopia.' },
-  { img: 'va_scene_intro_1776272597620.png', duration: 8000, title: 'Importance of the Test', text: 'Visual acuity testing is essential for detecting vision problems early. It is widely used in schools, clinics, and hospitals as part of routine eye examinations.' }
+  { img: 'cs_scene_foggy_road.png', duration: 5000, title: 'Hook', text: 'Can you see clearly… even when the contrast is low?', subtitle: 'Not all vision problems are about clarity…' },
+  { img: 'scene_clinic.png', duration: 5000, title: 'Introduction', text: 'Welcome to the Contrast Sensitivity Test—an essential part of modern eye care.', subtitle: 'Contrast Sensitivity Test' },
+  { img: 'scene_chart.png', duration: 8000, title: 'Concept Explanation', text: 'Contrast sensitivity measures how well you can distinguish objects from their background, especially when the difference between light and dark is subtle.', subtitle: 'Detecting Light vs Dark Differences' },
+  { img: 'cs_scene_foggy_road.png', duration: 7000, title: 'Real-Life Importance', text: 'This ability is crucial for everyday tasks like night driving, walking in dim light, or recognizing faces in shadows.', subtitle: 'Night Vision • Low Light • Safety' },
+  { img: 'scene_chart.png', duration: 10000, title: 'Test Method', text: 'Unlike standard eye charts, this test uses letters or patterns that gradually fade in contrast, not size.', subtitle: 'Letters become lighter, not smaller' },
+  { img: 'scene_procedure.png', duration: 10000, title: 'Procedure', text: 'The patient reads the chart one eye at a time, identifying the faintest visible letters. The lowest visible contrast determines the score.', subtitle: 'One Eye at a Time' },
+  { img: 'scene_procedure.png', duration: 10000, title: 'Clinical Insight', text: 'Reduced contrast sensitivity may indicate conditions such as cataracts, glaucoma, or retinal disorders—even when visual acuity appears normal.', subtitle: 'Early Detection Matters' },
+  { img: 'cs_scene_foggy_road.png', duration: 10000, title: 'Conclusion', text: 'Contrast sensitivity testing reveals how well you truly see in the real world—beyond just reading letters on a chart.', subtitle: 'See Beyond Clarity' }
 ];
 
-export default function VisualAcuityVideo({ onClose, onStartTest }) {
+export default function ContrastSensitivityVideo({ onClose, onStartTest }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentScene, setCurrentScene] = useState(0);
@@ -48,7 +49,6 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
       if (isPlaying && !isPaused && isAudioEnabled && currentScene < SCRIPT.length) {
         const utterance = new SpeechSynthesisUtterance(SCRIPT[currentScene].text);
         utterance.rate = 0.95;
-        // utterance.pitch = 1;
         window.speechSynthesis.speak(utterance);
       }
     }
@@ -117,7 +117,7 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
         )}
 
         {!isPlaying && currentScene === 0 && (
-          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 bg-[url('/va_video/va_scene_intro_1776272597620.png')] bg-cover bg-center">
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 bg-[url('/cs_video/cs_scene_foggy_road.png')] bg-cover bg-center">
             <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" />
             <div className="relative z-10 flex flex-col items-center text-center p-8">
               <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center border border-primary/30 mb-8 border-t-primary animate-spin" style={{ animationDuration: '3s' }}>
@@ -125,8 +125,8 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
                   <Eye className="text-primary animate-pulse" size={32} />
                 </div>
               </div>
-              <h2 className="text-4xl text-white font-black mb-4 tracking-tight">Visual Acuity Assessment Test</h2>
-              <p className="text-slate-400 font-medium max-w-lg mb-8">An immersive clinical video module demonstrating the fundamentals of measuring clarity and sharpness of vision.</p>
+              <h2 className="text-4xl text-white font-black mb-4 tracking-tight">Contrast Sensitivity Test</h2>
+              <p className="text-slate-400 font-medium max-w-lg mb-8">An immersive clinical module demonstrating the crucial ability to distinguish objects from their background in low-contrast conditions.</p>
               <button 
                 onClick={handleStart}
                 className="bg-primary hover:bg-primary/90 text-white px-10 py-5 rounded-2xl font-black shadow-2xl shadow-primary/30 transition-all transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest"
@@ -148,7 +148,7 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
               className="absolute inset-0"
             >
               <motion.img 
-                src={`/va_video/${currentData.img}`}
+                src={`/cs_video/${currentData.img}`}
                 alt="Scene"
                 className="w-full h-full object-cover"
                 animate={{ scale: [1, 1.1], x: [0, -20], y: [0, -10] }}
@@ -170,7 +170,10 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
               className="absolute bottom-10 left-10 right-10 md:bottom-16 md:left-20 md:right-20 z-30"
             >
               <div className="bg-black/60 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl">
-                <h3 className="text-primary font-black uppercase tracking-[0.3em] text-sm md:text-base mb-3">{currentData.title}</h3>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-3">
+                  <h3 className="text-primary font-black uppercase tracking-[0.3em] text-sm md:text-base">{currentData.title}</h3>
+                  <span className="text-emerald-400 font-bold bg-emerald-400/10 px-4 py-1 rounded-lg text-sm border border-emerald-400/20">{currentData.subtitle}</span>
+                </div>
                 <p className="text-white text-xl md:text-3xl font-medium leading-relaxed drop-shadow-lg">{currentData.text}</p>
               </div>
             </motion.div>
@@ -196,7 +199,7 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
                </svg>
             </motion.div>
             <h2 className="text-4xl text-white font-black mb-4">Module Completed</h2>
-            <p className="text-slate-400 font-medium mb-8">You have successfully reviewed the Visual Acuity Assessment procedure.</p>
+            <p className="text-slate-400 font-medium mb-8">You have successfully reviewed the Contrast Sensitivity Test procedure.</p>
             <div className="flex items-center gap-4">
               <button 
                 onClick={handleStart}

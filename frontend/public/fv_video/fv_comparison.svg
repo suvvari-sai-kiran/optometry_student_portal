@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" style="background-color: #ffffff;">
+  <line x1="300" y1="50" x2="300" y2="350" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="10 10" />
+  
+  <text x="150" y="100" font-family="serif" font-size="60" fill="#000" text-anchor="middle">E</text>
+  <text x="150" y="180" font-family="serif" font-size="40" fill="#000" text-anchor="middle">F P</text>
+  <text x="150" y="240" font-family="serif" font-size="30" fill="#000" text-anchor="middle">T O Z</text>
+  <text x="150" y="380" font-family="sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Clinical Chart</text>
+
+  <rect x="350" y="100" width="200" height="150" rx="10" fill="#f1f5f9" />
+  <circle cx="450" cy="175" r="40" fill="#fbbf24" stroke="#d97706" stroke-width="2" />
+  <text x="450" y="380" font-family="sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Functional Task (Face Recog)</text>
+</svg>

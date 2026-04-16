@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" style="background-color: white;">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="black" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="600" height="600" fill="white" />
+  <rect x="100" y="100" width="400" height="400" fill="url(#grid)" stroke="black" stroke-width="2" />
+  
+  <rect x="220" y="220" width="160" height="160" fill="white" />
+  <path d="M 220 220 Q 240 240, 260 220 T 300 220 T 340 220 T 380 220" fill="none" stroke="black" stroke-width="2" />
+  <path d="M 220 260 Q 250 250, 260 270 T 300 260 T 340 280 T 380 260" fill="none" stroke="black" stroke-width="2" />
+  <path d="M 220 300 Q 230 320, 260 300 T 300 310 T 340 290 T 380 300" fill="none" stroke="black" stroke-width="2" />
+  <path d="M 220 340 Q 240 330, 260 350 T 300 330 T 340 350 T 380 340" fill="none" stroke="black" stroke-width="2" />
+  <path d="M 220 380 Q 250 370, 260 380 T 300 370 T 340 390 T 380 380" fill="none" stroke="black" stroke-width="2" />
+  
+  <path d="M 220 220 Q 210 240, 220 260 T 220 300 T 220 340 T 220 380" fill="none" stroke="black" stroke-width="2" />
+  <path d="M 260 220 Q 270 250, 250 260 T 270 300 T 250 340 T 270 380" fill="none" stroke="black" stroke-width="2" />
+  <path d="M 300 220 Q 290 240, 310 260 T 290 300 T 310 340 T 290 380" fill="none" stroke="black" stroke-width="2" />
+  <path d="M 340 220 Q 350 250, 330 260 T 350 300 T 330 340 T 350 380" fill="none" stroke="black" stroke-width="2" />
+  <path d="M 380 220 Q 370 240, 380 260 T 370 300 T 380 340 T 370 380" fill="none" stroke="black" stroke-width="2" />
+  
+  <circle cx="300" cy="300" r="6" fill="black" />
+  <circle cx="300" cy="300" r="30" fill="black" opacity="0.3" filter="blur(5px)" /> 
+</svg>

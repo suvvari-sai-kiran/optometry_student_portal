@@ -3,16 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, X, Eye, Volume2, VolumeX, Square } from 'lucide-react';
 
 const SCRIPT = [
-  { img: 'va_scene_intro_1776272597620.png', duration: 7000, title: 'Introduction', text: 'Hello, and welcome. In this video, we will learn about the Visual Acuity Assessment Test, a fundamental procedure used to measure the clarity or sharpness of vision.' },
-  { img: 'va_scene_intro_1776272597620.png', duration: 8000, title: 'What is Visual Acuity?', text: 'Visual acuity refers to how clearly a person can see objects at a specific distance. It helps eye care professionals determine how well the eyes are functioning and whether corrective lenses are needed.' },
-  { img: 'va_scene_tools_1776272632217.png', duration: 10000, title: 'Common Tools Used', text: 'The most commonly used tool for measuring visual acuity is the Snellen chart. This chart consists of rows of letters that decrease in size from top to bottom. Other charts include the LogMAR chart and E chart.' },
-  { img: 'va_scene_tools_1776272632217.png', duration: 8000, title: 'Test Setup', text: 'To perform the test, the patient is positioned at a standard distance, usually 6 meters or 20 feet, from the chart. One eye is covered while the other eye is tested.' },
-  { img: 'va_scene_procedure_1776272987487.png', duration: 8000, title: 'Procedure', text: 'The patient is asked to read the smallest line of letters they can see clearly. The examiner records the results as a fraction, such as 6 over 6 or 20 over 20, which indicates normal vision.' },
-  { img: 'va_scene_procedure_1776272987487.png', duration: 8000, title: 'Understanding Results', text: 'A result of 6 over 6 means the person can see clearly at 6 meters what a normal eye should see at that distance. Lower values may indicate vision problems such as myopia or hyperopia.' },
-  { img: 'va_scene_intro_1776272597620.png', duration: 8000, title: 'Importance of the Test', text: 'Visual acuity testing is essential for detecting vision problems early. It is widely used in schools, clinics, and hospitals as part of routine eye examinations.' }
+  { img: '/vf_video/vf_diagram.svg', duration: 4000, title: 'Title', text: 'Visual Field Testing', subtitle: 'Assessment of Peripheral Vision' },
+  { img: '/vf_video/vf_diagram.svg', duration: 6000, title: 'Aim of the Test', text: 'Visual field testing measures the full area a person can see, including central and peripheral vision.', subtitle: 'Central + Peripheral Vision' },
+  { img: '/vf_video/vf_result.svg', duration: 8000, title: 'Importance', text: 'This test helps detect vision loss caused by eye and neurological conditions such as glaucoma or optic nerve damage.', subtitle: 'Detects Vision Loss' },
+  { img: '/vf_video/vf_perimetry.svg', duration: 10000, title: 'Types of Testing', text: 'There are different methods of visual field testing, including confrontation testing, automated perimetry, and tangent screen testing.', subtitle: 'Multiple Methods' },
+  { img: '/vf_video/vf_perimetry.svg', duration: 10000, title: 'Automated Perimetry Setup', text: 'In automated perimetry, the patient places their chin on a rest and focuses on a central target inside a dome-shaped instrument.', subtitle: 'Focus on central target' },
+  { img: '/vf_video/vf_stimulus.svg', duration: 12000, title: 'Procedure', text: 'Lights of varying intensity appear in different areas. The patient presses a button each time a light is seen.', subtitle: 'Press when light is seen' },
+  { img: '/vf_video/vf_result.svg', duration: 10000, title: 'Recording Results', text: 'The machine records responses and maps the visual field, highlighting areas of normal and reduced sensitivity.', subtitle: 'Visual Field Map' },
+  { img: '/vf_video/vf_result.svg', duration: 10000, title: 'Interpretation', text: 'Dark or missing areas on the map may indicate visual field defects or disease progression.', subtitle: 'Detects Defects' },
+  { img: '/cs_video/scene_clinic.png', duration: 5000, title: 'Conclusion', text: 'Visual field testing is essential for early diagnosis and monitoring of eye conditions.', subtitle: 'Essential Eye Test' }
 ];
 
-export default function VisualAcuityVideo({ onClose, onStartTest }) {
+export default function VisualFieldTestingVideo({ onClose, onStartTest }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentScene, setCurrentScene] = useState(0);
@@ -48,7 +50,6 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
       if (isPlaying && !isPaused && isAudioEnabled && currentScene < SCRIPT.length) {
         const utterance = new SpeechSynthesisUtterance(SCRIPT[currentScene].text);
         utterance.rate = 0.95;
-        // utterance.pitch = 1;
         window.speechSynthesis.speak(utterance);
       }
     }
@@ -117,19 +118,19 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
         )}
 
         {!isPlaying && currentScene === 0 && (
-          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 bg-[url('/va_video/va_scene_intro_1776272597620.png')] bg-cover bg-center">
-            <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" />
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 bg-[url('/vf_video/vf_diagram.svg')] bg-cover bg-center">
+            <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md" />
             <div className="relative z-10 flex flex-col items-center text-center p-8">
-              <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center border border-primary/30 mb-8 border-t-primary animate-spin" style={{ animationDuration: '3s' }}>
-                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}>
-                  <Eye className="text-primary animate-pulse" size={32} />
+              <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30 mb-8 border-t-purple-400 animate-spin" style={{ animationDuration: '3s' }}>
+                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}>
+                  <Eye className="text-purple-400 animate-pulse" size={32} />
                 </div>
               </div>
-              <h2 className="text-4xl text-white font-black mb-4 tracking-tight">Visual Acuity Assessment Test</h2>
-              <p className="text-slate-400 font-medium max-w-lg mb-8">An immersive clinical video module demonstrating the fundamentals of measuring clarity and sharpness of vision.</p>
+              <h2 className="text-4xl text-white font-black mb-4 tracking-tight">Visual Field Testing Tutorial</h2>
+              <p className="text-slate-400 font-medium max-w-lg mb-8">An immersive clinical module demonstrating the standard assessment of the full visual field and automated perimetry mapping.</p>
               <button 
                 onClick={handleStart}
-                className="bg-primary hover:bg-primary/90 text-white px-10 py-5 rounded-2xl font-black shadow-2xl shadow-primary/30 transition-all transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest"
+                className="bg-purple-500 hover:bg-purple-600 text-white px-10 py-5 rounded-2xl font-black shadow-2xl shadow-purple-500/30 transition-all transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest"
               >
                 <Play size={24} className="fill-white" /> Start Simulation
               </button>
@@ -141,20 +142,20 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
           {(isPlaying || currentScene > 0) && (
             <motion.div 
               key={currentScene}
-              initial={{ opacity: 0, scale: 1.05 }}
+              initial={{ opacity: 0, scale: 1.02 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="absolute inset-0"
+              transition={{ duration: 1.0, ease: "easeInOut" }}
+              className="absolute inset-0 flex items-center justify-center bg-white"
             >
               <motion.img 
-                src={`/va_video/${currentData.img}`}
+                src={currentData.img}
                 alt="Scene"
-                className="w-full h-full object-cover"
-                animate={{ scale: [1, 1.1], x: [0, -20], y: [0, -10] }}
+                className="w-full h-full object-contain"
+                animate={currentData.img.includes('svg') ? { scale: [1, 1.05] } : { scale: [1, 1.1], x: [0, -20], y: [0, -10] }}
                 transition={{ duration: 15, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -170,7 +171,10 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
               className="absolute bottom-10 left-10 right-10 md:bottom-16 md:left-20 md:right-20 z-30"
             >
               <div className="bg-black/60 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl">
-                <h3 className="text-primary font-black uppercase tracking-[0.3em] text-sm md:text-base mb-3">{currentData.title}</h3>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-3">
+                  <h3 className="text-purple-400 font-black uppercase tracking-[0.3em] text-sm md:text-base">{currentData.title}</h3>
+                  <span className="text-emerald-400 font-bold bg-emerald-400/10 px-4 py-1 rounded-lg text-sm border border-emerald-400/20">{currentData.subtitle}</span>
+                </div>
                 <p className="text-white text-xl md:text-3xl font-medium leading-relaxed drop-shadow-lg">{currentData.text}</p>
               </div>
             </motion.div>
@@ -180,7 +184,7 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
         {isPlaying && (
            <div className="absolute top-0 inset-x-0 h-1.5 bg-white/10 z-40">
               <motion.div 
-                className="h-full bg-primary shadow-[0_0_15px_rgba(99,102,241,0.8)]"
+                className="h-full bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.8)]"
                 initial={{ width: `${progressPercent}%` }}
                 animate={{ width: `${((currentScene + 1) / SCRIPT.length) * 100}%` }}
                 transition={{ duration: SCRIPT[currentScene]?.duration / 1000, ease: "linear" }}
@@ -196,7 +200,7 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
                </svg>
             </motion.div>
             <h2 className="text-4xl text-white font-black mb-4">Module Completed</h2>
-            <p className="text-slate-400 font-medium mb-8">You have successfully reviewed the Visual Acuity Assessment procedure.</p>
+            <p className="text-slate-400 font-medium mb-8">You have successfully reviewed the Visual Field Testing procedure.</p>
             <div className="flex items-center gap-4">
               <button 
                 onClick={handleStart}
@@ -214,7 +218,7 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
               )}
               <button 
                 onClick={onClose}
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg"
+                className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg"
               >
                 Return to Clinic
               </button>
