@@ -1,0 +1,18 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  
+  <g transform="translate(400, 200)">
+    <!-- Head/Ear Outline (Simplified) -->
+    <path d="M-50 -100 Q-100 -50 -100 0 Q-100 50 -50 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="20" stroke-linecap="round"/>
+    
+    <!-- Temple -->
+    <path d="M150 -40 L-60 -40 Q-100 -40 -100 20" fill="none" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
+    
+    <!-- Adjustment Points -->
+    <circle cx="-100" cy="-40" r="12" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2"/>
+    <text x="-120" y="-60" fill="#10b981" font-family="Arial" font-size="14" font-weight="bold">Bend Point</text>
+    
+    <text y="180" fill="white" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">TEMPLE CONTOURING</text>
+    <text y="210" fill="#94a3b8" font-family="Arial" font-size="16" text-anchor="middle">Matching the ear anatomy for comfort</text>
+  </g>
+</svg>

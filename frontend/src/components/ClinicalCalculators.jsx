@@ -14,6 +14,7 @@ import FrameSelectionVideo from './FrameSelectionVideo';
 import LensTypeIDVideo from './LensTypeIDVideo';
 import OpticalCenterAlignmentVideo from './OpticalCenterAlignmentVideo';
 import LensThicknessCalculationVideo from './LensThicknessCalculationVideo';
+import FrameAdjustmentTechniquesVideo from './FrameAdjustmentTechniquesVideo';
 
 const CATEGORIES = [
   { id: 'lowvision', name: 'Low Vision', icon: Eye },
@@ -39,6 +40,7 @@ export default function ClinicalCalculators() {
   const [isCompVideoOpen, setIsCompVideoOpen] = useState(false);
   const [isOCAVideoOpen, setIsOCAVideoOpen] = useState(false);
   const [isLTCVideoOpen, setIsLTCVideoOpen] = useState(false);
+  const [isFATVideoOpen, setIsFATVideoOpen] = useState(false);
 
   const handleCalculate = (id, logic) => {
     const { res, text } = logic();
@@ -293,6 +295,12 @@ export default function ClinicalCalculators() {
                >
                  <PlaySquare size={20} /> Lens Thickness Video
                </button>
+               <button 
+                 onClick={() => setIsFATVideoOpen(true)}
+                 className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Frame Adjustment
+               </button>
             </div>
             <CalcCard 
               id="disp_thick" title="Lens Thickness Estimate" formula="t \u2248 (P \u00D7 (D/10)\u00B2) / 3"
@@ -344,6 +352,7 @@ export default function ClinicalCalculators() {
       {isLensTypeVideoOpen && <LensTypeIDVideo onClose={() => setIsLensTypeVideoOpen(false)} onStartTest={() => setIsLensTypeVideoOpen(false)} />}
       {isOCAVideoOpen && <OpticalCenterAlignmentVideo onClose={() => setIsOCAVideoOpen(false)} onStartTest={() => setIsOCAVideoOpen(false)} />}
       {isLTCVideoOpen && <LensThicknessCalculationVideo onClose={() => setIsLTCVideoOpen(false)} onStartTest={() => setIsLTCVideoOpen(false)} />}
+      {isFATVideoOpen && <FrameAdjustmentTechniquesVideo onClose={() => setIsFATVideoOpen(false)} onStartTest={() => setIsFATVideoOpen(false)} />}
     </div>
   );
 }

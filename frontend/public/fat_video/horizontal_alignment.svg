@@ -1,0 +1,26 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  
+  <g transform="translate(400, 200)">
+    <!-- Face Outline (Simplified) -->
+    <ellipse cx="0" cy="0" rx="200" ry="220" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+    
+    <!-- Eyes -->
+    <circle cx="-70" cy="-20" r="15" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+    <circle cx="70" cy="-20" r="15" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+    
+    <!-- Spectacles -->
+    <g>
+      <rect x="-160" y="-50" width="140" height="80" rx="15" fill="none" stroke="#6366f1" stroke-width="4"/>
+      <rect x="20" y="-50" width="140" height="80" rx="15" fill="none" stroke="#6366f1" stroke-width="4"/>
+      <path d="M-20 -10 Q0 -30 20 -10" fill="none" stroke="#6366f1" stroke-width="4"/>
+    </g>
+    
+    <!-- Leveling Line -->
+    <line x1="-250" y1="-10" x2="250" y2="-10" stroke="#ef4444" stroke-width="2" stroke-dasharray="10"/>
+    <text y="-30" fill="#ef4444" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">HORIZONTAL LEVEL</text>
+    
+    <text y="200" fill="white" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">HORIZONTAL ALIGNMENT</text>
+    <text y="230" fill="#94a3b8" font-family="Arial" font-size="16" text-anchor="middle">Ensuring both lenses are at correct height</text>
+  </g>
+</svg>
