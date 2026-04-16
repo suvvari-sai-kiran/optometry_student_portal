@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Eye, Volume2, VolumeX, Square, ChevronLeft, Clock, ClipboardCheck, Award, Maximize2 } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Square, ChevronLeft, Clock, ClipboardCheck, Award, RotateCcw, CheckCircle2, Eye, Crosshair } from 'lucide-react';
 
 const SCRIPT = [
   { img: '/cs_video/scene_clinic.png', duration: 7000, title: 'Introduction', text: 'Hello everyone! Today, we are going to learn about Optical Center Alignment in a simple and easy way.', subtitle: 'Welcome' },
@@ -15,6 +15,8 @@ const SCRIPT = [
   { img: '/va_video/va_scene_intro_1776272597620.png', duration: 5000, title: 'Ending', text: 'Thank you for watching!', subtitle: 'See You Next Time' }
 ];
 
+const A = { bar: 'bg-lime-500', glow: 'shadow-[0_0_18px_rgba(132,204,22,0.7)]', lbl: 'text-lime-400', bright: 'text-lime-500', btn: 'bg-lime-500 hover:bg-lime-400 shadow-lime-500/25', spin: 'bg-lime-500/20', bdr: 'border-lime-500/30 border-t-lime-400', note: 'bg-lime-500/5 border-lime-500/15', nIcon: 'text-lime-400' };
+
 export default function OpticalCenterAlignmentVideo({ onClose, onStartTest }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -22,233 +24,119 @@ export default function OpticalCenterAlignmentVideo({ onClose, onStartTest }) {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
 
   useEffect(() => {
-    let timer;
+    let t;
     if (isPlaying && !isPaused && currentScene < SCRIPT.length) {
-      timer = setTimeout(() => {
-        setCurrentScene(prev => prev + 1);
-      }, SCRIPT[currentScene].duration);
-    } else if (currentScene >= SCRIPT.length) {
-      setIsPlaying(false);
-      setIsPaused(false);
-    }
-    return () => clearTimeout(timer);
+      t = setTimeout(() => setCurrentScene(p => p + 1), SCRIPT[currentScene].duration);
+    } else if (currentScene >= SCRIPT.length) { setIsPlaying(false); setIsPaused(false); }
+    return () => clearTimeout(t);
   }, [isPlaying, isPaused, currentScene]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      if (isPaused) {
-        window.speechSynthesis.pause();
-      } else {
-        window.speechSynthesis.resume();
-      }
-    }
+    if ('speechSynthesis' in window) isPaused ? speechSynthesis.pause() : speechSynthesis.resume();
   }, [isPaused]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      if (isPlaying && !isPaused && isAudioEnabled && currentScene < SCRIPT.length) {
-        const utterance = new SpeechSynthesisUtterance(SCRIPT[currentScene].text);
-        utterance.rate = 0.95;
-        utterance.pitch = 1.0;
-        window.speechSynthesis.speak(utterance);
-      }
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    if (isPlaying && !isPaused && isAudioEnabled && currentScene < SCRIPT.length) {
+      const u = new SpeechSynthesisUtterance(SCRIPT[currentScene].text);
+      u.rate = 0.95; speechSynthesis.speak(u);
     }
-  }, [isPlaying, isPaused, currentScene, isAudioEnabled]);
+    return () => speechSynthesis.cancel();
+  }, [isPlaying, currentScene, isAudioEnabled]);
 
-  const handleReplay = () => {
-    setCurrentScene(0);
-    setIsPlaying(true);
-    setIsPaused(false);
-  };
-
-  const currentData = SCRIPT[currentScene] || SCRIPT[SCRIPT.length - 1];
-  const progressPercent = ((currentScene) / SCRIPT.length) * 100;
+  const handleStart = () => { if (currentScene >= SCRIPT.length) setCurrentScene(0); setIsPlaying(true); setIsPaused(false); };
+  const handleStop = () => { setIsPlaying(false); setIsPaused(false); setCurrentScene(0); speechSynthesis.cancel(); };
+  const data = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
+  const isFinished = !isPlaying && currentScene >= SCRIPT.length;
+  const isIdle = !isPlaying && currentScene === 0;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col md:items-center md:justify-center bg-[#020617] md:bg-black/95 md:backdrop-blur-xl overflow-y-auto">
-      {/* Mobile Top Header */}
-      <div className="md:hidden flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0a0f1d]">
-        <button onClick={onClose} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
-          <ChevronLeft size={24} />
-        </button>
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-0.5">Clinical Module</span>
-          <h1 className="text-sm font-bold text-white tracking-widest uppercase flex items-center gap-2">
-            Clinical Hub
-          </h1>
+    <div className="fixed inset-0 z-[200] bg-[#020617] flex flex-col overflow-hidden">
+      <div className="shrink-0 flex items-center justify-between px-4 py-3 bg-[#0a0f1d]/95 backdrop-blur-sm border-b border-white/5 z-30">
+        <button onClick={onClose} className="flex items-center gap-1.5 p-2 -ml-1 text-slate-400 active:text-white"><ChevronLeft size={20} /></button>
+        <div className="text-center">
+          <p className={`text-[9px] font-black uppercase tracking-[0.25em] ${A.bright}`}>Dispensing Phase</p>
+          <h1 className="text-[13px] font-bold text-white uppercase tracking-wide">Optical Alignment</h1>
         </div>
-        <div className="w-10" />
+        <div className="flex items-center gap-1">
+          {isPlaying && <>
+            <button onClick={() => setIsPaused(!isPaused)} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-white/15">{isPaused ? <Play size={17} className="fill-current" /> : <Pause size={17} />}</button>
+            <button onClick={handleStop} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-red-500/30"><Square size={17} className="fill-current" /></button>
+          </>}
+          <button onClick={() => setIsAudioEnabled(!isAudioEnabled)} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-white/15">{isAudioEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}</button>
+        </div>
       </div>
 
-      <div className="relative w-full aspect-[4/5] sm:aspect-video md:max-w-6xl md:rounded-3xl overflow-hidden md:ring-1 md:ring-white/10 md:shadow-2xl shadow-blue-500/10 shrink-0">
-        {/* Desktop Close Button */}
-        <button 
-          onClick={onClose}
-          className="hidden md:flex absolute top-6 right-6 z-50 p-3 bg-white/10 hover:bg-red-500 hover:text-white rounded-full backdrop-blur-md transition-all text-white/70"
-        >
-          <X size={24} />
-        </button>
+      {isPlaying && (
+        <div className="shrink-0 h-[3px] bg-white/8">
+          <motion.div className={`h-full ${A.bar} ${A.glow}`} initial={{ width: `${(currentScene / SCRIPT.length) * 100}%` }} animate={{ width: `${((currentScene + 1) / SCRIPT.length) * 100}%` }} transition={{ duration: (SCRIPT[currentScene]?.duration ?? 5000) / 1000, ease: 'linear' }} />
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="relative w-full bg-[#0d1117]" style={{ aspectRatio: '16/9' }}>
+          <AnimatePresence>
+            {isIdle && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center bg-[#020617] px-6 text-center z-20">
+                <div className={`w-14 h-14 ${A.spin} rounded-full flex items-center justify-center border ${A.bdr} mb-4 animate-spin`} style={{ animationDuration: '3s' }}>
+                  <div className={`w-10 h-10 ${A.spin} rounded-full flex items-center justify-center animate-spin`} style={{ animationDuration: '2s', animationDirection: 'reverse' }}>
+                    <Crosshair className={`${A.lbl} animate-pulse`} size={20} />
+                  </div>
+                </div>
+                <p className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1.5 ${A.bright}`}>Dispensing Phase</p>
+                <h2 className="text-lg sm:text-2xl text-white font-black tracking-tight uppercase italic mb-2">Optical Alignment</h2>
+                <p className="text-slate-400 text-xs max-w-xs mb-5 leading-relaxed">Clinical module demonstrating pupillary distance measurement and exact optical center positioning.</p>
+                <button onClick={handleStart} className={`${A.btn} active:scale-95 text-[#0f172a] px-7 py-3 rounded-xl font-black shadow-xl text-xs uppercase tracking-[0.15em] flex items-center gap-2 transition-all`}><Play size={14} className="fill-current" /> Launch Simulation</button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            {(isPlaying || (currentScene > 0 && currentScene < SCRIPT.length)) && (
+              <motion.div key={currentScene} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }} className="absolute inset-0">
+                <motion.img src={data.img || data.image} alt="Scene" className="w-full h-full object-cover" animate={{ scale: [1, 1.04] }} transition={{ duration: 13, repeat: Infinity, repeatType: 'reverse', ease: 'linear' }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {isPlaying && <div className="absolute top-2.5 left-3 z-10 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded-md border border-white/10"><span className="text-[10px] font-bold text-white/60">{currentScene + 1} / {SCRIPT.length}</span></div>}
+        </div>
 
         <AnimatePresence mode="wait">
-          {!isPlaying && currentScene === 0 ? (
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-40 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col items-center justify-center p-8 text-center"
-            >
-              <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center mb-8 border border-blue-500/20">
-                <Eye size={40} className="text-blue-400" />
+          {isPlaying && (
+            <motion.div key={`t-${currentScene}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: 0.15 }} className="bg-[#020617] px-4 pt-3 pb-4 sm:px-6 sm:pt-4 sm:pb-5">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className={`text-[9px] font-black uppercase tracking-[0.28em] ${A.lbl}`}>{data.title}</span>
+                <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md border border-emerald-400/20 whitespace-nowrap">{data.subtitle || "Alignment Control"}</span>
               </div>
-              <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase italic">Optical Center Alignment</h2>
-              <p className="text-slate-400 max-w-lg mb-10 text-lg font-medium">Essential techniques for achieving accurate and comfortable vision correction by perfect lens alignment.</p>
-              <button 
-                onClick={() => setIsPlaying(true)}
-                className="group bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-2xl font-black transition-all flex items-center gap-4 text-sm uppercase tracking-widest shadow-2xl shadow-blue-600/20"
-              >
-                Launch Simulation <Play size={20} className="fill-current" />
-              </button>
+              <p className="text-white text-[15px] sm:text-lg font-bold leading-snug">{data.text}</p>
             </motion.div>
-          ) : currentScene >= SCRIPT.length ? (
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="absolute inset-0 z-40 bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 flex flex-col items-center justify-center p-8 text-center"
-            >
-              <div className="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mb-8 border-4 border-emerald-500/20">
-                <Award size={48} className="text-emerald-400" />
-              </div>
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tighter uppercase italic">Module Complete</h2>
-              <p className="text-slate-400 max-w-lg mb-10 text-lg">You have completed the Optical Center Alignment tutorial. Ready to test your knowledge?</p>
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                <button 
-                  onClick={onStartTest}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-5 rounded-2xl font-black transition-all flex items-center justify-center gap-4 text-sm uppercase tracking-widest shadow-2xl shadow-emerald-500/20"
-                >
-                  Launch Module Test <ClipboardCheck size={20} />
-                </button>
-                <button 
-                  onClick={handleReplay}
-                  className="bg-white/5 hover:bg-white/10 text-white px-10 py-5 rounded-2xl font-black transition-all flex items-center justify-center gap-4 text-sm uppercase tracking-widest border border-white/10"
-                >
-                  Replay Content
-                </button>
-              </div>
-            </motion.div>
-          ) : null}
+          )}
         </AnimatePresence>
 
-        {isPlaying && currentScene < SCRIPT.length && (
-          <div className="relative h-full flex flex-col">
-            {/* Visual Content Layer */}
-            <div className="absolute inset-0">
-               <motion.img 
-                 key={currentScene}
-                 src={currentData.img}
-                 initial={{ scale: 1.1, opacity: 0 }}
-                 animate={{ scale: 1, opacity: 1 }}
-                 transition={{ duration: 1.5, ease: "easeOut" }}
-                 className="w-full h-full object-cover"
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+        {isFinished && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="px-4 pt-4 pb-6 sm:px-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 bg-emerald-500/15 rounded-lg flex items-center justify-center shrink-0"><CheckCircle2 size={19} className="text-emerald-400" /></div>
+              <div><p className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.28em]">Module Complete</p><h2 className="text-lg font-black text-white">Subject Assessment</h2></div>
             </div>
-
-            {/* Content UI Layer */}
-            <div className="relative z-10 h-full p-8 flex flex-col justify-end">
-               <div className="max-w-3xl">
-                  <motion.div
-                    key={`header-${currentScene}`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-3 mb-4"
-                  >
-                    <div className="p-2 bg-blue-500/20 rounded-lg border border-blue-500/30">
-                      <Clock size={16} className="text-blue-400" />
-                    </div>
-                    <span className="text-blue-400 font-black text-xs uppercase tracking-[0.3em]">{currentData.subtitle}</span>
-                  </motion.div>
-                  
-                  <motion.h3 
-                    key={`title-${currentScene}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase"
-                  >
-                    {currentData.title}
-                  </motion.h3>
-
-                  <motion.p
-                    key={`text-${currentScene}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg md:text-xl text-slate-300 leading-relaxed font-medium"
-                  >
-                    {currentData.text}
-                  </motion.p>
-               </div>
-
-               {/* Video Controls */}
-               <div className="mt-10 flex items-center justify-between gap-6 bg-black/40 backdrop-blur-xl p-4 rounded-3xl border border-white/10">
-                  <div className="flex items-center gap-4">
-                    <button 
-                      onClick={() => setIsPaused(!isPaused)}
-                      className="w-12 h-12 flex items-center justify-center bg-white text-black rounded-2xl hover:scale-105 transition-all"
-                    >
-                      {isPaused ? <Play size={24} className="fill-current" /> : <Pause size={24} className="fill-current" />}
-                    </button>
-                    <div className="w-px h-8 bg-white/10" />
-                    <button 
-                      onClick={() => setIsAudioEnabled(!isAudioEnabled)}
-                      className={`w-12 h-12 flex items-center justify-center rounded-2xl transition-all ${isAudioEnabled ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'}`}
-                    >
-                      {isAudioEnabled ? <Volume2 size={24} /> : <VolumeX size={24} />}
-                    </button>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="flex-1 flex flex-col gap-2">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest px-1">
-                      <span>Progress</span>
-                      <span>Scene {currentScene + 1} of {SCRIPT.length}</span>
-                    </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progressPercent}%` }}
-                        className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
-                      />
-                    </div>
-                  </div>
-
-                  <button 
-                    onClick={onClose}
-                    className="hidden sm:flex w-12 h-12 items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all"
-                  >
-                    <Maximize2 size={24} />
-                  </button>
-               </div>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">Validate your knowledge on optical center alignment with <strong className="text-white">10 clinical MCQs</strong>.</p>
+            <div className="flex flex-wrap gap-3 mb-4">
+              {[{ icon: Clock, label: 'Est. 15 mins' }, { icon: ClipboardCheck, label: '10 Questions' }, { icon: Award, label: 'Pass: 5/10' }].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5 text-slate-400"><Icon size={12} className={A.lbl} /><span className="text-[10px] font-bold uppercase tracking-wide">{label}</span></div>
+              ))}
             </div>
-          </div>
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <button onClick={onStartTest} className="flex-1 bg-white text-black active:scale-[0.98] px-5 py-3.5 rounded-xl font-black uppercase text-xs tracking-wider flex items-center justify-center gap-2"><Play size={14} className="fill-current" /> Launch Module Test</button>
+              <button onClick={handleStart} className="flex-1 sm:flex-none bg-white/6 text-white active:scale-[0.98] px-4 py-3.5 rounded-xl font-bold text-xs border border-white/10 flex items-center justify-center gap-2"><RotateCcw size={13} /> Watch Again</button>
+            </div>
+            <div className={`mt-4 p-3.5 ${A.note} rounded-xl border`}>
+              <h4 className="text-white font-bold text-xs mb-1 flex items-center gap-1.5"><Award size={12} className={A.nIcon} /> Dispensing Tip</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">Induced prism from decentration can cause persistent asthenopia (eye strain). The higher the lens power, the more critical exact PD alignment becomes.</p>
+            </div>
+          </motion.div>
         )}
-      </div>
-
-      {/* Info Tips Layer */}
-      <div className="hidden md:flex flex-wrap justify-center gap-8 mt-12 max-w-5xl">
-         {[
-           { icon: Eye, title: 'Alignment', desc: 'Lenses must match pupils' },
-           { icon: Square, title: 'Prism', desc: 'Misalignment causes prism' },
-           { icon: Award, title: 'Comfort', desc: 'Reduces strain and headaches' }
-         ].map((tip, i) => (
-           <div key={i} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5 px-6">
-              <div className="p-3 bg-blue-500/10 rounded-xl">
-                 <tip.icon className="text-blue-400" size={20} />
-              </div>
-              <div>
-                 <h4 className="text-white font-bold text-sm tracking-tight">{tip.title}</h4>
-                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{tip.desc}</p>
-              </div>
-           </div>
-         ))}
+        {isIdle && <div className="px-4 pt-3 pb-4 space-y-2">{[2, 3, 2.5].map((w, i) => <div key={i} className="h-2.5 bg-white/5 rounded-full animate-pulse" style={{ width: `${w * 33}%` }} />)}</div>}
       </div>
     </div>
   );

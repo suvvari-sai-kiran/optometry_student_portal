@@ -1,9 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Play, Pause, RotateCcw, X, Volume2, VolumeX, 
-  ChevronRight, ChevronLeft, Award, BookOpen, Clock
-} from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Square, ChevronLeft, Clock, ClipboardCheck, Award, RotateCcw, CheckCircle2, Eye, Ruler } from 'lucide-react';
 
 const SCRIPT = [
   {
@@ -68,184 +65,129 @@ const SCRIPT = [
   }
 ];
 
-const LensThicknessCalculationVideo = ({ onClose, onStartTest }) => {
+const A = { bar: 'bg-amber-500', glow: 'shadow-[0_0_18px_rgba(245,158,11,0.7)]', lbl: 'text-amber-400', bright: 'text-amber-500', btn: 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/25', spin: 'bg-amber-500/20', bdr: 'border-amber-500/30 border-t-amber-400', note: 'bg-amber-500/5 border-amber-500/15', nIcon: 'text-amber-400' };
+
+export default function LensThicknessCalculationVideo({ onClose, onStartTest }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [currentScene, setCurrentScene] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const speechRef = useRef(null);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
 
   useEffect(() => {
-    if (isPlaying) {
-      speakContent(SCRIPT[currentScene].text);
-      const startTime = Date.now();
-      const duration = SCRIPT[currentScene].duration;
+    let t;
+    if (isPlaying && !isPaused && currentScene < SCRIPT.length) {
+      t = setTimeout(() => setCurrentScene(p => p + 1), SCRIPT[currentScene].duration);
+    } else if (currentScene >= SCRIPT.length) { setIsPlaying(false); setIsPaused(false); }
+    return () => clearTimeout(t);
+  }, [isPlaying, isPaused, currentScene]);
 
-      const interval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const newProgress = (elapsed / duration) * 100;
-        
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          if (currentScene < SCRIPT.length - 1) {
-            setCurrentScene(prev => prev + 1);
-            setProgress(0);
-          } else {
-            setIsPlaying(false);
-            setProgress(100);
-          }
-        } else {
-          setProgress(newProgress);
-        }
-      }, 50);
+  useEffect(() => {
+    if ('speechSynthesis' in window) isPaused ? speechSynthesis.pause() : speechSynthesis.resume();
+  }, [isPaused]);
 
-      return () => {
-        clearInterval(interval);
-        window.speechSynthesis.cancel();
-      };
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    if (isPlaying && !isPaused && isAudioEnabled && currentScene < SCRIPT.length) {
+      const u = new SpeechSynthesisUtterance(SCRIPT[currentScene].text);
+      u.rate = 0.95; speechSynthesis.speak(u);
     }
-  }, [currentScene, isPlaying]);
+    return () => speechSynthesis.cancel();
+  }, [isPlaying, currentScene, isAudioEnabled]);
 
-  const speakContent = (text) => {
-    window.speechSynthesis.cancel();
-    if (isMuted) return;
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    speechRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const handleTogglePlay = () => setIsPlaying(!isPlaying);
-  const handleToggleMute = () => {
-    setIsMuted(!isMuted);
-    if (!isMuted) window.speechSynthesis.cancel();
-  };
-
-  const handleReset = () => {
-    setCurrentScene(0);
-    setProgress(0);
-    setIsPlaying(true);
-  };
+  const handleStart = () => { if (currentScene >= SCRIPT.length) setCurrentScene(0); setIsPlaying(true); setIsPaused(false); };
+  const handleStop = () => { setIsPlaying(false); setIsPaused(false); setCurrentScene(0); speechSynthesis.cancel(); };
+  const data = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
+  const isFinished = !isPlaying && currentScene >= SCRIPT.length;
+  const isIdle = !isPlaying && currentScene === 0;
 
   return (
-    <div className="fixed inset-0 bg-black/95 z-[1000] flex items-center justify-center p-0 md:p-6 overflow-y-auto">
-      <div className="w-full max-w-5xl bg-slate-900 md:rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden flex flex-col aspect-[4/5] sm:aspect-video">
-        
-        {/* Header */}
-        <div className="absolute top-0 inset-x-0 p-4 md:p-6 flex justify-between items-center z-20 bg-gradient-to-b from-black/80 to-transparent">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/20 rounded-xl md:rounded-2xl flex items-center justify-center border border-primary/30">
-              <BookOpen className="text-primary size-5 md:size-6" />
-            </div>
-            <div>
-              <h2 className="text-white text-sm md:text-xl font-black tracking-tight uppercase">Lens Thickness</h2>
-              <p className="text-[10px] md:text-xs text-slate-400 font-bold tracking-widest uppercase">Module 4: Dispensing Optics</p>
-            </div>
-          </div>
-          <button 
-            onClick={onClose}
-            className="p-2 md:p-3 bg-white/5 hover:bg-white/10 rounded-xl md:rounded-2xl text-slate-400 hover:text-white transition-all border border-white/5"
-          >
-            <X size={20} />
-          </button>
+    <div className="fixed inset-0 z-[200] bg-[#020617] flex flex-col overflow-hidden">
+      <div className="shrink-0 flex items-center justify-between px-4 py-3 bg-[#0a0f1d]/95 backdrop-blur-sm border-b border-white/5 z-30">
+        <button onClick={onClose} className="flex items-center gap-1.5 p-2 -ml-1 text-slate-400 active:text-white"><ChevronLeft size={20} /></button>
+        <div className="text-center">
+          <p className={`text-[9px] font-black uppercase tracking-[0.25em] ${A.bright}`}>Mathematical Phase</p>
+          <h1 className="text-[13px] font-bold text-white uppercase tracking-wide">Lens Thickness</h1>
         </div>
+        <div className="flex items-center gap-1">
+          {isPlaying && <>
+            <button onClick={() => setIsPaused(!isPaused)} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-white/15">{isPaused ? <Play size={17} className="fill-current" /> : <Pause size={17} />}</button>
+            <button onClick={handleStop} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-red-500/30"><Square size={17} className="fill-current" /></button>
+          </>}
+          <button onClick={() => setIsAudioEnabled(!isAudioEnabled)} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-white/15">{isAudioEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}</button>
+        </div>
+      </div>
 
-        {/* Scene Container */}
-        <div className="flex-1 relative flex items-center justify-center bg-slate-950 overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={currentScene}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.8 }}
-              className="absolute inset-0 flex flex-col items-center justify-center"
-            >
-              <img 
-                src={SCRIPT[currentScene].image} 
-                alt={SCRIPT[currentScene].title}
-                className="w-full h-full object-contain p-4 md:p-12 opacity-80"
-              />
-              
-              {/* Overlay Text */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 md:px-20 pointer-events-none"
-              >
-                <div className="bg-black/40 backdrop-blur-md p-6 md:p-10 rounded-3xl border border-white/10 max-w-3xl">
-                  <h3 className="text-primary text-xs md:text-base font-black uppercase tracking-[0.3em] mb-4">{SCRIPT[currentScene].title}</h3>
-                  <p className="text-white text-sm md:text-2xl font-bold leading-relaxed">{SCRIPT[currentScene].text}</p>
+      {isPlaying && (
+        <div className="shrink-0 h-[3px] bg-white/8">
+          <motion.div className={`h-full ${A.bar} ${A.glow}`} initial={{ width: `${(currentScene / SCRIPT.length) * 100}%` }} animate={{ width: `${((currentScene + 1) / SCRIPT.length) * 100}%` }} transition={{ duration: (SCRIPT[currentScene]?.duration ?? 5000) / 1000, ease: 'linear' }} />
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="relative w-full bg-[#0d1117]" style={{ aspectRatio: '16/9' }}>
+          <AnimatePresence>
+            {isIdle && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center bg-[#020617] px-6 text-center z-20">
+                <div className={`w-14 h-14 ${A.spin} rounded-full flex items-center justify-center border ${A.bdr} mb-4 animate-spin`} style={{ animationDuration: '3s' }}>
+                  <div className={`w-10 h-10 ${A.spin} rounded-full flex items-center justify-center animate-spin`} style={{ animationDuration: '2s', animationDirection: 'reverse' }}>
+                    <Ruler className={`${A.lbl} animate-pulse`} size={20} />
+                  </div>
                 </div>
+                <p className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1.5 ${A.bright}`}>Mathematical Phase</p>
+                <h2 className="text-lg sm:text-2xl text-white font-black tracking-tight uppercase italic mb-2">Lens Thickness</h2>
+                <p className="text-slate-400 text-xs max-w-xs mb-5 leading-relaxed">Clinical module exploring optical formula predictions for center and edge thickness optimizations.</p>
+                <button onClick={handleStart} className={`${A.btn} active:scale-95 text-[#0f172a] px-7 py-3 rounded-xl font-black shadow-xl text-xs uppercase tracking-[0.15em] flex items-center gap-2 transition-all`}><Play size={14} className="fill-current" /> Launch Simulation</button>
               </motion.div>
-            </motion.div>
+            )}
           </AnimatePresence>
-
-          {/* Progress Indicator Dots */}
-          <div className="absolute bottom-32 inset-x-0 flex justify-center gap-2 z-20">
-            {SCRIPT.map((_, idx) => (
-              <div 
-                key={idx}
-                className={`h-1 md:h-1.5 transition-all duration-300 rounded-full ${idx === currentScene ? 'w-8 md:w-12 bg-primary' : 'w-2 md:w-3 bg-white/20'}`}
-              />
-            ))}
-          </div>
+          <AnimatePresence mode="wait">
+            {(isPlaying || (currentScene > 0 && currentScene < SCRIPT.length)) && (
+              <motion.div key={currentScene} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }} className="absolute inset-0">
+                <motion.img src={data.img || data.image} alt="Scene" className="w-full h-full object-cover" animate={{ scale: [1, 1.04] }} transition={{ duration: 13, repeat: Infinity, repeatType: 'reverse', ease: 'linear' }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {isPlaying && <div className="absolute top-2.5 left-3 z-10 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded-md border border-white/10"><span className="text-[10px] font-bold text-white/60">{currentScene + 1} / {SCRIPT.length}</span></div>}
         </div>
 
-        {/* Footer Controls */}
-        <div className="bg-black/60 backdrop-blur-2xl p-4 md:p-8 border-t border-white/5 z-20">
-          <div className="max-w-4xl mx-auto flex flex-col gap-4 md:gap-6">
-            
-            {/* Progress Bar */}
-            <div className="relative h-1.5 md:h-2 bg-white/10 rounded-full overflow-hidden">
-              <motion.div 
-                className="absolute inset-y-0 left-0 bg-primary"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 md:gap-4">
-                <button 
-                  onClick={handleTogglePlay}
-                  className="p-3 md:p-4 bg-primary hover:bg-primary/90 text-white rounded-xl md:rounded-2xl transition-all shadow-lg shadow-primary/20 active:scale-95"
-                >
-                  {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                </button>
-                <button 
-                  onClick={handleReset}
-                  className="p-3 md:p-4 bg-white/5 hover:bg-white/10 text-white rounded-xl md:rounded-2xl transition-all border border-white/10"
-                >
-                  <RotateCcw size={20} />
-                </button>
-                <button 
-                  onClick={handleToggleMute}
-                  className="p-3 md:p-4 bg-white/5 hover:bg-white/10 text-white rounded-xl md:rounded-2xl transition-all border border-white/10"
-                >
-                  {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-                </button>
+        <AnimatePresence mode="wait">
+          {isPlaying && (
+            <motion.div key={`t-${currentScene}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: 0.15 }} className="bg-[#020617] px-4 pt-3 pb-4 sm:px-6 sm:pt-4 sm:pb-5">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className={`text-[9px] font-black uppercase tracking-[0.28em] ${A.lbl}`}>{data.title}</span>
+                <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md border border-emerald-400/20 whitespace-nowrap">{data.subtitle || "Calculation Logic"}</span>
               </div>
+              <p className="text-white text-[15px] sm:text-lg font-bold leading-snug">{data.text}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              {currentScene === SCRIPT.length - 1 && progress > 90 ? (
-                <button 
-                  onClick={onStartTest}
-                  className="px-6 md:px-10 py-3 md:py-4 bg-white text-slate-900 hover:bg-primary hover:text-white font-black rounded-xl md:rounded-2xl transition-all shadow-2xl flex items-center gap-2 md:gap-3 uppercase tracking-widest text-[10px] md:text-sm active:scale-95 group"
-                >
-                  Start Assessment <Award size={18} className="group-hover:rotate-12 transition-transform" />
-                </button>
-              ) : (
-                <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-[10px] md:text-xs">
-                  <Clock size={14} className="text-primary" /> Scene {currentScene + 1} / {SCRIPT.length}
-                </div>
-              )}
+        {isFinished && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="px-4 pt-4 pb-6 sm:px-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 bg-emerald-500/15 rounded-lg flex items-center justify-center shrink-0"><CheckCircle2 size={19} className="text-emerald-400" /></div>
+              <div><p className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.28em]">Module Complete</p><h2 className="text-lg font-black text-white">Subject Assessment</h2></div>
             </div>
-          </div>
-        </div>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">Validate your knowledge on lens thickness variables with <strong className="text-white">10 clinical MCQs</strong>.</p>
+            <div className="flex flex-wrap gap-3 mb-4">
+              {[{ icon: Clock, label: 'Est. 15 mins' }, { icon: ClipboardCheck, label: '10 Questions' }, { icon: Award, label: 'Pass: 5/10' }].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5 text-slate-400"><Icon size={12} className={A.lbl} /><span className="text-[10px] font-bold uppercase tracking-wide">{label}</span></div>
+              ))}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <button onClick={onStartTest} className="flex-1 bg-white text-black active:scale-[0.98] px-5 py-3.5 rounded-xl font-black uppercase text-xs tracking-wider flex items-center justify-center gap-2"><Play size={14} className="fill-current" /> Launch Module Test</button>
+              <button onClick={handleStart} className="flex-1 sm:flex-none bg-white/6 text-white active:scale-[0.98] px-4 py-3.5 rounded-xl font-bold text-xs border border-white/10 flex items-center justify-center gap-2"><RotateCcw size={13} /> Watch Again</button>
+            </div>
+            <div className={`mt-4 p-3.5 ${A.note} rounded-xl border`}>
+              <h4 className="text-white font-bold text-xs mb-1 flex items-center gap-1.5"><Award size={12} className={A.nIcon} /> Dispensing Tip</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">Thickness increases exponentially with frame edge size. A 1.67 or 1.74 high index material drastically reduces edge thickness for high myopes without compromising quality.</p>
+            </div>
+          </motion.div>
+        )}
+        {isIdle && <div className="px-4 pt-3 pb-4 space-y-2">{[2, 3, 2.5].map((w, i) => <div key={i} className="h-2.5 bg-white/5 rounded-full animate-pulse" style={{ width: `${w * 33}%` }} />)}</div>}
       </div>
     </div>
   );
-};
-
-export default LensThicknessCalculationVideo;
+}

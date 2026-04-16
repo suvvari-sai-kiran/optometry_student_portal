@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Eye, Volume2, VolumeX, Square, ChevronLeft, Clock, ClipboardCheck, Award, Maximize2 } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Square, ChevronLeft, Clock, ClipboardCheck, Award, RotateCcw, CheckCircle2, Eye, FileText } from 'lucide-react';
 
 const SCRIPT = [
-  { img: 'va_scene_intro_1776272597620.png', duration: 7000, title: 'Introduction', text: 'Hello, and welcome. In this video, we will learn about the Visual Acuity Assessment Test, a fundamental procedure used to measure the clarity or sharpness of vision.' },
-  { img: 'va_scene_intro_1776272597620.png', duration: 8000, title: 'What is Visual Acuity?', text: 'Visual acuity refers to how clearly a person can see objects at a specific distance. It helps eye care professionals determine how well the eyes are functioning and whether corrective lenses are needed.' },
-  { img: 'va_scene_tools_1776272632217.png', duration: 10000, title: 'Common Tools Used', text: 'The most commonly used tool for measuring visual acuity is the Snellen chart. This chart consists of rows of letters that decrease in size from top to bottom. Other charts include the LogMAR chart and E chart.' },
-  { img: 'va_scene_tools_1776272632217.png', duration: 8000, title: 'Test Setup', text: 'To perform the test, the patient is positioned at a standard distance, usually 6 meters or 20 feet, from the chart. One eye is covered while the other eye is tested.' },
-  { img: 'va_scene_procedure_1776272987487.png', duration: 8000, title: 'Procedure', text: 'The patient is asked to read the smallest line of letters they can see clearly. The examiner records the results as a fraction, such as 6 over 6 or 20 over 20, which indicates normal vision.' },
-  { img: 'va_scene_procedure_1776272987487.png', duration: 8000, title: 'Understanding Results', text: 'A result of 6 over 6 means the person can see clearly at 6 meters what a normal eye should see at that distance. Lower values may indicate vision problems such as myopia or hyperopia.' },
-  { img: 'va_scene_intro_1776272597620.png', duration: 8000, title: 'Importance of the Test', text: 'Visual acuity testing is essential for detecting vision problems early. It is widely used in schools, clinics, and hospitals as part of routine eye examinations.' }
+  { img: '/va_video/va_scene_intro_1776272597620.png', duration: 7000, title: 'Introduction', text: 'Hello, and welcome. In this video, we will learn about the Visual Acuity Assessment Test, a fundamental procedure used to measure the clarity or sharpness of vision.' },
+  { img: '/va_video/va_scene_intro_1776272597620.png', duration: 8000, title: 'What is Visual Acuity?', text: 'Visual acuity refers to how clearly a person can see objects at a specific distance. It helps eye care professionals determine how well the eyes are functioning and whether corrective lenses are needed.' },
+  { img: '/va_video/va_scene_tools_1776272632217.png', duration: 10000, title: 'Common Tools Used', text: 'The most commonly used tool for measuring visual acuity is the Snellen chart. This chart consists of rows of letters that decrease in size from top to bottom. Other charts include the LogMAR chart and E chart.' },
+  { img: '/va_video/va_scene_tools_1776272632217.png', duration: 8000, title: 'Test Setup', text: 'To perform the test, the patient is positioned at a standard distance, usually 6 meters or 20 feet, from the chart. One eye is covered while the other eye is tested.' },
+  { img: '/va_video/va_scene_procedure_1776272987487.png', duration: 8000, title: 'Procedure', text: 'The patient is asked to read the smallest line of letters they can see clearly. The examiner records the results as a fraction, such as 6 over 6 or 20 over 20, which indicates normal vision.' },
+  { img: '/va_video/va_scene_procedure_1776272987487.png', duration: 8000, title: 'Understanding Results', text: 'A result of 6 over 6 means the person can see clearly at 6 meters what a normal eye should see at that distance. Lower values may indicate vision problems such as myopia or hyperopia.' },
+  { img: '/va_video/va_scene_intro_1776272597620.png', duration: 8000, title: 'Importance of the Test', text: 'Visual acuity testing is essential for detecting vision problems early. It is widely used in schools, clinics, and hospitals as part of routine eye examinations.' }
 ];
+
+const A = { bar: 'bg-indigo-500', glow: 'shadow-[0_0_18px_rgba(99,102,241,0.7)]', lbl: 'text-indigo-400', bright: 'text-indigo-400', btn: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25', spin: 'bg-indigo-500/20', bdr: 'border-indigo-500/30 border-t-indigo-400', note: 'bg-indigo-500/5 border-indigo-500/15', nIcon: 'text-indigo-400' };
 
 export default function VisualAcuityVideo({ onClose, onStartTest }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,266 +21,120 @@ export default function VisualAcuityVideo({ onClose, onStartTest }) {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
 
   useEffect(() => {
-    let timer;
+    let t;
     if (isPlaying && !isPaused && currentScene < SCRIPT.length) {
-      timer = setTimeout(() => {
-        setCurrentScene(prev => prev + 1);
-      }, SCRIPT[currentScene].duration);
-    } else if (currentScene >= SCRIPT.length) {
-      setIsPlaying(false);
-      setIsPaused(false);
-    }
-    return () => clearTimeout(timer);
+      t = setTimeout(() => setCurrentScene(p => p + 1), SCRIPT[currentScene].duration);
+    } else if (currentScene >= SCRIPT.length) { setIsPlaying(false); setIsPaused(false); }
+    return () => clearTimeout(t);
   }, [isPlaying, isPaused, currentScene]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      if (isPaused) {
-        window.speechSynthesis.pause();
-      } else {
-        window.speechSynthesis.resume();
-      }
-    }
+    if ('speechSynthesis' in window) isPaused ? speechSynthesis.pause() : speechSynthesis.resume();
   }, [isPaused]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      if (isPlaying && !isPaused && isAudioEnabled && currentScene < SCRIPT.length) {
-        const utterance = new SpeechSynthesisUtterance(SCRIPT[currentScene].text);
-        utterance.rate = 0.95;
-        // utterance.pitch = 1;
-        window.speechSynthesis.speak(utterance);
-      }
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    if (isPlaying && !isPaused && isAudioEnabled && currentScene < SCRIPT.length) {
+      const u = new SpeechSynthesisUtterance(SCRIPT[currentScene].text);
+      u.rate = 0.95; speechSynthesis.speak(u);
     }
-    
-    return () => {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
+    return () => speechSynthesis.cancel();
   }, [isPlaying, currentScene, isAudioEnabled]);
 
-  const handleStart = () => {
-    if (currentScene >= SCRIPT.length) {
-      setCurrentScene(0);
-    }
-    setIsPlaying(true);
-    setIsPaused(false);
-  };
-
-  const handleStop = () => {
-    setIsPlaying(false);
-    setIsPaused(false);
-    setCurrentScene(0);
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-  };
-
-  const currentData = SCRIPT[currentScene] || SCRIPT[SCRIPT.length - 1];
-  const progressPercent = ((currentScene) / SCRIPT.length) * 100;
+  const handleStart = () => { if (currentScene >= SCRIPT.length) setCurrentScene(0); setIsPlaying(true); setIsPaused(false); };
+  const handleStop = () => { setIsPlaying(false); setIsPaused(false); setCurrentScene(0); speechSynthesis.cancel(); };
+  const data = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
+  const isFinished = !isPlaying && currentScene >= SCRIPT.length;
+  const isIdle = !isPlaying && currentScene === 0;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col md:items-center md:justify-center bg-[#020617] md:bg-black/95 md:backdrop-blur-xl overflow-y-auto">
-      {/* Mobile Top Header - Only visible on small screens */}
-      <div className="md:hidden flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0a0f1d]">
-        <button onClick={onClose} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
-          <ChevronLeft size={24} />
-        </button>
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-0.5">Clinical Module</span>
-          <h1 className="text-sm font-bold text-white tracking-widest uppercase flex items-center gap-2">
-            Clinical Hub
-          </h1>
+    <div className="fixed inset-0 z-[200] bg-[#020617] flex flex-col overflow-hidden">
+      <div className="shrink-0 flex items-center justify-between px-4 py-3 bg-[#0a0f1d]/95 backdrop-blur-sm border-b border-white/5 z-30">
+        <button onClick={onClose} className="flex items-center gap-1.5 p-2 -ml-1 text-slate-400 active:text-white"><ChevronLeft size={20} /></button>
+        <div className="text-center">
+          <p className={`text-[9px] font-black uppercase tracking-[0.25em] ${A.bright}`}>Clinical Core</p>
+          <h1 className="text-[13px] font-bold text-white uppercase tracking-wide">Visual Acuity</h1>
         </div>
-        <div className="w-10" /> {/* Spacer for balance */}
+        <div className="flex items-center gap-1">
+          {isPlaying && <>
+            <button onClick={() => setIsPaused(!isPaused)} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-white/15">{isPaused ? <Play size={17} className="fill-current" /> : <Pause size={17} />}</button>
+            <button onClick={handleStop} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-red-500/30"><Square size={17} className="fill-current" /></button>
+          </>}
+          <button onClick={() => setIsAudioEnabled(!isAudioEnabled)} className="p-2 rounded-lg bg-white/8 text-slate-300 active:bg-white/15">{isAudioEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}</button>
+        </div>
       </div>
 
-      <div className="relative w-full aspect-[4/5] sm:aspect-video md:max-w-6xl md:rounded-3xl overflow-hidden md:ring-1 md:ring-white/10 md:shadow-2xl shadow-indigo-500/10 shrink-0">
-        {/* Desktop Close Button */}
-        <button 
-          onClick={onClose}
-          className="hidden md:flex absolute top-6 right-6 z-50 p-3 bg-white/10 hover:bg-red-500 hover:text-white rounded-full backdrop-blur-md transition-all text-white/70"
-        >
-          <X size={24} />
-        </button>
-
-        <button 
-          onClick={() => setIsAudioEnabled(!isAudioEnabled)}
-          className="absolute top-6 right-6 md:right-20 z-50 p-3 bg-white/10 hover:bg-primary hover:text-white rounded-full backdrop-blur-md transition-all text-white/70"
-          title={isAudioEnabled ? "Mute Audio" : "Enable Audio"}
-        >
-          {isAudioEnabled ? <Volume2 size={24} /> : <VolumeX size={24} />}
-        </button>
-
-        {isPlaying && (
-          <>
-            <button 
-              onClick={() => setIsPaused(!isPaused)}
-              className="absolute top-6 right-20 md:right-32 z-50 p-3 bg-white/10 hover:bg-primary hover:text-white rounded-full backdrop-blur-md transition-all text-white/70"
-              title={isPaused ? "Resume Video" : "Pause Video"}
-            >
-              {isPaused ? <Play size={24} className="fill-current" /> : <Pause size={24} className="fill-current" />}
-            </button>
-            <button 
-              onClick={handleStop}
-              className="absolute top-6 right-32 md:right-[11.5rem] z-50 p-3 bg-white/10 hover:bg-red-500 hover:text-white rounded-full backdrop-blur-md transition-all text-white/70"
-              title="Stop Video"
-            >
-              <Square size={24} className="fill-current" />
-            </button>
-          </>
-        )}
-
-        {!isPlaying && currentScene === 0 && (
-          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 bg-[url('/va_video/va_scene_intro_1776272597620.png')] bg-cover bg-center">
-            <div className="absolute inset-0 bg-[#020617]/90 backdrop-blur-sm" />
-            <div className="relative z-10 flex flex-col items-center text-center p-8">
-              <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center border border-primary/30 mb-8 border-t-primary animate-spin" style={{ animationDuration: '3s' }}>
-                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}>
-                  <Eye className="text-primary animate-pulse" size={32} />
-                </div>
-              </div>
-              <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-4">Initial Concept</span>
-              <h2 className="text-2xl md:text-5xl text-white font-black mb-4 tracking-tighter uppercase italic">Visual Acuity Assessment</h2>
-              <p className="text-slate-400 font-medium max-w-lg mb-10 leading-relaxed text-sm md:text-base">An immersive clinical video module demonstrating the fundamentals of measuring clarity and sharpness of vision.</p>
-              <button 
-                onClick={handleStart}
-                className="group bg-primary hover:bg-white hover:text-primary text-white px-10 py-5 rounded-2xl font-black shadow-2xl shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-4 uppercase tracking-[0.2em] text-xs md:text-sm"
-              >
-                Launch Simulation <Play size={20} className="group-hover:fill-current" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        <AnimatePresence mode="wait">
-          {(isPlaying || (currentScene > 0 && currentScene < SCRIPT.length)) && (
-            <motion.div 
-              key={currentScene}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="absolute inset-0"
-            >
-              <motion.img 
-                src={`/va_video/${currentData.img}`}
-                alt="Scene"
-                className="w-full h-full object-cover"
-                animate={{ scale: [1, 1.1], x: [0, -20], y: [0, -10] }}
-                transition={{ duration: 15, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {isPlaying && (
-            <motion.div 
-              key={`text-${currentScene}`}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 z-30"
-            >
-              <div className="bg-black/40 backdrop-blur-2xl p-6 md:p-10 rounded-[2rem] border border-white/5 shadow-2xl">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <h3 className="text-primary font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">
-                    Current Focus: {currentData.title}
-                  </h3>
-                </div>
-                <p className="text-white text-lg md:text-4xl font-bold leading-tight md:leading-[1.1] tracking-tight">{currentData.text}</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {isPlaying && (
-           <div className="absolute top-0 inset-x-0 h-1 bg-white/5 z-40">
-              <motion.div 
-                className="h-full bg-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.8)]"
-                initial={{ width: `${progressPercent}%` }}
-                animate={{ width: `${((currentScene + 1) / SCRIPT.length) * 100}%` }}
-                transition={{ duration: SCRIPT[currentScene]?.duration / 1000, ease: "linear" }}
-              />
-           </div>
-        )}
-      </div>
-
-      {/* Completion Section - Flexible for Mobile/Laptop */}
-      {!isPlaying && currentScene >= SCRIPT.length && (
-        <div className="w-full md:max-w-6xl md:mt-6 bg-[#0a0f1d] md:rounded-[2.5rem] overflow-hidden flex flex-col items-center">
-          <div className="w-full md:hidden aspect-video relative overflow-hidden bg-slate-800">
-             <img src={`/va_video/${SCRIPT[SCRIPT.length-1].img}`} className="w-full h-full object-cover opacity-60" />
-             <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 text-white">
-                  <Play size={32} className="fill-current ml-1" />
-                </div>
-             </div>
-             <div className="absolute top-4 right-4 p-2 bg-black/40 backdrop-blur-md rounded-lg border border-white/10">
-               <Maximize2 size={18} className="text-white/70" />
-             </div>
-          </div>
-
-          <div className="w-full p-8 md:p-12 text-center md:text-left md:flex md:items-center md:justify-between gap-12">
-            <div className="flex-1">
-              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] mb-4 block">Module Completion</span>
-              <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 shrink-0 mx-auto md:mx-0">
-                  <ClipboardCheck size={28} />
-                </div>
-                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter">Subject Assessment</h2>
-              </div>
-              <p className="text-slate-400 text-sm md:text-lg font-medium leading-relaxed max-w-2xl mb-10">
-                This assessment is related specifically to the clinical procedures demonstrated above. You have **10 clinical MCQs** to validate your understanding.
-              </p>
-
-              <div className="grid grid-cols-2 md:flex items-center gap-6 md:gap-10 mb-10">
-                 <div className="flex items-center gap-3 text-slate-400">
-                   <Clock size={16} className="text-primary" />
-                   <span className="text-xs font-bold uppercase tracking-wider">EST: 15 MINS</span>
-                 </div>
-                 <div className="flex items-center gap-3 text-slate-400">
-                   <ClipboardCheck size={16} className="text-primary" />
-                   <span className="text-xs font-bold uppercase tracking-wider">10 QUESTIONS</span>
-                 </div>
-                 <div className="flex items-center gap-3 text-slate-400 col-span-2 md:col-span-1">
-                   <Award size={16} className="text-primary" />
-                   <span className="text-xs font-bold uppercase tracking-wider">REQUIRED: 5/10</span>
-                 </div>
-              </div>
-
-              <div className="flex flex-col md:flex-row gap-4">
-                <button 
-                  onClick={onStartTest}
-                  className="w-full md:w-auto bg-white text-black hover:bg-slate-200 px-12 py-5 rounded-2xl font-black tracking-widest uppercase transition-all flex items-center justify-center gap-3 shadow-xl"
-                >
-                  Launch Module Test <Play size={20} className="fill-current" />
-                </button>
-                <button 
-                  onClick={handleStart}
-                  className="w-full md:w-auto bg-white/5 text-white hover:bg-white/10 px-8 py-5 rounded-2xl font-bold transition-all border border-white/5"
-                >
-                  Watch Again
-                </button>
-              </div>
-            </div>
-
-            <div className="hidden md:flex flex-col gap-6 w-80">
-              <div className="glass-card p-6 bg-primary/5 border-primary/20">
-                <h4 className="text-white font-bold mb-1 italic">Pro Tip</h4>
-                <p className="text-xs text-slate-400">Reviewing the procedure one more time often leads to a better assessment score.</p>
-              </div>
-            </div>
-          </div>
+      {isPlaying && (
+        <div className="shrink-0 h-[3px] bg-white/8">
+          <motion.div className={`h-full ${A.bar} ${A.glow}`} initial={{ width: `${(currentScene / SCRIPT.length) * 100}%` }} animate={{ width: `${((currentScene + 1) / SCRIPT.length) * 100}%` }} transition={{ duration: (SCRIPT[currentScene]?.duration ?? 5000) / 1000, ease: 'linear' }} />
         </div>
       )}
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="relative w-full bg-[#0d1117]" style={{ aspectRatio: '16/9' }}>
+          <AnimatePresence>
+            {isIdle && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center bg-[#020617] px-6 text-center z-20">
+                <div className={`w-14 h-14 ${A.spin} rounded-full flex items-center justify-center border ${A.bdr} mb-4 animate-spin`} style={{ animationDuration: '3s' }}>
+                  <div className={`w-10 h-10 ${A.spin} rounded-full flex items-center justify-center animate-spin`} style={{ animationDuration: '2s', animationDirection: 'reverse' }}>
+                    <Eye className={`${A.lbl} animate-pulse`} size={20} />
+                  </div>
+                </div>
+                <p className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1.5 ${A.bright}`}>Clinical Core</p>
+                <h2 className="text-lg sm:text-2xl text-white font-black tracking-tight uppercase italic mb-2">Visual Acuity</h2>
+                <p className="text-slate-400 text-xs max-w-xs mb-5 leading-relaxed">Understanding the fundamental standard of spatial resolution and clarity in human vision.</p>
+                <button onClick={handleStart} className={`${A.btn} active:scale-95 text-white px-7 py-3 rounded-xl font-black shadow-xl text-xs uppercase tracking-[0.15em] flex items-center gap-2 transition-all`}><Play size={14} className="fill-current" /> Launch Simulation</button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            {(isPlaying || (currentScene > 0 && currentScene < SCRIPT.length)) && (
+              <motion.div key={currentScene} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }} className="absolute inset-0">
+                <motion.img src={data.img || data.image} alt="Scene" className="w-full h-full object-cover" animate={{ scale: [1, 1.04] }} transition={{ duration: 13, repeat: Infinity, repeatType: 'reverse', ease: 'linear' }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {isPlaying && <div className="absolute top-2.5 left-3 z-10 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded-md border border-white/10"><span className="text-[10px] font-bold text-white/60">{currentScene + 1} / {SCRIPT.length}</span></div>}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {isPlaying && (
+            <motion.div key={`t-${currentScene}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: 0.15 }} className="bg-[#020617] px-4 pt-3 pb-4 sm:px-6 sm:pt-4 sm:pb-5">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className={`text-[9px] font-black uppercase tracking-[0.28em] ${A.lbl}`}>{data.title}</span>
+                <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md border border-emerald-400/20 whitespace-nowrap">{data.subtitle || "Foundational Concept"}</span>
+              </div>
+              <p className="text-white text-[15px] sm:text-lg font-bold leading-snug">{data.text}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {isFinished && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="px-4 pt-4 pb-6 sm:px-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 bg-emerald-500/15 rounded-lg flex items-center justify-center shrink-0"><CheckCircle2 size={19} className="text-emerald-400" /></div>
+              <div><p className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.28em]">Module Complete</p><h2 className="text-lg font-black text-white">Subject Assessment</h2></div>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">Validate your knowledge on visual acuity testing with <strong className="text-white">10 clinical MCQs</strong>.</p>
+            <div className="flex flex-wrap gap-3 mb-4">
+              {[{ icon: Clock, label: 'Est. 15 mins' }, { icon: ClipboardCheck, label: '10 Questions' }, { icon: Award, label: 'Pass: 5/10' }].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5 text-slate-400"><Icon size={12} className={A.lbl} /><span className="text-[10px] font-bold uppercase tracking-wide">{label}</span></div>
+              ))}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <button onClick={onStartTest} className="flex-1 bg-white text-black active:scale-[0.98] px-5 py-3.5 rounded-xl font-black uppercase text-xs tracking-wider flex items-center justify-center gap-2"><Play size={14} className="fill-current" /> Launch Module Test</button>
+              <button onClick={handleStart} className="flex-1 sm:flex-none bg-white/6 text-white active:scale-[0.98] px-4 py-3.5 rounded-xl font-bold text-xs border border-white/10 flex items-center justify-center gap-2"><RotateCcw size={13} /> Watch Again</button>
+            </div>
+            <div className={`mt-4 p-3.5 ${A.note} rounded-xl border`}>
+              <h4 className="text-white font-bold text-xs mb-1 flex items-center gap-1.5"><Award size={12} className={A.nIcon} /> Clinical Insight</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">Always check visual acuity in each eye separately before checking them together (binocular). Record acuity with and without current spectacle correction.</p>
+            </div>
+          </motion.div>
+        )}
+        {isIdle && <div className="px-4 pt-3 pb-4 space-y-2">{[2, 3, 2.5].map((w, i) => <div key={i} className="h-2.5 bg-white/5 rounded-full animate-pulse" style={{ width: `${w * 33}%` }} />)}</div>}
+      </div>
     </div>
   );
 }
