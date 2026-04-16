@@ -13,6 +13,7 @@ import CLComplicationsVideo from './CLComplicationsVideo';
 import FrameSelectionVideo from './FrameSelectionVideo';
 import LensTypeIDVideo from './LensTypeIDVideo';
 import OpticalCenterAlignmentVideo from './OpticalCenterAlignmentVideo';
+import LensThicknessCalculationVideo from './LensThicknessCalculationVideo';
 
 const CATEGORIES = [
   { id: 'lowvision', name: 'Low Vision', icon: Eye },
@@ -37,6 +38,7 @@ export default function ClinicalCalculators() {
   const [isLensIDVideoOpen, setIsLensIDVideoOpen] = useState(false);
   const [isCompVideoOpen, setIsCompVideoOpen] = useState(false);
   const [isOCAVideoOpen, setIsOCAVideoOpen] = useState(false);
+  const [isLTCVideoOpen, setIsLTCVideoOpen] = useState(false);
 
   const handleCalculate = (id, logic) => {
     const { res, text } = logic();
@@ -105,6 +107,13 @@ export default function ClinicalCalculators() {
   const calcPrism = () => {
     const d = ((parseFloat(optPrism.n) - 1) * parseFloat(optPrism.a)).toFixed(2);
     return { res: `${d}\u00B0`, text: `The angle of deviation for a refractive index of ${optPrism.n} and apical angle ${optPrism.a}\u00B0 is ${d}\u00B0.` };
+  };
+
+  // 5. Dispensing (Lens Thickness)
+  const [dispThick, setDispThick] = useState({ p: '', d: '' });
+  const calcThick = () => {
+    const t = ((Math.abs(parseFloat(dispThick.p)) * Math.pow(parseFloat(dispThick.d)/10, 2)) / 3).toFixed(2);
+    return { res: `${t} mm`, text: `Estimated additional thickness due to ${dispThick.p}D power and ${dispThick.d}mm diameter is approximately ${t}mm.` };
   };
 
   return (
@@ -278,7 +287,22 @@ export default function ClinicalCalculators() {
                >
                  <PlaySquare size={20} /> Optical Center Alignment
                </button>
+               <button 
+                 onClick={() => setIsLTCVideoOpen(true)}
+                 className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-600 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Lens Thickness Video
+               </button>
             </div>
+            <CalcCard 
+              id="disp_thick" title="Lens Thickness Estimate" formula="t \u2248 (P \u00D7 (D/10)\u00B2) / 3"
+              inputs={[
+                { label: 'Lens Power', val: dispThick.p, set: (v)=>setDispThick({...dispThick, p: v}), unit: 'D' },
+                { label: 'Diameter', val: dispThick.d, set: (v)=>setDispThick({...dispThick, d: v}), unit: 'mm' }
+              ]}
+              onCalc={() => handleCalculate('disp_thick', calcThick)}
+              result={results.disp_thick} insight={insights.disp_thick}
+            />
           </>
         )}
 
@@ -319,6 +343,7 @@ export default function ClinicalCalculators() {
       {isFSVideoOpen && <FrameSelectionVideo onClose={() => setIsFSVideoOpen(false)} onStartTest={() => setIsFSVideoOpen(false)} />}
       {isLensTypeVideoOpen && <LensTypeIDVideo onClose={() => setIsLensTypeVideoOpen(false)} onStartTest={() => setIsLensTypeVideoOpen(false)} />}
       {isOCAVideoOpen && <OpticalCenterAlignmentVideo onClose={() => setIsOCAVideoOpen(false)} onStartTest={() => setIsOCAVideoOpen(false)} />}
+      {isLTCVideoOpen && <LensThicknessCalculationVideo onClose={() => setIsLTCVideoOpen(false)} onStartTest={() => setIsLTCVideoOpen(false)} />}
     </div>
   );
 }

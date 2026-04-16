@@ -1,0 +1,26 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  
+  <!-- Standard Index -->
+  <g transform="translate(100, 150)">
+    <rect x="0" y="0" width="250" height="100" fill="rgba(255,255,255,0.05)" stroke="#94a3b8" stroke-width="2"/>
+    <path d="M0 0 Q125 40 250 0 L250 100 Q125 60 0 100 Z" fill="rgba(148, 163, 184, 0.2)" stroke="#94a3b8" stroke-width="2"/>
+    <text x="125" y="140" fill="#94a3b8" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold">Standard Index (1.50)</text>
+    <text x="125" y="165" fill="#64748b" font-family="Arial" font-size="14" text-anchor="middle">Thicker Profile</text>
+  </g>
+  
+  <!-- High Index -->
+  <g transform="translate(450, 150)">
+    <rect x="0" y="0" width="250" height="100" fill="rgba(59, 130, 246, 0.05)" stroke="#3b82f6" stroke-width="2"/>
+    <path d="M0 30 Q125 45 250 30 L250 70 Q125 55 0 70 Z" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" stroke-width="2"/>
+    <text x="125" y="140" fill="#3b82f6" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold">High Index (1.74)</text>
+    <text x="125" y="165" fill="#60a5fa" font-family="Arial" font-size="14" text-anchor="middle">Thinner & Lighter</text>
+    <path d="M125 80 L125 110" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow)"/>
+  </g>
+  
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+    </marker>
+  </defs>
+</svg>

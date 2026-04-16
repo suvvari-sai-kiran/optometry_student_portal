@@ -1,0 +1,21 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  
+  <!-- Convex Lens (Plus) -->
+  <g transform="translate(150, 100)">
+    <path d="M50 0 Q150 100 50 200 Q-50 100 50 0" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" stroke-width="3"/>
+    <text x="50" y="240" fill="#3b82f6" font-family="Arial" font-size="20" text-anchor="middle" font-weight="bold">Convex (Plus Power)</text>
+    <text x="50" y="265" fill="#94a3b8" font-family="Arial" font-size="14" text-anchor="middle">Thicker at Center</text>
+    <line x1="10" y1="100" x2="90" y2="100" stroke="#ef4444" stroke-width="2" stroke-dasharray="4"/>
+    <text x="100" y="105" fill="#ef4444" font-family="Arial" font-size="12">Center Thickness</text>
+  </g>
+  
+  <!-- Concave Lens (Minus) -->
+  <g transform="translate(500, 100)">
+    <path d="M0 0 Q50 100 0 200 L100 200 Q50 100 100 0 Z" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="3"/>
+    <text x="50" y="240" fill="#10b981" font-family="Arial" font-size="20" text-anchor="middle" font-weight="bold">Concave (Minus Power)</text>
+    <text x="50" y="265" fill="#94a3b8" font-family="Arial" font-size="14" text-anchor="middle">Thicker at Edge</text>
+    <line x1="-10" y1="0" x2="-10" y2="200" stroke="#ef4444" stroke-width="2" stroke-dasharray="4"/>
+    <text x="-20" y="105" fill="#ef4444" font-family="Arial" font-size="12" text-anchor="end">Edge Thickness</text>
+  </g>
+</svg>

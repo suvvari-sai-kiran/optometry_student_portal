@@ -1,0 +1,23 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  
+  <g transform="translate(400, 225)">
+    <rect x="-300" y="-120" width="600" height="240" rx="40" fill="rgba(99, 102, 241, 0.1)" stroke="#6366f1" stroke-width="4" stroke-dasharray="10"/>
+    
+    <text y="-30" fill="white" font-family="Arial" font-size="40" text-anchor="middle" font-weight="black" tracking="tight">ESTIMATION FORMULA</text>
+    <text y="60" fill="#fbbf24" font-family="Courier New, monospace" font-size="60" text-anchor="middle" font-weight="black">t ∝ P × D²</text>
+    
+    <g transform="translate(-180, 150)">
+      <circle cx="0" cy="0" r="10" fill="#6366f1"/>
+      <text x="20" y="5" fill="#94a3b8" font-family="Arial" font-size="16" font-weight="bold">t = Thickness</text>
+    </g>
+    <g transform="translate(0, 150)">
+      <circle cx="0" cy="0" r="10" fill="#6366f1"/>
+      <text x="20" y="5" fill="#94a3b8" font-family="Arial" font-size="16" font-weight="bold">P = Power</text>
+    </g>
+    <g transform="translate(140, 150)">
+      <circle cx="0" cy="0" r="10" fill="#6366f1"/>
+      <text x="20" y="5" fill="#94a3b8" font-family="Arial" font-size="16" font-weight="bold">D = Diameter</text>
+    </g>
+  </g>
+</svg>
