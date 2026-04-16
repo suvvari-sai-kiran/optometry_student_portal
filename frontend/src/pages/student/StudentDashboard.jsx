@@ -28,6 +28,7 @@ import RGPSoftLensIDVideo from '../../components/RGPSoftLensIDVideo';
 import CLComplicationsVideo from '../../components/CLComplicationsVideo';
 import FrameSelectionVideo from '../../components/FrameSelectionVideo';
 import LensTypeIDVideo from '../../components/LensTypeIDVideo';
+import OpticalCenterAlignmentVideo from '../../components/OpticalCenterAlignmentVideo';
 import BASE_URL from '../../api/config';
 import PatientsView from './PatientsView';
 
@@ -68,6 +69,7 @@ export default function StudentDashboard() {
   const [isCompVideoOpen, setIsCompVideoOpen] = useState(false);
   const [isFSVideoOpen, setIsFSVideoOpen] = useState(false);
   const [isLensTypeVideoOpen, setIsLensTypeVideoOpen] = useState(false);
+  const [isOCAVideoOpen, setIsOCAVideoOpen] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -919,6 +921,27 @@ export default function StudentDashboard() {
                         Watch Tutorial
                       </button>
                     </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-violet-500/30 transition-all ring-1 ring-white/5 bg-violet-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-violet-500/20 rounded-2xl flex items-center justify-center border border-violet-500/30">
+                          <Eye className="text-violet-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Optical Center Alignment Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                            <span className="flex items-center gap-1"><Sparkles size={12} /> Clinical Hub Original</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsOCAVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
                   </>
                 )}
                 {visibleTests.map(test => (
@@ -1381,6 +1404,10 @@ export default function StudentDashboard() {
       {isLensTypeVideoOpen && <LensTypeIDVideo 
         onClose={() => setIsLensTypeVideoOpen(false)} 
         onStartTest={() => { setIsLensTypeVideoOpen(false); startTest({ title: 'Lens Type Identification' }); }}
+      />}
+      {isOCAVideoOpen && <OpticalCenterAlignmentVideo 
+        onClose={() => setIsOCAVideoOpen(false)} 
+        onStartTest={() => { setIsOCAVideoOpen(false); startTest({ title: 'Optical Center Alignment Test' }); }}
       />}
 
       {/* Loading Overlay */}
