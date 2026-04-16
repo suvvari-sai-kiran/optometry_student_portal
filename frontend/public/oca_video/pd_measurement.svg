@@ -1,0 +1,22 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  <!-- Eyes -->
+  <circle cx="280" cy="200" r="40" fill="white" stroke="#334155" stroke-width="2"/>
+  <circle cx="280" cy="200" r="15" fill="#475569"/>
+  <circle cx="280" cy="200" r="5" fill="black"/>
+  
+  <circle cx="520" cy="200" r="40" fill="white" stroke="#334155" stroke-width="2"/>
+  <circle cx="520" cy="200" r="15" fill="#475569"/>
+  <circle cx="520" cy="200" r="5" fill="black"/>
+  
+  <!-- PD Ruler -->
+  <rect x="250" y="260" width="300" height="40" rx="4" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <g stroke="#3b82f6" stroke-width="1">
+    <line x1="280" y1="260" x2="280" y2="300" stroke-width="2"/>
+    <line x1="520" y1="260" x2="520" y2="300" stroke-width="2"/>
+    <path d="M290 260v10M300 260v10M310 260v10M320 260v10M330 260v20M340 260v10M350 260v10M360 260v10M370 260v10M380 260v20M390 260v10M400 260v10M410 260v10M420 260v10M430 260v20M440 260v10M450 260v10M460 260v10M470 260v10M480 260v20M490 260v10M500 260v10M510 260v10" />
+  </g>
+  <text x="400" y="340" fill="#3b82f6" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">PD = 64 mm</text>
+  <line x1="280" y1="200" x2="280" y2="260" stroke="#3b82f6" stroke-dasharray="4"/>
+  <line x1="520" y1="200" x2="520" y2="260" stroke="#3b82f6" stroke-dasharray="4"/>
+</svg>

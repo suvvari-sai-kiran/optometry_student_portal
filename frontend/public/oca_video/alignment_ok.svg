@@ -1,0 +1,20 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  
+  <!-- Frame -->
+  <rect x="230" y="160" width="140" height="90" rx="40" fill="none" stroke="#64748b" stroke-width="6"/>
+  <rect x="430" y="160" width="140" height="90" rx="40" fill="none" stroke="#64748b" stroke-width="6"/>
+  <line x1="370" y1="180" x2="430" y2="180" stroke="#64748b" stroke-width="6"/>
+  
+  <!-- Eyes -->
+  <circle cx="300" cy="205" r="15" fill="#475569"/>
+  <circle cx="300" cy="205" r="5" fill="black"/>
+  <circle cx="500" cy="205" r="15" fill="#475569"/>
+  <circle cx="500" cy="205" r="5" fill="black"/>
+  
+  <!-- Correct Alignment Marks -->
+  <circle cx="300" cy="205" r="6" fill="#10b981"/>
+  <circle cx="500" cy="205" r="6" fill="#10b981"/>
+  
+  <text x="400" y="320" fill="#10b981" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">Correct Alignment (No Prism)</text>
+</svg>

@@ -12,6 +12,7 @@ import RGPSoftLensIDVideo from './RGPSoftLensIDVideo';
 import CLComplicationsVideo from './CLComplicationsVideo';
 import FrameSelectionVideo from './FrameSelectionVideo';
 import LensTypeIDVideo from './LensTypeIDVideo';
+import OpticalCenterAlignmentVideo from './OpticalCenterAlignmentVideo';
 
 const CATEGORIES = [
   { id: 'lowvision', name: 'Low Vision', icon: Eye },
@@ -35,6 +36,7 @@ export default function ClinicalCalculators() {
   const [isSLEVideoOpen, setIsSLEVideoOpen] = useState(false);
   const [isLensIDVideoOpen, setIsLensIDVideoOpen] = useState(false);
   const [isCompVideoOpen, setIsCompVideoOpen] = useState(false);
+  const [isOCAVideoOpen, setIsOCAVideoOpen] = useState(false);
 
   const handleCalculate = (id, logic) => {
     const { res, text } = logic();
@@ -270,6 +272,12 @@ export default function ClinicalCalculators() {
                >
                  <PlaySquare size={20} /> Lens Type ID Video
                </button>
+               <button 
+                 onClick={() => setIsOCAVideoOpen(true)}
+                 className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Optical Center Alignment
+               </button>
             </div>
           </>
         )}
@@ -310,6 +318,7 @@ export default function ClinicalCalculators() {
       {isCompVideoOpen && <CLComplicationsVideo onClose={() => setIsCompVideoOpen(false)} onStartTest={() => setIsCompVideoOpen(false)} />}
       {isFSVideoOpen && <FrameSelectionVideo onClose={() => setIsFSVideoOpen(false)} onStartTest={() => setIsFSVideoOpen(false)} />}
       {isLensTypeVideoOpen && <LensTypeIDVideo onClose={() => setIsLensTypeVideoOpen(false)} onStartTest={() => setIsLensTypeVideoOpen(false)} />}
+      {isOCAVideoOpen && <OpticalCenterAlignmentVideo onClose={() => setIsOCAVideoOpen(false)} onStartTest={() => setIsOCAVideoOpen(false)} />}
     </div>
   );
 }

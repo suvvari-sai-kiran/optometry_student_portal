@@ -1,0 +1,25 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  
+  <!-- Frame -->
+  <rect x="230" y="160" width="140" height="90" rx="40" fill="none" stroke="#64748b" stroke-width="6"/>
+  <rect x="430" y="160" width="140" height="90" rx="40" fill="none" stroke="#64748b" stroke-width="6"/>
+  <line x1="370" y1="180" x2="430" y2="180" stroke="#64748b" stroke-width="6"/>
+  
+  <!-- Eyes -->
+  <circle cx="300" cy="205" r="15" fill="#475569"/>
+  <circle cx="300" cy="205" r="5" fill="black"/>
+  <circle cx="500" cy="205" r="15" fill="#475569"/>
+  <circle cx="500" cy="205" r="5" fill="black"/>
+  
+  <!-- Incorrect Alignment Marks (Shifted) -->
+  <circle cx="340" cy="205" r="6" fill="#ef4444"/>
+  <circle cx="540" cy="205" r="6" fill="#ef4444"/>
+  
+  <!-- Ray of light bending -->
+  <path d="M300 0 L300 160 L340 205 L360 450" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="4"/>
+  <path d="M500 0 L500 160 L540 205 L560 450" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="4"/>
+  
+  <text x="400" y="320" fill="#ef4444" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">Incorrect Alignment (Induced Prism)</text>
+  <text x="400" y="350" fill="#94a3b8" font-family="Arial" font-size="16" text-anchor="middle" font-weight="medium italic">Causes blur, eye strain, and headaches</text>
+</svg>

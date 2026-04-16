@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { 
   ChevronLeft, Calculator, Calculator as CalculatorIcon, BrainCircuit, 
-  Search, Filter, BookOpen, Info, Sparkles, X, ChevronRight, Hash, Activity, 
+  Search, Filter, BookOpen, Info, Sparkles, X, ChevronRight, Hash, Activity,
+  Zap, Plus, ArrowRight, AlertTriangle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';

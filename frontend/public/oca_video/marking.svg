@@ -1,0 +1,15 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="450" fill="#0f172a"/>
+  <!-- Lens -->
+  <path d="M250 225 Q400 125 550 225 Q400 325 250 225" fill="rgba(255,255,255,0.1)" stroke="white" stroke-width="2"/>
+  <!-- Marking pen -->
+  <g transform="translate(420, 150) rotate(-45)">
+    <rect x="0" y="0" width="20" height="150" fill="#1e293b" rx="2"/>
+    <rect x="2" y="140" width="16" height="10" fill="#3b82f6"/>
+    <path d="M2 150 L10 165 L18 150 Z" fill="black"/>
+  </g>
+  <!-- Optical Center Mark -->
+  <circle cx="400" cy="225" r="4" fill="#ef4444"/>
+  <circle cx="400" cy="225" r="12" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="2"/>
+  <text x="400" y="270" fill="white" font-family="Arial" font-size="20" text-anchor="middle" font-weight="bold">Optical Center Mark</text>
+</svg>
