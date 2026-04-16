@@ -60,7 +60,7 @@ export default function Register() {
             <div className="w-20 h-20 mb-4 drop-shadow-2xl translate-y-[-5px]">
               <img src="/logo.png" alt="Clinical Hub Logo" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-3xl font-black text-primary mb-1 tracking-tighter uppercase">Clinical Hub</h1>
+            <h1 className="text-3xl font-black text-primary mb-1 tracking-tighter uppercase">CLINICAL HUB</h1>
             <p className="text-secondary font-medium text-sm italic opacity-80 underline decoration-primary/30 underline-offset-4 tracking-tight">Join the Advanced Optometry Portal</p>
           </div>
 

@@ -1,12 +1,22 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, Zap, Eye, Binary, Layers, Scissors, Info, Sparkles, RefreshCw, PlaySquare } from 'lucide-react';
+import { Calculator, Zap, Eye, Binary, Layers, Scissors, Info, Sparkles, RefreshCw, PlaySquare, Glasses } from 'lucide-react';
 import VisualAcuityVideo from './VisualAcuityVideo';
+import KeratometryReadingVideo from './KeratometryReadingVideo';
+import ContactLensPowerVideo from './ContactLensPowerVideo';
+import BaseCurveSelectionVideo from './BaseCurveSelectionVideo';
+import LensFittingAssessmentVideo from './LensFittingAssessmentVideo';
+import TearFilmEvaluationVideo from './TearFilmEvaluationVideo';
+import SlitLampExamCLVideo from './SlitLampExamCLVideo';
+import RGPSoftLensIDVideo from './RGPSoftLensIDVideo';
+import CLComplicationsVideo from './CLComplicationsVideo';
+import FrameSelectionVideo from './FrameSelectionVideo';
+import LensTypeIDVideo from './LensTypeIDVideo';
 
 const CATEGORIES = [
   { id: 'lowvision', name: 'Low Vision', icon: Eye },
   { id: 'cl', name: 'Contact Lens', icon: Layers },
-  { id: 'surgical', name: 'Surgical', icon: Scissors },
+  { id: 'dispensing', name: 'Dispensing', icon: Glasses },
   { id: 'optics', name: 'Optics & Physics', icon: Binary }
 ];
 
@@ -15,6 +25,16 @@ export default function ClinicalCalculators() {
   const [results, setResults] = useState({});
   const [insights, setInsights] = useState({});
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isFSVideoOpen, setIsFSVideoOpen] = useState(false);
+  const [isLensTypeVideoOpen, setIsLensTypeVideoOpen] = useState(false);
+  const [isKRVideoOpen, setIsKRVideoOpen] = useState(false);
+  const [isCLPowerVideoOpen, setIsCLPowerVideoOpen] = useState(false);
+  const [isBCVideoOpen, setIsBCVideoOpen] = useState(false);
+  const [isLFVideoOpen, setIsLFVideoOpen] = useState(false);
+  const [isTFVideoOpen, setIsTFVideoOpen] = useState(false);
+  const [isSLEVideoOpen, setIsSLEVideoOpen] = useState(false);
+  const [isLensIDVideoOpen, setIsLensIDVideoOpen] = useState(false);
+  const [isCompVideoOpen, setIsCompVideoOpen] = useState(false);
 
   const handleCalculate = (id, logic) => {
     const { res, text } = logic();
@@ -142,6 +162,56 @@ export default function ClinicalCalculators() {
         {/* Category: CONTACT LENS */}
         {category === 'cl' && (
           <>
+            <div className="md:col-span-2 lg:col-span-3 mb-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+               <button 
+                 onClick={() => setIsKRVideoOpen(true)}
+                 className="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Keratometry Video
+               </button>
+               <button 
+                 onClick={() => setIsCLPowerVideoOpen(true)}
+                 className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> CL Power Video
+               </button>
+               <button 
+                 onClick={() => setIsBCVideoOpen(true)}
+                 className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Base Curve Video
+               </button>
+               <button 
+                 onClick={() => setIsLFVideoOpen(true)}
+                 className="bg-gradient-to-r from-rose-500 to-orange-600 hover:from-rose-600 hover:to-orange-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Fitting Assessment Video
+               </button>
+               <button 
+                 onClick={() => setIsTFVideoOpen(true)}
+                 className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Tear Film Video
+               </button>
+               <button 
+                 onClick={() => setIsSLEVideoOpen(true)}
+                 className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Slit Lamp Video
+               </button>
+               <button 
+                 onClick={() => setIsLensIDVideoOpen(true)}
+                 className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> RGP vs Soft ID Video
+               </button>
+               <button 
+                 onClick={() => setIsCompVideoOpen(true)}
+                 className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> CL Complications Video
+               </button>
+            </div>
             <CalcCard 
               id="cl_tear" title="Tear Lens Power" formula="Tear = BC - Cornea K"
               inputs={[
@@ -184,6 +254,26 @@ export default function ClinicalCalculators() {
           </>
         )}
 
+        {/* Category: DISPENSING */}
+        {category === 'dispensing' && (
+          <>
+            <div className="md:col-span-2 lg:col-span-3 mb-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <button 
+                 onClick={() => setIsFSVideoOpen(true)}
+                 className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Frame Selection Video
+               </button>
+               <button 
+                 onClick={() => setIsLensTypeVideoOpen(true)}
+                 className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white font-black px-6 py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95 uppercase tracking-widest text-[10px]"
+               >
+                 <PlaySquare size={20} /> Lens Type ID Video
+               </button>
+            </div>
+          </>
+        )}
+
         {/* Category: OPTICS */}
         {category === 'optics' && (
           <>
@@ -210,6 +300,16 @@ export default function ClinicalCalculators() {
 
       </div>
       {isVideoOpen && <VisualAcuityVideo onClose={() => setIsVideoOpen(false)} />}
+      {isKRVideoOpen && <KeratometryReadingVideo onClose={() => setIsKRVideoOpen(false)} onStartTest={() => setIsKRVideoOpen(false)} />}
+      {isCLPowerVideoOpen && <ContactLensPowerVideo onClose={() => setIsCLPowerVideoOpen(false)} onStartTest={() => setIsCLPowerVideoOpen(false)} />}
+      {isBCVideoOpen && <BaseCurveSelectionVideo onClose={() => setIsBCVideoOpen(false)} onStartTest={() => setIsBCVideoOpen(false)} />}
+      {isLFVideoOpen && <LensFittingAssessmentVideo onClose={() => setIsLFVideoOpen(false)} onStartTest={() => setIsLFVideoOpen(false)} />}
+      {isTFVideoOpen && <TearFilmEvaluationVideo onClose={() => setIsTFVideoOpen(false)} onStartTest={() => setIsTFVideoOpen(false)} />}
+      {isSLEVideoOpen && <SlitLampExamCLVideo onClose={() => setIsSLEVideoOpen(false)} onStartTest={() => setIsSLEVideoOpen(false)} />}
+      {isLensIDVideoOpen && <RGPSoftLensIDVideo onClose={() => setIsLensIDVideoOpen(false)} onStartTest={() => setIsLensIDVideoOpen(false)} />}
+      {isCompVideoOpen && <CLComplicationsVideo onClose={() => setIsCompVideoOpen(false)} onStartTest={() => setIsCompVideoOpen(false)} />}
+      {isFSVideoOpen && <FrameSelectionVideo onClose={() => setIsFSVideoOpen(false)} onStartTest={() => setIsFSVideoOpen(false)} />}
+      {isLensTypeVideoOpen && <LensTypeIDVideo onClose={() => setIsLensTypeVideoOpen(false)} onStartTest={() => setIsLensTypeVideoOpen(false)} />}
     </div>
   );
 }

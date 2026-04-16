@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
 import { 
   ChevronLeft, Calculator, Calculator as CalculatorIcon, BrainCircuit, 
-  AlertTriangle, AlertCircle, ArrowRight, Play, Search, Filter, 
-  BookOpen, Video, Info, Sparkles, X, ChevronRight, Hash, Activity, Plus, Zap
+  Search, Filter, BookOpen, Info, Sparkles, X, ChevronRight, Hash, Activity, 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,7 +15,6 @@ const FORMULA_LIBRARY = [
     category: 'Geometric',
     subTitle: 'Geometric Optics',
     description: 'Calculates the optical power (P) in dioptres given the focal length (f) in meters. Essential for lens identification.',
-    videoUrl: 'https://www.youtube-nocookie.com/embed/w-XgXADoBeU',
     calculatorId: 'LP'
   },
   {
@@ -26,7 +24,6 @@ const FORMULA_LIBRARY = [
     category: 'Optical',
     subTitle: 'Clinical Dispensing',
     description: 'Determines the induced prismatic effect (\u0394) given decentration (c) in cm and lens power (F) in dioptres.',
-    videoUrl: 'https://www.youtube-nocookie.com/embed/LAx3w6WM-g0',
     calculatorId: 'PRENTICE'
   },
   {
@@ -36,7 +33,6 @@ const FORMULA_LIBRARY = [
     category: 'Refractive',
     subTitle: 'Refraction',
     description: 'Adjusts lens power when the vertex distance (d, in meters) changes. Critical for high-power prescriptions.',
-    videoUrl: 'https://www.youtube-nocookie.com/embed/w-XgXADoBeU',
     calculatorId: 'VERTEX'
   },
   {
@@ -46,7 +42,6 @@ const FORMULA_LIBRARY = [
     category: 'Refractive',
     subTitle: 'Presbyopia',
     description: "Calculates required near power based on optimal working distance (WD) and patient's distance refractive error.",
-    videoUrl: 'https://www.youtube-nocookie.com/embed/dfwcu944LVc',
     calculatorId: 'ADD'
   },
   {
@@ -56,7 +51,6 @@ const FORMULA_LIBRARY = [
     category: 'Surgical',
     subTitle: 'Surgical Optometry',
     description: 'Estimates Intraocular Lens power given the constant (A), axial length (L), and keratometry values (K).',
-    videoUrl: 'https://www.youtube-nocookie.com/embed/5CrgALxvzUE',
     calculatorId: 'IOL'
   },
   {
@@ -66,7 +60,6 @@ const FORMULA_LIBRARY = [
     category: 'Optical',
     subTitle: 'Dispensing Optics',
     description: 'Calculates induced prism differences at the reading level for anisometropic patients.',
-    videoUrl: 'https://www.youtube-nocookie.com/embed/x5TekSxNaJs',
     calculatorId: 'VI'
   }
 ];
@@ -77,7 +70,6 @@ export default function FormulasPage() {
   const [activeTab, setActiveTab] = useState('SE');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('ALL');
-  const [selectedVideo, setSelectedVideo] = useState(null);
 
   // --- Calculator States ---
   const [seState, setSeState] = useState({ sphere: '', cylinder: '' });
@@ -344,22 +336,16 @@ export default function FormulasPage() {
                           <p className="text-slate-400 text-xs md:text-sm leading-relaxed line-clamp-3 font-medium opacity-80">{item.description}</p>
                        </div>
 
-                       <div className="p-4 md:p-6 bg-white/[0.02] border-t border-white/5 flex gap-3">
-                          <button 
-                            onClick={() => setSelectedVideo(item)}
-                            className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-white/5 transition-all text-xs flex items-center justify-center gap-2 uppercase tracking-widest shadow-xl"
-                          >
-                             <Play size={14} className="fill-white" /> Watch Derivation
-                          </button>
+                       <div className="p-4 md:p-6 bg-white/[0.02] border-t border-white/5">
                           {item.calculatorId && (
                              <button 
                                onClick={() => {
                                  setView('calculator');
                                  setActiveTab(item.calculatorId);
                                }}
-                               className="p-3.5 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-xl border border-primary/20 transition-all"
+                               className="w-full bg-primary/10 hover:bg-primary text-primary hover:text-white px-8 py-4 rounded-xl border border-primary/20 transition-all font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl"
                              >
-                                <Calculator size={18} />
+                                <Calculator size={18} /> Launch Interaction
                              </button>
                           )}
                        </div>
@@ -686,71 +672,6 @@ export default function FormulasPage() {
         </footer>
       </div>
 
-      {/* Video Modal Overlay */}
-      <AnimatePresence>
-        {selectedVideo && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-3xl"
-          >
-            <motion.div 
-               initial={{ scale: 0.9, y: 20 }}
-               animate={{ scale: 1, y: 0 }}
-               exit={{ scale: 0.9, y: 20 }}
-               className="w-full max-w-5xl bg-slate-900 rounded-[32px] border border-white/10 shadow-[0_32px_80px_rgba(0,0,0,0.8)] overflow-hidden"
-            >
-               <div className="p-6 md:p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
-                  <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20">
-                        <Video size={24} className="text-red-400" />
-                     </div>
-                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-0.5">Clinical Derivation</p>
-                        <h3 className="text-2xl font-bold text-white tracking-tight">{selectedVideo.title}</h3>
-                     </div>
-                  </div>
-                  <button 
-                    onClick={() => setSelectedVideo(null)}
-                    className="p-4 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 hover:text-white transition-all shadow-inner"
-                  >
-                     <X size={24} />
-                  </button>
-               </div>
-               
-               <div className="aspect-video bg-black relative">
-                  <iframe 
-                    className="absolute inset-0 w-full h-full"
-                    src={`${selectedVideo.videoUrl}?autoplay=1`}
-                    title={selectedVideo.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-               </div>
-
-               <div className="p-8 bg-slate-950/50 flex flex-col md:flex-row justify-between items-center gap-6">
-                  <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-2xl">
-                     Watching this derivation will help you understand the clinical origin of {selectedVideo.displayFormula}. Understanding the "why" is as important as the calculation itself.
-                  </p>
-                  {selectedVideo.calculatorId && (
-                    <button 
-                       onClick={() => {
-                          setSelectedVideo(null);
-                          setView('calculator');
-                          setActiveTab(selectedVideo.calculatorId);
-                       }}
-                       className="w-full md:w-auto bg-primary text-white font-black px-10 py-4 rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
-                    >
-                       Practice with Calculator <ArrowRight size={16} />
-                    </button>
-                  )}
-               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <style jsx>{`
         .no-scrollbar::-webkit-scrollbar {

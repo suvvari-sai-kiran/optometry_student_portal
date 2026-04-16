@@ -6,7 +6,7 @@ import {
   MessageSquare, ExternalLink, CheckCircle, Info, 
   Award, LayoutDashboard, BookOpen, FileText, 
   Settings, User as UserIcon, TrendingUp, Clock,
-  Play, X, Sparkles, Menu, Users, ArrowRight, RefreshCw
+  Play, X, Sparkles, Menu, Users, ArrowRight, RefreshCw, Droplets, Glasses, Binary
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -18,6 +18,16 @@ import VisualFieldTestingVideo from '../../components/VisualFieldTestingVideo';
 import MagnificationCalculationVideo from '../../components/MagnificationCalculationVideo';
 import IlluminationGlareVideo from '../../components/IlluminationGlareVideo';
 import FunctionalVisionVideo from '../../components/FunctionalVisionVideo';
+import KeratometryReadingVideo from '../../components/KeratometryReadingVideo';
+import ContactLensPowerVideo from '../../components/ContactLensPowerVideo';
+import BaseCurveSelectionVideo from '../../components/BaseCurveSelectionVideo';
+import LensFittingAssessmentVideo from '../../components/LensFittingAssessmentVideo';
+import TearFilmEvaluationVideo from '../../components/TearFilmEvaluationVideo';
+import SlitLampExamCLVideo from '../../components/SlitLampExamCLVideo';
+import RGPSoftLensIDVideo from '../../components/RGPSoftLensIDVideo';
+import CLComplicationsVideo from '../../components/CLComplicationsVideo';
+import FrameSelectionVideo from '../../components/FrameSelectionVideo';
+import LensTypeIDVideo from '../../components/LensTypeIDVideo';
 import BASE_URL from '../../api/config';
 import PatientsView from './PatientsView';
 
@@ -48,6 +58,16 @@ export default function StudentDashboard() {
   const [isMCVideoOpen, setIsMCVideoOpen] = useState(false);
   const [isIGVideoOpen, setIsIGVideoOpen] = useState(false);
   const [isFVVideoOpen, setIsFVVideoOpen] = useState(false);
+  const [isKRVideoOpen, setIsKRVideoOpen] = useState(false);
+  const [isCLPowerVideoOpen, setIsCLPowerVideoOpen] = useState(false);
+  const [isBCVideoOpen, setIsBCVideoOpen] = useState(false);
+  const [isLFVideoOpen, setIsLFVideoOpen] = useState(false);
+  const [isTFVideoOpen, setIsTFVideoOpen] = useState(false);
+  const [isSLEVideoOpen, setIsSLEVideoOpen] = useState(false);
+  const [isLensIDVideoOpen, setIsLensIDVideoOpen] = useState(false);
+  const [isCompVideoOpen, setIsCompVideoOpen] = useState(false);
+  const [isFSVideoOpen, setIsFSVideoOpen] = useState(false);
+  const [isLensTypeVideoOpen, setIsLensTypeVideoOpen] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -314,7 +334,7 @@ export default function StudentDashboard() {
            </button>
            <div className="flex items-center gap-2">
              <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
-             <span className="font-black text-primary tracking-tighter text-lg uppercase">Clinical Hub</span>
+             <span className="font-black text-primary tracking-tighter text-lg uppercase">CLINICAL HUB</span>
            </div>
         </div>
         <div className="flex items-center gap-2">
@@ -343,7 +363,7 @@ export default function StudentDashboard() {
           <div className="flex items-center gap-3">
              <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
              <div>
-                <h1 className="text-xl font-black text-primary tracking-tighter leading-none uppercase">Clinical Hub</h1>
+                <h1 className="text-xl font-black text-primary tracking-tighter leading-none uppercase">CLINICAL HUB</h1>
                 <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Student Portal</p>
              </div>
           </div>
@@ -639,6 +659,178 @@ export default function StudentDashboard() {
                   </div>
                   </>
                 )}
+                {/* Contact Lens specific tutorials */}
+                {(selectedCourse?.id === 2 || selectedCourse?.title?.toLowerCase()?.includes('contact lens')) && (
+                  <>
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-teal-500/30 transition-all ring-1 ring-white/5 bg-teal-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-teal-500/20 rounded-2xl flex items-center justify-center border border-teal-500/30">
+                          <PlayCircle className="text-teal-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Keratometry Reading Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Clinical Procedure</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Baseline Diagnostics</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsKRVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-emerald-500/30 transition-all ring-1 ring-white/5 bg-emerald-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                          <PlayCircle className="text-emerald-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">CL Power Calculation Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Optical Math</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Vertex Conversion</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsCLPowerVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-blue-500/30 transition-all ring-1 ring-white/5 bg-blue-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                          <PlayCircle className="text-blue-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Base Curve Selection Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Fitting Skills</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Lens Stability</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsBCVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-rose-500/30 transition-all ring-1 ring-white/5 bg-rose-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-rose-500/20 rounded-2xl flex items-center justify-center border border-rose-500/30">
+                          <PlayCircle className="text-rose-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Lens Fitting Assessment Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Advanced Fitting</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Clinical Mastery</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsLFVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-rose-500 to-orange-600 hover:from-rose-600 hover:to-orange-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-blue-500/30 transition-all ring-1 ring-white/5 bg-blue-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                          <Droplets className="text-blue-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Tear Film Evaluation Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Ocular Surface</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Health Assessment</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsTFVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-indigo-500/30 transition-all ring-1 ring-white/5 bg-indigo-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
+                          <PlayCircle className="text-indigo-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Slit Lamp Exam (CL) Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Biomicroscopy</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Anterior Segment</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsSLEVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-amber-500/30 transition-all ring-1 ring-white/5 bg-amber-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center border border-amber-500/30">
+                          <PlayCircle className="text-amber-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">RGP vs Soft Lens ID Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Lens Modalities</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Identification</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsLensIDVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-red-500/30 transition-all ring-1 ring-white/5 bg-red-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-red-500/20 rounded-2xl flex items-center justify-center border border-red-500/30">
+                          <PlayCircle className="text-red-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">CL Complications Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Clinical Risk</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Adverse Effects</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsCompVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+                  </>
+                )}
                 {selectedCourse?.title?.toLowerCase()?.includes('low vision') && (
                   <>
                     <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/30 transition-all ring-1 ring-white/5 bg-primary/5 mb-4">
@@ -678,6 +870,51 @@ export default function StudentDashboard() {
                       <button 
                         onClick={() => setIsCSVideoOpen(true)}
                         className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+                  </>
+                )}
+                {selectedCourse?.title?.toLowerCase()?.includes('dispensing') && (
+                  <>
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-emerald-500/30 transition-all ring-1 ring-white/5 bg-emerald-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                          <Glasses className="text-emerald-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Frame Selection Test Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                            <span className="flex items-center gap-1"><Award size={12} /> Dispensing Mastery</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsFSVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                      >
+                        Watch Tutorial
+                      </button>
+                    </div>
+
+                    <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-blue-500/30 transition-all ring-1 ring-white/5 bg-blue-500/5 mb-4">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                          <Binary className="text-blue-400" size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">Lens Type Identification Tutorial</h4>
+                          <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                            <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                            <span className="flex items-center gap-1"><Eye size={12} /> Optics Precision</span>
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setIsLensTypeVideoOpen(true)}
+                        className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
                       >
                         Watch Tutorial
                       </button>
@@ -1104,6 +1341,46 @@ export default function StudentDashboard() {
       {isFVVideoOpen && <FunctionalVisionVideo 
         onClose={() => setIsFVVideoOpen(false)} 
         onStartTest={() => { setIsFVVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isKRVideoOpen && <KeratometryReadingVideo 
+        onClose={() => setIsKRVideoOpen(false)} 
+        onStartTest={() => { setIsKRVideoOpen(false); startTest({ title: 'Keratometry Reading Test' }); }}
+      />}
+      {isCLPowerVideoOpen && <ContactLensPowerVideo 
+        onClose={() => setIsCLPowerVideoOpen(false)} 
+        onStartTest={() => { setIsCLPowerVideoOpen(false); startTest({ title: 'Contact Lens Power Calculation' }); }}
+      />}
+      {isBCVideoOpen && <BaseCurveSelectionVideo 
+        onClose={() => setIsBCVideoOpen(false)} 
+        onStartTest={() => { setIsBCVideoOpen(false); startTest({ title: 'Base Curve Selection Test' }); }}
+      />}
+      {isLFVideoOpen && <LensFittingAssessmentVideo 
+        onClose={() => setIsLFVideoOpen(false)} 
+        onStartTest={() => { setIsLFVideoOpen(false); startTest({ title: 'Lens Fitting Assessment' }); }}
+      />}
+      {isTFVideoOpen && <TearFilmEvaluationVideo 
+        onClose={() => setIsTFVideoOpen(false)} 
+        onStartTest={() => { setIsTFVideoOpen(false); startTest({ title: 'Tear Film Evaluation' }); }}
+      />}
+      {isSLEVideoOpen && <SlitLampExamCLVideo 
+        onClose={() => setIsSLEVideoOpen(false)} 
+        onStartTest={() => { setIsSLEVideoOpen(false); startTest({ title: 'Slit Lamp Examination (CL)' }); }}
+      />}
+      {isLensIDVideoOpen && <RGPSoftLensIDVideo 
+        onClose={() => setIsLensIDVideoOpen(false)} 
+        onStartTest={() => { setIsLensIDVideoOpen(false); startTest({ title: 'RGP vs Soft Lens Identification' }); }}
+      />}
+      {isCompVideoOpen && <CLComplicationsVideo 
+        onClose={() => setIsCompVideoOpen(false)} 
+        onStartTest={() => { setIsCompVideoOpen(false); startTest({ title: 'Contact Lens Complications' }); }}
+      />}
+      {isFSVideoOpen && <FrameSelectionVideo 
+        onClose={() => setIsFSVideoOpen(false)} 
+        onStartTest={() => { setIsFSVideoOpen(false); startTest({ title: 'Frame Selection Test' }); }}
+      />}
+      {isLensTypeVideoOpen && <LensTypeIDVideo 
+        onClose={() => setIsLensTypeVideoOpen(false)} 
+        onStartTest={() => { setIsLensTypeVideoOpen(false); startTest({ title: 'Lens Type Identification' }); }}
       />}
 
       {/* Loading Overlay */}

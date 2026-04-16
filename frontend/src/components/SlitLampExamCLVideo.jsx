@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Eye, Volume2, VolumeX, Square, ChevronLeft, Clock, ClipboardCheck, Award, Maximize2 } from 'lucide-react';
+import { Play, Pause, X, Eye, Volume2, VolumeX, Square, ChevronLeft, Clock, ClipboardCheck, Award, Maximize2, Zap } from 'lucide-react';
 
 const SCRIPT = [
-  { img: '/fv_video/fv_reading.svg', duration: 4000, title: 'Title', text: 'Functional Vision Assessment', subtitle: 'Evaluating Vision in Daily Life' },
-  { img: '/fv_video/fv_mobility.svg', duration: 6000, title: 'Aim of the Assessment', text: 'This assessment evaluates how well a person uses their vision in real-life situations.', subtitle: 'Real-World Vision Performance' },
-  { img: '/fv_video/fv_comparison.svg', duration: 8000, title: 'What is Functional Vision', text: 'Functional vision refers to how effectively a person can see and perform everyday tasks, beyond standard eye chart measurements.', subtitle: 'Beyond Visual Acuity' },
-  { img: '/fv_video/fv_reading.svg', duration: 12000, title: 'Areas Assessed', text: 'It includes assessment of reading ability, distance vision, contrast sensitivity, glare response, and mobility.', subtitle: 'Reading • Mobility • Contrast • Glare' },
-  { img: '/ill_video/ill_compare.svg', duration: 10000, title: 'Test Setup', text: 'The assessment is conducted in real or simulated environments with appropriate lighting and visual tasks.', subtitle: 'Real-Life Simulation' },
-  { img: '/fv_video/fv_objects.svg', duration: 15000, title: 'Procedure', text: 'The patient is asked to perform tasks such as reading text, identifying objects, navigating spaces, or recognizing faces.', subtitle: 'Perform Daily Tasks' },
-  { img: '/cs_video/scene_clinic.png', duration: 10000, title: 'Observation', text: 'The examiner observes performance, noting any difficulty, delay, or errors during tasks.', subtitle: 'Observe Performance' },
-  { img: '/ill_video/ill_blur.svg', duration: 10000, title: 'Interpretation', text: 'Difficulties may indicate reduced functional vision due to conditions such as low vision, glare sensitivity, or contrast loss.', subtitle: 'Identify Limitations' },
-  { img: '/fv_video/fv_rehab.svg', duration: 10000, title: 'Clinical Importance', text: 'This assessment helps in planning rehabilitation, prescribing visual aids, and improving quality of life.', subtitle: 'Improves Daily Living' },
-  { img: '/fv_video/fv_mobility.svg', duration: 5000, title: 'Conclusion', text: 'Functional vision assessment provides a complete understanding of how vision impacts everyday life.', subtitle: 'Complete Vision Evaluation' }
+  { img: '/cs_video/scene_procedure.png', duration: 4000, title: 'Title', text: 'Slit Lamp Examination in Contact Lens Practice', subtitle: 'Detailed Eye Examination' },
+  { img: '/cs_video/scene_clinic.png', duration: 6000, title: 'Aim of the Examination', text: 'This examination evaluates the fit of contact lenses and the health of the anterior segment of the eye.', subtitle: 'Lens Fit & Eye Health' },
+  { img: '/cs_video/scene_procedure.png', duration: 10000, title: 'Instrument Overview', text: 'The slit lamp is a microscope combined with a bright light source for detailed examination of eye structures.', subtitle: 'Microscope + Light' },
+  { img: '/cs_video/scene_clinic.png', duration: 10000, title: 'Patient Positioning', text: 'The patient places their chin on the rest and forehead against the support while looking straight ahead.', subtitle: 'Stable Position' },
+  { img: '/cs_video/scene_procedure.png', duration: 15000, title: 'Lens Fit Evaluation', text: 'The examiner observes the contact lens for centration, movement, and coverage on the cornea.', subtitle: 'Centration • Movement • Coverage' },
+  { img: '/cs_video/scene_clinic.png', duration: 10000, title: 'Tear Film Assessment', text: 'The tear film is evaluated to ensure proper lubrication and lens comfort.', subtitle: 'Tear Stability' },
+  { img: '/cs_video/scene_procedure.png', duration: 10000, title: 'Corneal Examination', text: 'The cornea is examined for any signs of staining, edema, or damage caused by lens wear.', subtitle: 'Check Cornea' },
+  { img: '/cs_video/scene_clinic.png', duration: 10000, title: 'Conjunctiva & Lids', text: 'The conjunctiva and eyelids are inspected for redness, irritation, or deposits.', subtitle: 'Check for Irritation' },
+  { img: '/cs_video/scene_procedure.png', duration: 10000, title: 'Interpretation', text: 'Abnormal findings may indicate poor lens fit, dry eye, or infection requiring immediate attention.', subtitle: 'Detect Problems' },
+  { img: '/cs_video/scene_clinic.png', duration: 5000, title: 'Conclusion', text: 'Slit lamp examination ensures safe and effective contact lens wear.', subtitle: 'Safe Lens Use' }
 ];
 
-export default function FunctionalVisionVideo({ onClose, onStartTest }) {
+export default function SlitLampExamCLVideo({ onClose, onStartTest }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentScene, setCurrentScene] = useState(0);
@@ -83,7 +83,7 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
   const progressPercent = ((currentScene) / SCRIPT.length) * 100;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col md:items-center md:justify-center bg-[#020617] md:bg-black/95 md:backdrop-blur-xl overflow-y-auto md:overflow-hidden">
+    <div className="fixed inset-0 z-[200] flex flex-col md:items-center md:justify-center bg-[#020617] md:bg-black/95 md:backdrop-blur-xl overflow-y-auto md:overflow-hidden font-sans">
       {/* Mobile Top Header */}
       <div className="md:hidden flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0a0f1d]">
         <button onClick={onClose} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
@@ -91,15 +91,12 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
         </button>
         <div className="flex flex-col items-center">
           <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-0.5">Clinical Module</span>
-          <h1 className="text-sm font-bold text-white tracking-widest uppercase flex items-center gap-2">
-            Clinical Hub
-          </h1>
+          <h1 className="text-sm font-bold text-white tracking-widest uppercase">Clinical Hub</h1>
         </div>
         <div className="w-10" />
       </div>
 
       <div className="relative w-full aspect-video md:max-w-6xl md:rounded-3xl overflow-hidden md:ring-1 md:ring-white/10 md:shadow-2xl shadow-indigo-500/10 shrink-0">
-        {/* Desktop Close Button */}
         <button 
           onClick={onClose}
           className="hidden md:flex absolute top-6 right-6 z-50 p-3 bg-white/10 hover:bg-red-500 hover:text-white rounded-full backdrop-blur-md transition-all text-white/70"
@@ -135,17 +132,17 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
         )}
 
         {!isPlaying && currentScene === 0 && (
-          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 bg-[url('/fv_video/fv_reading.svg')] bg-cover bg-center">
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 bg-[url('/cs_video/scene_clinic.png')] bg-cover bg-center">
             <div className="absolute inset-0 bg-[#020617]/90 backdrop-blur-sm" />
             <div className="relative z-10 flex flex-col items-center text-center p-8">
               <div className="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center border border-indigo-500/30 mb-8 border-t-indigo-400 animate-spin" style={{ animationDuration: '3s' }}>
                 <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}>
-                  <Eye className="text-indigo-400 animate-pulse" size={32} />
+                  <Zap className="text-indigo-400 animate-pulse" size={32} />
                 </div>
               </div>
-              <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.4em] mb-4">Rehabilitation Module</span>
-              <h2 className="text-2xl md:text-5xl text-white font-black mb-4 tracking-tighter uppercase italic">Functional Vision</h2>
-              <p className="text-slate-400 font-medium max-w-lg mb-10 leading-relaxed text-sm md:text-base">An immersive clinical module demonstrating real-world vision performance, daily task assessments, and low vision rehabilitation.</p>
+              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-4">Precision Diagnostics</span>
+              <h2 className="text-2xl md:text-5xl text-white font-black mb-4 tracking-tighter uppercase italic">Slit Lamp Examination</h2>
+              <p className="text-slate-400 font-medium max-w-lg mb-10 leading-relaxed text-sm md:text-base">Comprehensive anterior segment evaluation and cross-sectional lens fitting analysis using advanced biomicroscopy techniques.</p>
               <button 
                 onClick={handleStart}
                 className="group bg-indigo-500 hover:bg-white hover:text-indigo-500 text-white px-10 py-5 rounded-2xl font-black shadow-2xl shadow-indigo-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-4 uppercase tracking-[0.2em] text-xs md:text-sm"
@@ -170,7 +167,7 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
                 src={currentData.img}
                 alt="Scene"
                 className="w-full h-full object-contain"
-                animate={currentData.img.includes('svg') ? { scale: [1, 1.05] } : { scale: [1, 1.1], x: [0, -20], y: [0, -10] }}
+                animate={{ scale: [1, 1.1], x: [0, -20], y: [0, -10] }}
                 transition={{ duration: 15, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90" />
@@ -190,9 +187,7 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
             >
               <div className="bg-black/60 backdrop-blur-2xl p-6 md:p-10 rounded-[2rem] border border-white/5 shadow-2xl">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-2 md:gap-4 mb-4">
-                  <h3 className="text-indigo-400 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">
-                    Holistic View: {currentData.title}
-                  </h3>
+                  <h3 className="text-indigo-400 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs italic">Step {currentScene + 1}: {currentData.title}</h3>
                   <span className="text-emerald-400 font-bold bg-emerald-400/10 px-3 py-0.5 rounded-lg text-[10px] border border-emerald-400/20">{currentData.subtitle}</span>
                 </div>
                 <p className="text-white text-lg md:text-3xl font-bold leading-tight md:leading-snug tracking-tight">{currentData.text}</p>
@@ -213,7 +208,6 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
         )}
       </div>
 
-      {/* Completion Section */}
       {!isPlaying && currentScene >= SCRIPT.length && (
         <div className="w-full md:max-w-6xl md:mt-6 bg-[#0a0f1d] md:rounded-[2.5rem] overflow-hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-10 duration-700">
           <div className="w-full md:hidden aspect-video relative overflow-hidden bg-slate-800">
@@ -222,9 +216,6 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 text-white shadow-2xl">
                   <Play size={32} className="fill-current ml-1" />
                 </div>
-             </div>
-             <div className="absolute top-4 right-4 p-2 bg-black/40 backdrop-blur-md rounded-lg border border-white/10">
-               <Maximize2 size={18} className="text-white/70" />
              </div>
           </div>
 
@@ -238,21 +229,17 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
                 <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter">Subject Assessment</h2>
               </div>
               <p className="text-slate-400 text-sm md:text-lg font-medium leading-relaxed max-w-2xl mb-10">
-                This assessment is related specifically to the clinical procedures demonstrated above. You have **10 clinical MCQs** to validate your understanding.
+                This assessment is related specifically to the Slit Lamp Examination procedures demonstrated above. You have **10 clinical MCQs** to validate your understanding.
               </p>
 
-              <div className="grid grid-cols-2 lg:flex items-center gap-6 md:gap-10 mb-10">
-                 <div className="flex items-center gap-3 text-slate-400">
-                   <Clock size={16} className="text-primary" />
+              <div className="grid grid-cols-2 lg:flex items-center gap-6 md:gap-10 mb-10 text-slate-400">
+                 <div className="flex items-center gap-3">
+                   <Clock size={16} className="text-indigo-500" />
                    <span className="text-xs font-bold uppercase tracking-wider">EST: 15 MINS</span>
                  </div>
-                 <div className="flex items-center gap-3 text-slate-400">
-                   <ClipboardCheck size={16} className="text-primary" />
+                 <div className="flex items-center gap-3">
+                   <ClipboardCheck size={16} className="text-indigo-500" />
                    <span className="text-xs font-bold uppercase tracking-wider">10 QUESTIONS</span>
-                 </div>
-                 <div className="flex items-center gap-3 text-slate-400 col-span-2 lg:col-span-1">
-                   <Award size={16} className="text-primary" />
-                   <span className="text-xs font-bold uppercase tracking-wider">REQUIRED: 5/10</span>
                  </div>
               </div>
 
@@ -275,9 +262,9 @@ export default function FunctionalVisionVideo({ onClose, onStartTest }) {
             <div className="hidden lg:flex flex-col gap-6 w-80 shrink-0">
               <div className="glass-card p-6 bg-indigo-500/5 border-indigo-500/20 rounded-3xl">
                 <h4 className="text-white font-bold mb-2 italic flex items-center gap-2">
-                  <Award size={16} className="text-indigo-400" /> Patient Progress
+                  <Award size={16} className="text-indigo-400" /> Exam Pearl
                 </h4>
-                <p className="text-xs text-slate-400 leading-relaxed font-medium">Functional vision isn't just about reading the 20/20 line. It's about how the patient interacts with their world. Success is measured by the patient's ability to safely return to their core activities of daily living.</p>
+                <p className="text-xs text-slate-400 leading-relaxed font-medium">Always use a parallelepiped illumination (1-2mm width) for general corneal assessment, and an optical section (0.1mm width) for grading corneal depth or locating an infiltrate.</p>
               </div>
             </div>
           </div>

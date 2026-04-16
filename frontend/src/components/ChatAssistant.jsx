@@ -377,7 +377,7 @@ function ChatAssistantInner() {
                   </button>
                 </div>
                 <p className="text-[10px] text-slate-600 text-center mt-2 font-medium">
-                  Powered by Gemini AI · EyeCare Portal
+                  Powered by Gemini AI · CLINICAL HUB
                 </p>
               </div>
             </div>

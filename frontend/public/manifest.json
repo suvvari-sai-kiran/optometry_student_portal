@@ -1,7 +1,7 @@
 {
-  "name": "Clinical Hub",
-  "short_name": "OptometryApp",
-  "description": "The ultimate educational suite for Optometry students",
+  "name": "CLINICAL HUB",
+  "short_name": "ClinicalHub",
+  "description": "Advanced Clinical Optometry Suite",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
