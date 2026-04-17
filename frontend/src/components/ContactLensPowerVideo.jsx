@@ -47,7 +47,16 @@ export default function ContactLensPowerVideo({ onClose, onStartTest }) {
 
   const handleStart = () => { if (currentScene >= SCRIPT.length) setCurrentScene(0); setIsPlaying(true); setIsPaused(false); };
   const handleStop = () => { setIsPlaying(false); setIsPaused(false); setCurrentScene(0); speechSynthesis.cancel(); };
-  const data = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
+  
+  const handleSeek = (e) => {
+    if (!isPlaying) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    const newScene = Math.floor(percentage * SCRIPT.length);
+    setCurrentScene(Math.max(0, Math.min(newScene, SCRIPT.length - 1)));
+  };
+const data = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
   const isFinished = !isPlaying && currentScene >= SCRIPT.length;
   const isIdle = !isPlaying && currentScene === 0;
 
@@ -68,11 +77,7 @@ export default function ContactLensPowerVideo({ onClose, onStartTest }) {
         </div>
       </div>
 
-      {isPlaying && (
-        <div className="shrink-0 h-[3px] bg-white/8">
-          <motion.div className={`h-full ${A.bar} ${A.glow}`} initial={{ width: `${(currentScene / SCRIPT.length) * 100}%` }} animate={{ width: `${((currentScene + 1) / SCRIPT.length) * 100}%` }} transition={{ duration: (SCRIPT[currentScene]?.duration ?? 5000) / 1000, ease: 'linear' }} />
-        </div>
-      )}
+      
 
       <div className="flex-1 overflow-y-auto">
         <div className="relative w-full bg-[#0d1117]" style={{ aspectRatio: '16/9' }}>
@@ -99,7 +104,30 @@ export default function ContactLensPowerVideo({ onClose, onStartTest }) {
               </motion.div>
             )}
           </AnimatePresence>
-          {isPlaying && <div className="absolute top-2.5 left-3 z-10 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded-md border border-white/10"><span className="text-[10px] font-bold text-white/60">{currentScene + 1} / {SCRIPT.length}</span></div>}
+          
+          {isPlaying && (
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-4 bg-black/80 flex z-[60] group cursor-pointer border-t border-white/10"
+              onClick={handleSeek}
+              title="Click to skip"
+            >
+              {SCRIPT.map((scene, idx) => (
+                <div key={idx} className="flex-1 h-full border-r border-black/40 relative group/seek">
+                  {idx < currentScene && <div className={`absolute inset-0 ${A.bar}`} />}
+                  {idx === currentScene && (
+                    <motion.div 
+                      className={`absolute left-0 top-0 bottom-0 ${A.bar} ${A.glow}`}
+                      initial={{ width: 0 }} 
+                      animate={{ width: '100%' }} 
+                      transition={{ duration: (scene.duration ?? 5000) / 1000, ease: 'linear' }} 
+                    />
+                  )}
+                  {/* Hover indicator */}
+                  <div className="absolute inset-0 hover:bg-white/30 transition-colors" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <AnimatePresence mode="wait">

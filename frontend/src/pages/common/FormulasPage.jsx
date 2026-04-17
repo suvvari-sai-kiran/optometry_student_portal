@@ -178,7 +178,7 @@ export default function FormulasPage() {
     const dp = parseFloat(addState.distPower);
     if (isNaN(wd) || isNaN(dp)) return;
     const res = (100 / wd) - dp;
-    setResult(`Required Add = +${res.toFixed(2)} D`);
+    setResult(`Required Add = ${res > 0 ? '+' : ''}${res.toFixed(2)} D`);
     setInsight({ type: 'success', text: "Near addition calculated based on working distance and distance power." });
   };
 

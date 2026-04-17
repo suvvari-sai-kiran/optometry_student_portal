@@ -47,7 +47,16 @@ export default function AmslerGridVideo({ onClose, onStartTest }) {
   const handleStart = () => { if (currentScene >= SCRIPT.length) setCurrentScene(0); setIsPlaying(true); setIsPaused(false); };
   const handleStop = () => { setIsPlaying(false); setIsPaused(false); setCurrentScene(0); speechSynthesis.cancel(); };
 
-  const data = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
+  
+  const handleSeek = (e) => {
+    if (!isPlaying) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    const newScene = Math.floor(percentage * SCRIPT.length);
+    setCurrentScene(Math.max(0, Math.min(newScene, SCRIPT.length - 1)));
+  };
+const data = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
   const isFinished = !isPlaying && currentScene >= SCRIPT.length;
   const isIdle = !isPlaying && currentScene === 0;
 
@@ -80,15 +89,7 @@ export default function AmslerGridVideo({ onClose, onStartTest }) {
       </div>
 
       {/* ── Progress Bar (flush, no gap) ── */}
-      {isPlaying && (
-        <div className="shrink-0 h-[3px] bg-white/8">
-          <motion.div className={`h-full ${ACCENT.progress} ${ACCENT.glow}`}
-            initial={{ width: `${(currentScene / SCRIPT.length) * 100}%` }}
-            animate={{ width: `${((currentScene + 1) / SCRIPT.length) * 100}%` }}
-            transition={{ duration: (SCRIPT[currentScene]?.duration ?? 5000) / 1000, ease: 'linear' }}
-          />
-        </div>
-      )}
+      
 
       {/* ── Scrollable Body ── */}
       <div className="flex-1 overflow-y-auto">

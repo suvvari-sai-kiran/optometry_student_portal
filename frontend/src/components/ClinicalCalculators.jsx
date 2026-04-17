@@ -114,8 +114,8 @@ export default function ClinicalCalculators() {
   // 5. Dispensing (Lens Thickness)
   const [dispThick, setDispThick] = useState({ p: '', d: '' });
   const calcThick = () => {
-    const t = ((Math.abs(parseFloat(dispThick.p)) * Math.pow(parseFloat(dispThick.d)/10, 2)) / 3).toFixed(2);
-    return { res: `${t} mm`, text: `Estimated additional thickness due to ${dispThick.p}D power and ${dispThick.d}mm diameter is approximately ${t}mm.` };
+    const t = ((Math.abs(parseFloat(dispThick.p)) * Math.pow(parseFloat(dispThick.d), 2)) / 4000).toFixed(2);
+    return { res: `${t} mm`, text: `Estimated sagittal thickness (clump) due to ${dispThick.p}D power and ${dispThick.d}mm diameter is approximately ${t}mm.` };
   };
 
   return (
@@ -303,7 +303,7 @@ export default function ClinicalCalculators() {
                </button>
             </div>
             <CalcCard 
-              id="disp_thick" title="Lens Thickness Estimate" formula="t \u2248 (P \u00D7 (D/10)\u00B2) / 3"
+              id="disp_thick" title="Lens Thickness Estimate" formula="t \u2248 (P \u00D7 D\u00B2) / 4000"
               inputs={[
                 { label: 'Lens Power', val: dispThick.p, set: (v)=>setDispThick({...dispThick, p: v}), unit: 'D' },
                 { label: 'Diameter', val: dispThick.d, set: (v)=>setDispThick({...dispThick, d: v}), unit: 'mm' }

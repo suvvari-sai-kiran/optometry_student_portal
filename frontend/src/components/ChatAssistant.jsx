@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, Component } from 'react';
-import { MessageSquare, X, Send, Bot, Paperclip, Sparkles, User, AlertTriangle } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, Paperclip, Sparkles, User, AlertTriangle, Maximize2, Minimize2 } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -91,6 +91,7 @@ function TypingDots() {
 /* ─── Main Component ─────────────────────────────────────────── */
 function ChatAssistantInner() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -215,12 +216,20 @@ function ChatAssistantInner() {
             exit={{ opacity: 0, y: 80, scale: 0.92 }}
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
             style={{ zIndex: 9999, transformOrigin: 'bottom right' }}
-            className="fixed bottom-8 right-8 w-[92vw] md:w-[420px] flex flex-col overflow-hidden shadow-2xl"
+            className={`fixed flex flex-col overflow-hidden shadow-2xl transition-all duration-300 ${
+              isExpanded
+                ? 'bottom-0 left-0 right-0 w-full md:bottom-8 md:right-8 md:left-auto md:w-[600px] z-[9999]'
+                : 'bottom-4 left-4 w-[65vw] md:bottom-8 md:right-8 md:left-auto md:w-[420px] z-[9999]'
+            }`}
             aria-label="EyeCare AI Chat"
           >
             {/* Glassmorphic container */}
             <div
-              className="flex flex-col h-[580px] max-h-[85vh] rounded-2xl overflow-hidden"
+              className={`flex flex-col overflow-hidden transition-all duration-300 ${
+                isExpanded
+                  ? 'h-[100dvh] md:h-[80vh] rounded-none md:rounded-2xl'
+                  : 'h-[65vh] md:h-[580px] md:max-h-[85vh] rounded-2xl'
+              }`}
               style={{
                 background: 'rgba(15, 23, 42, 0.92)',
                 backdropFilter: 'blur(24px)',
@@ -244,6 +253,13 @@ function ChatAssistantInner() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    title={isExpanded ? "Minimize" : "Expand"}
+                    className="p-2 hover:bg-white/15 rounded-lg transition-colors text-white/60 hover:text-white"
+                  >
+                    {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                  </button>
                   <button
                     onClick={clearChat}
                     title="Clear chat"

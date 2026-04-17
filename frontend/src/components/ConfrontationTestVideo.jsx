@@ -3,16 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, Square, ChevronLeft, Clock, ClipboardCheck, Award, RotateCcw, CheckCircle2, Eye } from 'lucide-react';
 
 const SCRIPT = [
-  { img: '/cs_video/scene_clinic.png', duration: 4000, title: 'Title', text: 'Confrontation Visual Field Test', subtitle: 'Assessment of Peripheral Vision' },
-  { img: '/cs_video/scene_procedure.png', duration: 6000, title: 'Aim of the Test', text: 'The confrontation test is used to assess the patient\'s peripheral vision and detect any visual field defects.', subtitle: 'Checks Peripheral Vision' },
-  { img: '/cs_video/scene_clinic.png', duration: 8000, title: 'Positioning', text: 'The patient and examiner sit facing each other at eye level, at a distance of approximately one meter.', subtitle: 'Distance: 1 meter' },
-  { img: '/cs_video/scene_procedure.png', duration: 8000, title: 'Eye Occlusion', text: 'The patient covers one eye while the examiner closes the opposite eye to compare the visual fields.', subtitle: 'Opposite eyes used' },
-  { img: '/cs_video/scene_clinic.png', duration: 8000, title: 'Fixation', text: 'The patient is asked to look directly at the examiner\'s open eye and maintain steady focus.', subtitle: 'Maintain fixation' },
-  { img: '/cs_video/scene_procedure.png', duration: 14000, title: 'Testing Procedure', text: 'The examiner moves fingers from the peripheral field toward the center in all directions—superior, inferior, nasal, and temporal.', subtitle: 'All directions tested' },
-  { img: '/cs_video/scene_clinic.png', duration: 10000, title: 'Patient Response', text: 'The patient indicates immediately when the object is first seen, either by speaking or raising a hand.', subtitle: 'Respond when seen' },
-  { img: '/cs_video/scene_procedure.png', duration: 6000, title: 'Repeat for Other Eye', text: 'The same procedure is repeated for the other eye.', subtitle: 'Repeat test' },
-  { img: '/cs_video/scene_chart.png', duration: 11000, title: 'Interpretation', text: 'If the patient fails to detect the object in certain areas, it may indicate visual field loss or neurological defects.', subtitle: 'Detects abnormalities' },
-  { img: '/cs_video/scene_clinic.png', duration: 5000, title: 'Conclusion', text: 'The confrontation test is a simple and effective screening method used in routine eye examinations.', subtitle: 'Quick Screening Tool' },
+  { img: '/confrontation_face.png', duration: 3000, title: 'Visual Field Test', text: 'Confrontation Visual Field Test.', subtitle: 'Introduction' },
+  { img: '/cs_video/scene_chart.png', duration: 4000, title: '', text: 'Used to assess peripheral vision.', subtitle: 'Peripheral Vision' },
+  { img: '/confrontation_face.png', duration: 5000, title: '', text: 'Patient and examiner sit opposite each other.', subtitle: 'Eye Level' },
+  { img: '/confrontation_cover.png', duration: 6000, title: '', text: 'One eye is covered. The other eye focuses on examiner.', subtitle: 'Cover One Eye' },
+  { img: '/confrontation_finger.png', duration: 8000, title: '', text: 'Examiner moves fingers from the side toward center.', subtitle: 'Peripheral → Center' },
+  { img: '/confrontation_face.png', duration: 6000, title: '', text: 'Patient reports when the target is first seen.', subtitle: 'Response' },
+  { img: '/confrontation_finger.png', duration: 6000, title: '', text: 'Test is repeated in all directions.', subtitle: 'All Fields' },
+  { img: '/confrontation_cover.png', duration: 6000, title: '', text: 'Repeat the test for the other eye.', subtitle: 'Testing Setup' },
+  { img: '/cs_video/scene_clinic.png', duration: 8000, title: '', text: 'Delayed or absent response indicates field defect.', subtitle: 'Field Loss' },
+  { img: '/cs_video/scene_chart.png', duration: 6000, title: '', text: 'Simple method to screen visual field defects.', subtitle: 'Screening Test' }
 ];
 
 const A = { bar: 'bg-amber-500', glow: 'shadow-[0_0_18px_rgba(245,158,11,0.7)]', lbl: 'text-amber-400', bright: 'text-amber-500', btn: 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/25', spin: 'bg-amber-500/20', bdr: 'border-amber-500/30 border-t-amber-400', note: 'bg-amber-500/5 border-amber-500/15', nIcon: 'text-amber-400' };
@@ -47,6 +47,14 @@ export default function ConfrontationTestVideo({ onClose, onStartTest }) {
 
   const handleStart = () => { if (currentScene >= SCRIPT.length) setCurrentScene(0); setIsPlaying(true); setIsPaused(false); };
   const handleStop = () => { setIsPlaying(false); setIsPaused(false); setCurrentScene(0); speechSynthesis.cancel(); };
+  const handleSeek = (e) => {
+    if (!isPlaying) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    const newScene = Math.floor(percentage * SCRIPT.length);
+    setCurrentScene(Math.max(0, Math.min(newScene, SCRIPT.length - 1)));
+  };
   const data = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
   const isFinished = !isPlaying && currentScene >= SCRIPT.length;
   const isIdle = !isPlaying && currentScene === 0;
@@ -56,7 +64,7 @@ export default function ConfrontationTestVideo({ onClose, onStartTest }) {
       <div className="shrink-0 flex items-center justify-between px-4 py-3 bg-[#0a0f1d]/95 backdrop-blur-sm border-b border-white/5 z-30">
         <button onClick={onClose} className="flex items-center gap-1.5 p-2 -ml-1 text-slate-400 active:text-white"><ChevronLeft size={20} /></button>
         <div className="text-center">
-          <p className={`text-[9px] font-black uppercase tracking-[0.25em] ${A.bright}`}>Initial Concept</p>
+          <p className={`text-[9px] font-black uppercase tracking-[0.25em] ${A.bright}`}>Diagnostic Phase</p>
           <h1 className="text-[13px] font-bold text-white uppercase tracking-wide">Confrontation Test</h1>
         </div>
         <div className="flex items-center gap-1">
@@ -68,14 +76,8 @@ export default function ConfrontationTestVideo({ onClose, onStartTest }) {
         </div>
       </div>
 
-      {isPlaying && (
-        <div className="shrink-0 h-[3px] bg-white/8">
-          <motion.div className={`h-full ${A.bar} ${A.glow}`} initial={{ width: `${(currentScene / SCRIPT.length) * 100}%` }} animate={{ width: `${((currentScene + 1) / SCRIPT.length) * 100}%` }} transition={{ duration: (SCRIPT[currentScene]?.duration ?? 5000) / 1000, ease: 'linear' }} />
-        </div>
-      )}
-
       <div className="flex-1 overflow-y-auto">
-        <div className="relative w-full bg-[#0d1117]" style={{ aspectRatio: '16/9' }}>
+        <div className="relative w-full bg-[#0d1117] flex flex-col" style={{ aspectRatio: '16/9' }}>
           <AnimatePresence>
             {isIdle && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center bg-[#020617] px-6 text-center z-20">
@@ -84,30 +86,65 @@ export default function ConfrontationTestVideo({ onClose, onStartTest }) {
                     <Eye className={`${A.lbl} animate-pulse`} size={20} />
                   </div>
                 </div>
-                <p className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1.5 ${A.bright}`}>Initial Concept</p>
+                <p className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1.5 ${A.bright}`}>Diagnostic Phase</p>
                 <h2 className="text-lg sm:text-2xl text-white font-black tracking-tight uppercase italic mb-2">Confrontation Test</h2>
-                <p className="text-slate-400 text-xs max-w-xs mb-5 leading-relaxed">Standard assessment of peripheral vision and visual field boundaries.</p>
-                <button onClick={handleStart} className={`${A.btn} active:scale-95 text-white px-7 py-3 rounded-xl font-black shadow-xl text-xs uppercase tracking-[0.15em] flex items-center gap-2 transition-all`}><Play size={14} className="fill-current" /> Launch Simulation</button>
+                <p className="text-slate-400 text-xs max-w-xs mb-5 leading-relaxed">Clinical module demonstrating the peripheral visual field evaluation process.</p>
+                <button onClick={handleStart} className={`${A.btn} active:scale-95 text-[#0f172a] px-7 py-3 rounded-xl font-black shadow-xl text-xs uppercase tracking-[0.15em] flex items-center gap-2 transition-all`}><Play size={14} className="fill-current" /> Launch Simulation</button>
               </motion.div>
             )}
           </AnimatePresence>
+          
           <AnimatePresence mode="wait">
             {(isPlaying || (currentScene > 0 && currentScene < SCRIPT.length)) && (
-              <motion.div key={currentScene} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }} className="absolute inset-0">
-                <motion.img src={data.img} alt="Scene" className="w-full h-full object-cover" animate={{ scale: [1, 1.04] }} transition={{ duration: 13, repeat: Infinity, repeatType: 'reverse', ease: 'linear' }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent" />
+              <motion.div key={currentScene} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }} className="absolute inset-0 overflow-hidden flex flex-col justify-end">
+                <motion.img src={data.img || data.image} alt="Scene" className="absolute inset-0 w-full h-full object-cover z-0" animate={{ scale: [1, 1.04] }} transition={{ duration: 13, repeat: Infinity, repeatType: 'reverse', ease: 'linear' }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-black/20 to-transparent z-10" />
+                
+                {isPlaying && data.title && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative z-20 pb-8 px-6 text-center w-full"
+                  >
+                    <span className="text-lg sm:text-2xl font-black text-white bg-black/50 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10 shadow-2xl tracking-wide uppercase block w-fit mx-auto">
+                      {data.title}
+                    </span>
+                  </motion.div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
-          {isPlaying && <div className="absolute top-2.5 left-3 z-10 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded-md border border-white/10"><span className="text-[10px] font-bold text-white/60">{currentScene + 1} / {SCRIPT.length}</span></div>}
+          
+          {isPlaying && (
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-4 bg-black/80 flex z-[60] group cursor-pointer border-t border-white/10"
+              onClick={handleSeek}
+              title="Click to skip"
+            >
+              {SCRIPT.map((scene, idx) => (
+                <div key={idx} className="flex-1 h-full border-r border-black/40 relative group/seek">
+                  {idx < currentScene && <div className={`absolute inset-0 ${A.bar}`} />}
+                  {idx === currentScene && (
+                    <motion.div 
+                      className={`absolute left-0 top-0 bottom-0 ${A.bar} ${A.glow}`}
+                      initial={{ width: 0 }} 
+                      animate={{ width: '100%' }} 
+                      transition={{ duration: (scene.duration ?? 5000) / 1000, ease: 'linear' }} 
+                    />
+                  )}
+                  <div className="absolute inset-0 hover:bg-white/30 transition-colors" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <AnimatePresence mode="wait">
           {isPlaying && (
             <motion.div key={`t-${currentScene}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: 0.15 }} className="bg-[#020617] px-4 pt-3 pb-4 sm:px-6 sm:pt-4 sm:pb-5">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <span className={`text-[9px] font-black uppercase tracking-[0.28em] ${A.lbl}`}>{data.title}</span>
-                <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md border border-emerald-400/20 whitespace-nowrap">{data.subtitle}</span>
+                <span className={`text-[9px] font-black uppercase tracking-[0.28em] ${A.lbl}`}>{data.subtitle}</span>
+                <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md border border-emerald-400/20 whitespace-nowrap">Clinical Step</span>
               </div>
               <p className="text-white text-[15px] sm:text-lg font-bold leading-snug">{data.text}</p>
             </motion.div>
@@ -115,14 +152,14 @@ export default function ConfrontationTestVideo({ onClose, onStartTest }) {
         </AnimatePresence>
 
         {isFinished && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="px-4 pt-4 pb-6 sm:px-6">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="px-4 pt-4 pb-6 sm:px-6 text-left">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-9 h-9 bg-emerald-500/15 rounded-lg flex items-center justify-center shrink-0"><CheckCircle2 size={19} className="text-emerald-400" /></div>
               <div><p className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.28em]">Module Complete</p><h2 className="text-lg font-black text-white">Subject Assessment</h2></div>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed mb-4">Test your knowledge on peripheral vision assessment with <strong className="text-white">10 clinical MCQs</strong>.</p>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">Validate your knowledge on the confrontation visual field testing procedure with <strong className="text-white">10 clinical MCQs</strong>.</p>
             <div className="flex flex-wrap gap-3 mb-4">
-              {[{ icon: Clock, label: 'Est. 15 mins' }, { icon: ClipboardCheck, label: '10 Questions' }, { icon: Award, label: 'Pass: 5/10' }].map(({ icon: Icon, label }) => (
+              {[{ icon: Clock, label: 'Est. 10 mins' }, { icon: ClipboardCheck, label: '10 Questions' }, { icon: Award, label: 'Pass: 5/10' }].map(({ icon: Icon, label }) => (
                 <div key={label} className="flex items-center gap-1.5 text-slate-400"><Icon size={12} className={A.lbl} /><span className="text-[10px] font-bold uppercase tracking-wide">{label}</span></div>
               ))}
             </div>
@@ -131,8 +168,12 @@ export default function ConfrontationTestVideo({ onClose, onStartTest }) {
               <button onClick={handleStart} className="flex-1 sm:flex-none bg-white/6 text-white active:scale-[0.98] px-4 py-3.5 rounded-xl font-bold text-xs border border-white/10 flex items-center justify-center gap-2"><RotateCcw size={13} /> Watch Again</button>
             </div>
             <div className={`mt-4 p-3.5 ${A.note} rounded-xl border`}>
-              <h4 className="text-white font-bold text-xs mb-1 flex items-center gap-1.5"><Eye size={12} className={A.nIcon} /> Focus Point</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">During confrontation, ensure the patient maintains fixation on your eye. Any deviation can lead to a false positive result in the peripheral field assessment.</p>
+              <h4 className="text-white font-bold text-xs mb-1 flex items-center gap-1.5"><Eye size={12} className={A.nIcon} /> Pro Tips</h4>
+              <ul className="text-slate-400 text-xs leading-relaxed list-disc list-inside mt-2 space-y-1">
+                 <li>Ensure standard 1 meter face-to-face distance</li>
+                 <li>Wiggle fingers subtly; do not make large sweeping movements</li>
+                 <li>Watch patient's eyes to ensure they don't break fixation</li>
+              </ul>
             </div>
           </motion.div>
         )}

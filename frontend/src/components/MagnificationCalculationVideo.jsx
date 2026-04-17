@@ -75,7 +75,16 @@ export default function MagnificationCalculationVideo({ onClose, onStartTest }) 
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
   };
 
-  const currentData = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
+  
+  const handleSeek = (e) => {
+    if (!isPlaying) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    const newScene = Math.floor(percentage * SCRIPT.length);
+    setCurrentScene(Math.max(0, Math.min(newScene, SCRIPT.length - 1)));
+  };
+const currentData = SCRIPT[Math.min(currentScene, SCRIPT.length - 1)];
   const progressPercent = (currentScene / SCRIPT.length) * 100;
   const isFinished = !isPlaying && currentScene >= SCRIPT.length;
   const isIdle = !isPlaying && currentScene === 0;

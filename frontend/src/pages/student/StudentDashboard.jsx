@@ -31,6 +31,12 @@ import LensTypeIDVideo from '../../components/LensTypeIDVideo';
 import OpticalCenterAlignmentVideo from '../../components/OpticalCenterAlignmentVideo';
 import LensThicknessCalculationVideo from '../../components/LensThicknessCalculationVideo';
 import FrameAdjustmentTechniquesVideo from '../../components/FrameAdjustmentTechniquesVideo';
+import NearPointConvergenceVideo from '../../components/NearPointConvergenceVideo';
+import CoverTestVideo from '../../components/CoverTestVideo';
+import WorthFourDotTestVideo from '../../components/WorthFourDotTestVideo';
+import RetinoscopyVideo from '../../components/RetinoscopyVideo';
+import SubjectiveRefractionVideo from '../../components/SubjectiveRefractionVideo';
+import CylindricalAxisRefinementVideo from '../../components/CylindricalAxisRefinementVideo';
 import BASE_URL from '../../api/config';
 import PatientsView from './PatientsView';
 
@@ -74,6 +80,12 @@ export default function StudentDashboard() {
   const [isOCAVideoOpen, setIsOCAVideoOpen] = useState(false);
   const [isLTCVideoOpen, setIsLTCVideoOpen] = useState(false);
   const [isFATVideoOpen, setIsFATVideoOpen] = useState(false);
+  const [isNPCVideoOpen, setIsNPCVideoOpen] = useState(false);
+  const [isCoverTestOpen, setIsCoverTestOpen] = useState(false);
+  const [isWorthTestOpen, setIsWorthTestOpen] = useState(false);
+  const [isRetinoscopyVideoOpen, setIsRetinoscopyVideoOpen] = useState(false);
+  const [isSubjectiveRefractionOpen, setIsSubjectiveRefractionOpen] = useState(false);
+  const [isCARVideoOpen, setIsCARVideoOpen] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -175,7 +187,8 @@ export default function StudentDashboard() {
     { id: -1, title: 'Corneal reflex test', videoUrl: 'https://drive.google.com/file/d/1udoojmzFB1tksQkZs6Qadu6hRyfjbMne/view?usp=sharing' },
     { id: -2, title: 'worth 4 dot test', videoUrl: 'https://drive.google.com/file/d/10rTKFKhJ1oCP_NOdtWVa-mpaCDWqOTgv/view?usp=sharing' },
     { id: -3, title: 'maddox wing test', videoUrl: 'https://drive.google.com/file/d/16SGk5cNUEAjZRauEhkwtIE9DQgEL8rkw/view?usp=sharing' },
-    { id: -4, title: 'near point accommodation', videoUrl: 'https://drive.google.com/file/d/1-RjZBOpYuezVx7d2H0wUOHiG5QMT7X3-/view?usp=sharing' }
+    { id: -4, title: 'near point accommodation', videoUrl: 'https://drive.google.com/file/d/1-RjZBOpYuezVx7d2H0wUOHiG5QMT7X3-/view?usp=sharing' },
+    { id: -5, title: 'near point convergence', videoUrl: 'https://example.com/npc-test' }
   ];
 
   const visibleTests = useMemo(() => {
@@ -535,28 +548,7 @@ export default function StudentDashboard() {
               </header>
 
               <div className="grid grid-cols-1 gap-4">
-                {selectedCourse?.id === -1 && (
-                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-amber-500/30 transition-all ring-1 ring-white/5 bg-amber-500/5 mb-4">
-                    <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center border border-amber-500/30">
-                        <PlayCircle className="text-amber-400" size={24} />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-white mb-1">Confrontation Test Tutorial</h4>
-                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
-                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
-                          <span className="flex items-center gap-1"><Eye size={12} /> Peripheral Vision Basics</span>
-                        </p>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => setIsCTVideoOpen(true)}
-                      className="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
-                    >
-                      Watch Tutorial
-                    </button>
-                  </div>
-                )}
+
                 {(selectedCourse?.id === courses[1]?.id || selectedCourse?.title?.toLowerCase()?.includes('macular') || selectedCourse?.title?.toLowerCase()?.includes('retina')) && (
                   <>
                     <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-blue-500/30 transition-all ring-1 ring-white/5 bg-blue-500/5 mb-4">
@@ -988,6 +980,159 @@ export default function StudentDashboard() {
                         Watch Tutorial
                       </button>
                     </div>
+                  </>
+                )}
+                {selectedCourse?.title?.toLowerCase()?.includes('binocular') && (
+                  <>
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-violet-500/30 transition-all ring-1 ring-white/5 bg-violet-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-violet-500/20 rounded-2xl flex items-center justify-center border border-violet-500/30">
+                        <PlayCircle className="text-violet-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Cover Test Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Strabismus Evaluation</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsCoverTestOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+                  
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-sky-500/30 transition-all ring-1 ring-white/5 bg-sky-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-sky-500/20 rounded-2xl flex items-center justify-center border border-sky-500/30">
+                        <PlayCircle className="text-sky-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Near Point of Convergence Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Binocular Vision Diagnostics</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsNPCVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+                  
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-amber-500/30 transition-all ring-1 ring-white/5 bg-amber-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center border border-amber-500/30">
+                        <PlayCircle className="text-amber-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Confrontation Test Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Peripheral Vision Basics</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsCTVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-emerald-500/30 transition-all ring-1 ring-white/5 bg-emerald-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                        <PlayCircle className="text-emerald-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Worth Four Dot Test Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Sensory Fusion</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsWorthTestOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+                  </>
+                )}
+                {selectedCourse?.title?.toLowerCase()?.includes('refraction') && (
+                  <>
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-rose-500/30 transition-all ring-1 ring-white/5 bg-rose-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-rose-500/20 rounded-2xl flex items-center justify-center border border-rose-500/30">
+                        <PlayCircle className="text-rose-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Retinoscopy Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Objective Refraction</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsRetinoscopyVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-blue-500/30 transition-all ring-1 ring-white/5 bg-blue-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                        <PlayCircle className="text-blue-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Subjective Refraction Tutorial</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> Visual Acuity Refinement</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsSubjectiveRefractionOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
+
+                  <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-indigo-500/30 transition-all ring-1 ring-white/5 bg-indigo-500/5 mb-4">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
+                        <PlayCircle className="text-indigo-400" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">Cylindrical Axis Refinement</h4>
+                        <p className="text-xs text-slate-500 font-bold flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock size={12} /> Interactive Video</span>
+                          <span className="flex items-center gap-1"><Eye size={12} /> JCC Technique</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsCARVideoOpen(true)}
+                      className="w-full md:w-auto bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-500 text-white font-black px-8 py-3 rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-105"
+                    >
+                      Watch Tutorial
+                    </button>
+                  </div>
                   </>
                 )}
                 {visibleTests.map(test => (
@@ -1462,6 +1607,30 @@ export default function StudentDashboard() {
       {isFATVideoOpen && <FrameAdjustmentTechniquesVideo 
         onClose={() => setIsFATVideoOpen(false)} 
         onStartTest={() => { setIsFATVideoOpen(false); startTest({ title: 'Frame Adjustment Techniques' }); }}
+      />}
+      {isNPCVideoOpen && <NearPointConvergenceVideo 
+        onClose={() => setIsNPCVideoOpen(false)} 
+        onStartTest={() => { setIsNPCVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isCoverTestOpen && <CoverTestVideo 
+        onClose={() => setIsCoverTestOpen(false)} 
+        onStartTest={() => { setIsCoverTestOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isWorthTestOpen && <WorthFourDotTestVideo 
+        onClose={() => setIsWorthTestOpen(false)} 
+        onStartTest={() => { setIsWorthTestOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isRetinoscopyVideoOpen && <RetinoscopyVideo 
+        onClose={() => setIsRetinoscopyVideoOpen(false)} 
+        onStartTest={() => { setIsRetinoscopyVideoOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isSubjectiveRefractionOpen && <SubjectiveRefractionVideo 
+        onClose={() => setIsSubjectiveRefractionOpen(false)} 
+        onStartTest={() => { setIsSubjectiveRefractionOpen(false); startAiRandomQuiz(); }}
+      />}
+      {isCARVideoOpen && <CylindricalAxisRefinementVideo 
+        onClose={() => setIsCARVideoOpen(false)} 
+        onStartTest={() => { setIsCARVideoOpen(false); startAiRandomQuiz(); }}
       />}
 
       {/* Loading Overlay */}
