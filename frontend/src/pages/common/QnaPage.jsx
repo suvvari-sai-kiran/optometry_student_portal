@@ -10,6 +10,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import BASE_URL from '../../api/config';
+import Footer from '../../components/Footer';
 
 export default function QnaPage() {
   const navigate = useNavigate();
@@ -356,6 +357,7 @@ export default function QnaPage() {
            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Accessing Neural Forum Nodes...</p>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

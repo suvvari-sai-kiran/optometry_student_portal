@@ -11,6 +11,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import BASE_URL from '../../api/config';
+import Footer from '../../components/Footer';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -791,6 +792,7 @@ export default function AdminDashboard() {
             </motion.div>
           )}
         </AnimatePresence>
+        <Footer />
       </main>
 
       {/* Loading Overlay */}

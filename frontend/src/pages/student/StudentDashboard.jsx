@@ -39,6 +39,7 @@ import SubjectiveRefractionVideo from '../../components/SubjectiveRefractionVide
 import CylindricalAxisRefinementVideo from '../../components/CylindricalAxisRefinementVideo';
 import BASE_URL from '../../api/config';
 import PatientsView from './PatientsView';
+import Footer from '../../components/Footer';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -1174,7 +1175,7 @@ export default function StudentDashboard() {
                       <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">Pre-Analysis Phase</p>
                       <h2 className="text-lg md:text-2xl font-bold text-white tracking-tight">{selectedTest?.title}</h2>
                    </div>
-                   <div className="w-10 h-10 md:w-12 md:h-12" /> {/* Spacer */}
+                   <div className="w-10 h-10 md:w-12 md:h-12"></div> {/* Spacer */}
                 </div>
 
                 <div className="glass-card overflow-hidden ring-4 ring-black/40">
@@ -1239,8 +1240,7 @@ export default function StudentDashboard() {
                <div className="w-full bg-white/5 h-2 rounded-full mb-10 overflow-hidden border border-white/5">
                   <div 
                     className="h-full bg-primary shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-500 rounded-full"
-                    style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
-                  />
+                    style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}></div>
                </div>
 
                <div className="glass-card p-6 md:p-10 border-white/5 ring-1 ring-white/5 relative overflow-hidden">
@@ -1309,7 +1309,7 @@ export default function StudentDashboard() {
           {view === 'result' && (
              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto space-y-6 md:space-y-10 py-6 md:py-10 p-4 md:p-0">
                 <div className="glass-card p-6 md:p-12 text-center border-emerald-500/20 relative overflow-hidden bg-gradient-to-b from-slate-900/50 to-slate-950/50">
-                   <div className="absolute top-0 inset-x-0 h-1 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+                   <div className="absolute top-0 inset-x-0 h-1 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]"></div>
                    
                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }} className="w-16 md:w-24 h-16 md:h-24 bg-emerald-500/10 rounded-2xl md:rounded-3xl flex items-center justify-center mx-auto mb-6 md:mb-8 border border-emerald-500/20 shadow-inner">
                       <Award className="text-emerald-400" size={32} />
@@ -1415,7 +1415,7 @@ export default function StudentDashboard() {
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
                                <div className="flex-1 h-1.5 w-16 bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-primary" style={{ width: `${(item.score / item.totalQuestions) * 100}%` }} />
+                                  <div className="h-full bg-primary" style={{ width: `${(item.score / item.totalQuestions) * 100}%` }}></div>
                                </div>
                                <span className="text-xs font-bold text-slate-400">{Math.round((item.score / item.totalQuestions) * 100)}%</span>
                             </div>
@@ -1521,7 +1521,7 @@ export default function StudentDashboard() {
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      
 
       {/* Video Modal Overlay */}
       {isVideoOpen && <VisualAcuityVideo 
@@ -1636,12 +1636,13 @@ export default function StudentDashboard() {
       {/* Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 bg-background z-[2000] flex flex-col items-center justify-center">
-           <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6 shadow-2xl shadow-primary/20" />
+           <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6 shadow-2xl shadow-primary/20"></div>
            <p className="text-slate-500 font-bold uppercase tracking-[0.2em] italic">Building your dashboard...</p>
         </div>
       )}
+      
+      <Footer />
+    </main>
     </div>
   );
 }
-
-const ArrowLeft = ({ size = 20, className = "" }) => <ChevronLeft size={size} className={className} />;

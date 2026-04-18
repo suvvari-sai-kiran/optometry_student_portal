@@ -7,6 +7,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ClinicalCalculators from '../../components/ClinicalCalculators';
+import Footer from '../../components/Footer';
 
 const FORMULA_LIBRARY = [
   {
@@ -673,7 +674,6 @@ export default function FormulasPage() {
         </footer>
       </div>
 
-
       <style jsx>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;
@@ -686,6 +686,7 @@ export default function FormulasPage() {
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
+      <Footer />
     </div>
   );
 }
